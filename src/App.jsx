@@ -42,7 +42,7 @@ export default function App() {
   return (
     <div
       className="h-screen w-screen overflow-hidden relative"
-      style={{ background: '#060609' }}
+      style={{ background: '#0a0a12' }}
     >
       {/* ── Background layers ── */}
       <StarField />

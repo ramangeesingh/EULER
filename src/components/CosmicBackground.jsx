@@ -16,12 +16,11 @@ export default function CosmicBackground() {
     resize();
     window.addEventListener('resize', resize);
 
-    let t = 0;
-    let animId;
+    let t = 0, animId;
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
-      t += 0.00022;
-      drawBlob(ctx, t, W, H);
+      t += 0.0007; // Smooth animation speed
+      drawScene(ctx, t, W, H);
       animId = requestAnimationFrame(draw);
     };
     draw();
@@ -40,203 +39,214 @@ export default function CosmicBackground() {
   );
 }
 
-/* ═══════════════════════════════════════════════════════════
-   BLOB RENDERER — strict reference replication
-
-   Reference material:
-   • Dense dark purple-black body (not transparent)
-   • Warm gold/amber glow from lower area (key light)
-   • Subtle cool blue ambient on upper surface
-   • One small glossy specular spot
-   • Soft edge — no outlines, no strokes, no glow lines
-   • Compact asymmetric organic shape, right side off-screen
-═══════════════════════════════════════════════════════════ */
-function drawBlob(ctx, t, W, H) {
-  const px = v => (v / 1440) * W;
-  const py = v => (v / 900)  * H;
-
-  // Very slow gentle oscillators for subtle liquid breathing
-  const o1 = Math.sin(t * 0.55);
-  const o2 = Math.sin(t * 0.42 + 1.1);
-  const o3 = Math.sin(t * 0.68 + 2.3);
-  const o4 = Math.sin(t * 0.50 + 3.5);
-  const o5 = Math.sin(t * 0.75 + 0.7);
-
-  // Gentle vertical buoyancy float
-  const fy = py(Math.sin(t * 0.20) * 10);
-
-  /* ── BLOB PATH ──────────────────────────────────────
-     Compact, rounded organic shape.
-     Center ~(1000, 400). Extends off right edge.
-     Minimal deformation amplitude to avoid stretching.
-  ──────────────────────────────────────────────────── */
-  const blob = new Path2D();
-
-  // Key anchors
-  const top = [px(798  + o1 * 6), py(-8   + o2 * 4) + fy];
-  const tr  = [px(1092 + o2 * 7), py(55   + o3 * 5) + fy];
-  const rm  = [px(1440 + 20),     py(390  + o4 * 8) + fy];
-  const br  = [px(1440 + 12),     py(730  + o1 * 7) + fy];
-  const bot = [px(908  + o3 * 7), py(808  + o5 * 5) + fy];
-  const bl  = [px(792  + o4 * 6), py(698  + o2 * 6) + fy];
-  const lm  = [px(668  + o5 * 5), py(422  + o3 * 7) + fy];
-  const ul  = [px(682  + o1 * 5), py(162  + o4 * 6) + fy];
-
-  blob.moveTo(...top);
-  blob.bezierCurveTo(
-    px(858+o2*5), py(-18+o1*3)+fy,  px(988+o3*6), py(18+o2*4)+fy,  ...tr);
-  blob.bezierCurveTo(
-    px(1238+o4*6),py(128+o3*5)+fy, px(1440+16),  py(272+o5*7)+fy, ...rm);
-  blob.bezierCurveTo(
-    px(1440+18), py(558+o1*6)+fy,  px(1440+14),  py(648+o2*5)+fy, ...br);
-  blob.bezierCurveTo(
-    px(1322+o3*6),py(808+o4*5)+fy, px(1082+o5*6),py(848+o1*5)+fy, ...bot);
-  blob.bezierCurveTo(
-    px(858+o1*5), py(802+o2*5)+fy, px(818+o2*6), py(768+o3*5)+fy, ...bl);
-  blob.bezierCurveTo(
-    px(748+o3*5), py(660+o4*5)+fy, px(668+o4*4), py(558+o5*6)+fy, ...lm);
-  blob.bezierCurveTo(
-    px(644+o5*4), py(318+o1*6)+fy, px(648+o1*5), py(228+o2*5)+fy, ...ul);
-  blob.bezierCurveTo(
-    px(662+o2*4), py(72+o3*4)+fy,  px(678+o3*4), py(12+o4*3)+fy,  ...top);
-  blob.closePath();
-
-  /* ── LAYER 1: Faint ambient warmth ──────────────────
-     Very large, very faint warm haze — barely perceptible.
-     This is the ONLY truly blurry layer.
-  ──────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   PREMIUM DYNAMIC LIQUID-METAL SCENERY
+   
+   Replicates the reference image's organic, soft-edged, and
+   highly reflective liquid-metal blob emerging from the bottom.
+   
+   Uses a Bezier-based path for a truly asymmetrical, flowing
+   silhouette, and globalCompositeOperation = 'source-atop' to
+   clip interior metallic shading and specular details seamlessly.
+   ═══════════════════════════════════════════════════════════════ */
+function drawScene(ctx, t, W, H) {
+  const ax = W * 0.58; // Center of main workspace area
+  
+  /* ─────────────────────────────────────────────────────────
+     STEP 1 — AMBIENT BACKGROUND GLOW
+     Deep luxury space atmospheric lighting behind the blob.
+  ───────────────────────────────────────────────────────── */
   ctx.save();
-  ctx.filter = 'blur(55px)';
-  const ambient = ctx.createRadialGradient(
-    px(968), py(558) + fy, 0,
-    px(968), py(558) + fy, px(380)
+  ctx.filter = 'blur(90px)';
+  const bgGlow = ctx.createRadialGradient(
+    ax, H * 0.78, H * 0.02,
+    ax, H * 0.78, H * 0.58
   );
-  ambient.addColorStop(0,   'rgba(148, 92, 18, 0.14)');
-  ambient.addColorStop(0.5, 'rgba(80,  48,  8, 0.07)');
-  ambient.addColorStop(1,   'rgba(0,   0,   0, 0)');
-  ctx.fillStyle = ambient;
-  ctx.fill(blob);
+  bgGlow.addColorStop(0, 'rgba(42, 22, 88, 0.32)');   // Rich amethyst bloom
+  bgGlow.addColorStop(0.45, 'rgba(20, 10, 45, 0.15)'); // Soft purple transition
+  bgGlow.addColorStop(0.80, 'rgba(120, 75, 18, 0.04)'); // Subtle warm aura leak
+  bgGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = bgGlow;
+  ctx.fillRect(0, 0, W, H);
   ctx.restore();
 
-  /* ── LAYER 2: Soft outer edge halo ──────────────────
-     Draws the blob slightly expanded + blurred.
-     Creates edge softness WITHOUT any outline/stroke.
-  ──────────────────────────────────────────────────── */
-  ctx.save();
-  ctx.filter = 'blur(18px)';
-  const edgeHalo = ctx.createRadialGradient(
-    px(918), py(418) + fy, 0,
-    px(918), py(418) + fy, px(408)
-  );
-  edgeHalo.addColorStop(0,   'rgba(48, 28, 85, 0.22)');
-  edgeHalo.addColorStop(0.55,'rgba(28, 15, 52, 0.14)');
-  edgeHalo.addColorStop(1,   'rgba(0,  0,  0,  0)');
-  ctx.fillStyle = edgeHalo;
-  ctx.fill(blob);
-  ctx.restore();
-
-  /* ── LAYER 3: MAIN BLOB INTERIOR ─────────────────────
-     Clipped to the blob shape.
-     No strokes. No outlines. Pure gradient fills.
-  ──────────────────────────────────────────────────── */
-  ctx.save();
-  ctx.clip(blob);
-
-  // 3a. Dense dark base — the "liquid glass / obsidian" body
-  //     High opacity so it reads as a solid object, not a nebula
-  const base = ctx.createRadialGradient(
-    px(828), py(268) + fy, px(60),
-    px(958), py(442) + fy, px(432)
-  );
-  base.addColorStop(0,    'rgba(42, 26, 78, 0.92)');
-  base.addColorStop(0.30, 'rgba(26, 15, 52, 0.90)');
-  base.addColorStop(0.58, 'rgba(15,  9, 32, 0.88)');
-  base.addColorStop(0.80, 'rgba( 8,  5, 18, 0.84)');
-  base.addColorStop(1,    'rgba( 4,  2,  9, 0.78)');
-  ctx.fillStyle = base;
-  ctx.fillRect(0, 0, W, H);
-
-  // 3b. WARM GOLDEN KEY LIGHT — primary lighting feature
-  //     Concentrated in lower center — exactly like reference
-  const warm = ctx.createRadialGradient(
-    px(952 + o1 * 7), py(605 + o2 * 5) + fy, 0,
-    px(952 + o1 * 7), py(605 + o2 * 5) + fy, px(295)
-  );
-  warm.addColorStop(0,    'rgba(242, 178, 48, 0.78)');
-  warm.addColorStop(0.12, 'rgba(225, 152, 30, 0.65)');
-  warm.addColorStop(0.28, 'rgba(192, 118, 16, 0.45)');
-  warm.addColorStop(0.50, 'rgba(148,  85,  8, 0.24)');
-  warm.addColorStop(0.72, 'rgba( 88,  50,  3, 0.09)');
-  warm.addColorStop(1,    'rgba(  0,   0,  0, 0)');
-  ctx.fillStyle = warm;
-  ctx.fillRect(0, 0, W, H);
-
-  // 3c. Secondary warm spread — broadens the key light naturally
-  const warmSpread = ctx.createRadialGradient(
-    px(1008 + o2 * 5), py(518 + o3 * 4) + fy, 0,
-    px(1008 + o2 * 5), py(518 + o3 * 4) + fy, px(380)
-  );
-  warmSpread.addColorStop(0,   'rgba(185, 118, 22, 0.28)');
-  warmSpread.addColorStop(0.4, 'rgba(118,  72, 10, 0.14)');
-  warmSpread.addColorStop(1,   'rgba(  0,   0,  0, 0)');
-  ctx.fillStyle = warmSpread;
-  ctx.fillRect(0, 0, W, H);
-
-  // 3d. Cool blue-purple ambient — upper surface secondary light
-  const cool = ctx.createRadialGradient(
-    px(798), py(228) + fy, 0,
-    px(828), py(268) + fy, px(268)
-  );
-  cool.addColorStop(0,   'rgba(55, 115, 198, 0.18)');
-  cool.addColorStop(0.4, 'rgba(35,  75, 155, 0.10)');
-  cool.addColorStop(1,   'rgba( 0,   0,   0, 0)');
-  ctx.fillStyle = cool;
-  ctx.fillRect(0, 0, W, H);
-
-  // 3e. Subtle purple mid-body tint
-  const purple = ctx.createRadialGradient(
-    px(918), py(368) + fy, 0,
-    px(918), py(368) + fy, px(238)
-  );
-  purple.addColorStop(0,   'rgba(105, 58, 188, 0.16)');
-  purple.addColorStop(0.5, 'rgba( 68, 38, 138, 0.08)');
-  purple.addColorStop(1,   'rgba(  0,  0,   0, 0)');
-  ctx.fillStyle = purple;
-  ctx.fillRect(0, 0, W, H);
-
-  // 3f. Single glossy specular spot — small, soft, believable
-  //     Upper area, slightly off-center — where ambient light reflects
-  const specX = px(808 + o3 * 7);
-  const specY = py(212 + o4 * 5) + fy;
-  const spec = ctx.createRadialGradient(specX, specY, 0, specX, specY, px(88));
-  spec.addColorStop(0,    'rgba(255, 250, 242, 0.28)');
-  spec.addColorStop(0.25, 'rgba(245, 238, 225, 0.16)');
-  spec.addColorStop(0.60, 'rgba(228, 220, 208, 0.06)');
-  spec.addColorStop(1,    'rgba(  0,   0,   0, 0)');
-  ctx.fillStyle = spec;
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.restore(); // ── end clip ──
-
-  /* ── LAYER 4: Small floating dark spheres ───────────
-     Matches reference — 2 small dark spheres upper-right
-  ──────────────────────────────────────────────────── */
-  drawSphere(ctx, px(1155 + o2 * 3), py(48 + o1 * 5) + fy * 0.5, px(18));
-  drawSphere(ctx, px(1268 + o3 * 2), py(285 + o4 * 4) + fy * 0.35, px(12));
+  /* ─────────────────────────────────────────────────────────
+     STEP 2 — THE ORGANIC LIQUID FORM (CANVAS RENDERING)
+  ───────────────────────────────────────────────────────── */
+  drawLiquidBlob(ctx, t, W, H, ax);
 }
 
-function drawSphere(ctx, cx, cy, r) {
-  const g = ctx.createRadialGradient(cx - r * 0.30, cy - r * 0.30, 0, cx, cy, r);
-  g.addColorStop(0,   'rgba(58, 50, 88, 0.92)');
-  g.addColorStop(0.6, 'rgba(16, 12, 34, 0.96)');
-  g.addColorStop(1,   'rgba( 4,  3,  9, 1.00)');
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.fillStyle = g;
+function drawLiquidBlob(ctx, t, W, H, ax) {
+  // Proportions remain elegant regardless of display resolution
+  const blobWidth = Math.min(W * 0.28, 410);
+  const blobHeight = Math.min(H * 0.42, 390);
+  const ay = H + 40; // Flat bottom remains hidden below the fold
+
+  /* Multi-frequency slow oscillators for continuous molten flow */
+  const o1 = Math.sin(t * 1.1) * 14;
+  const o2 = Math.cos(t * 0.8) * 11;
+  const o3 = Math.sin(t * 1.4 + 1.2) * 10;
+  const o4 = Math.cos(t * 1.0 + 2.1) * 13;
+  const o5 = Math.sin(t * 0.6 + 0.5) * 8;
+
+  // Bezier curve path defining a smooth, irregular, multi-lobed droplet
+  const getBlobPath = (c) => {
+    const leftX = ax - blobWidth + o3;
+    const rightX = ax + blobWidth + o4;
+
+    c.beginPath();
+    c.moveTo(leftX, ay);
+
+    // Left side curving up to Left Peak
+    c.bezierCurveTo(
+      ax - blobWidth * 0.90 + o1, ay - blobHeight * 0.45 + o2,
+      ax - blobWidth * 0.70 + o3, ay - blobHeight * 0.95 + o4,
+      ax - blobWidth * 0.40 + o2, ay - blobHeight * 1.02 + o5 // Left Peak
+    );
+
+    // Trough (dip between lobes)
+    c.bezierCurveTo(
+      ax - blobWidth * 0.15 + o1, ay - blobHeight * 1.04 + o3,
+      ax + blobWidth * 0.05 + o4, ay - blobHeight * 0.76 + o2,
+      ax + blobWidth * 0.25 + o5, ay - blobHeight * 0.82 + o1 // Trough / dip
+    );
+
+    // Right Peak / upper shoulder
+    c.bezierCurveTo(
+      ax + blobWidth * 0.45 + o2, ay - blobHeight * 0.86 + o3,
+      ax + blobWidth * 0.65 + o1, ay - blobHeight * 0.84 + o4,
+      ax + blobWidth * 0.80 + o5, ay - blobHeight * 0.68 + o2 // Right Peak
+    );
+
+    // Right side falling to bottom edge
+    c.bezierCurveTo(
+      ax + blobWidth * 0.90 + o3, ay - blobHeight * 0.42 + o1,
+      ax + blobWidth * 0.95 + o2, ay - blobHeight * 0.12 + o4,
+      rightX, ay
+    );
+
+    c.lineTo(leftX, ay);
+    c.closePath();
+  };
+
+  /* ─────────────────────────────────────────────────────────
+     BASE MASS DRAWING
+     Drawn with a blur filter to achieve soft, organic edges
+     that dissolve naturally into the dark starfield background.
+  ───────────────────────────────────────────────────────── */
+  ctx.save();
+  ctx.filter = 'blur(10px)'; // Soft cinematic edges
+  getBlobPath(ctx);
+
+  // Gradient reflecting dark glossy purple and obsidian tones
+  const baseGrad = ctx.createLinearGradient(ax, H, ax, ay - blobHeight);
+  baseGrad.addColorStop(0, '#020108');      // Deep charcoal/black base
+  baseGrad.addColorStop(0.35, '#070415');   // Rich dark obsidian
+  baseGrad.addColorStop(0.70, '#130d2a');   // High-density purple
+  baseGrad.addColorStop(1, '#1d123a');      // Top boundary tint
+  ctx.fillStyle = baseGrad;
   ctx.fill();
-  // tiny specular
-  ctx.beginPath();
-  ctx.arc(cx - r * 0.28, cy - r * 0.28, r * 0.18, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(195, 185, 245, 0.22)';
+
+  /* ─────────────────────────────────────────────────────────
+     METALLIC / REFLECTIVE SHADING
+     Using globalCompositeOperation = 'source-atop' so all subsequent
+     speculars and reflections mask perfectly to our soft silhouette.
+  ───────────────────────────────────────────────────────── */
+  ctx.globalCompositeOperation = 'source-atop';
+
+  // 1. Deep magenta-violet internal shadow (lower-left)
+  const violetRefl = ctx.createRadialGradient(
+    ax - blobWidth * 0.35, H - blobHeight * 0.35, H * 0.05,
+    ax - blobWidth * 0.35, H - blobHeight * 0.35, H * 0.45
+  );
+  violetRefl.addColorStop(0, 'rgba(142, 70, 240, 0.24)');
+  violetRefl.addColorStop(0.50, 'rgba(75, 30, 165, 0.09)');
+  violetRefl.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = violetRefl;
   ctx.fill();
+
+  // 2. Cool chromatic iridescence (blue/teal) inside lower-right curve
+  const blueTealRefl = ctx.createRadialGradient(
+    ax + blobWidth * 0.45, H - blobHeight * 0.45, H * 0.02,
+    ax + blobWidth * 0.45, H - blobHeight * 0.45, H * 0.35
+  );
+  blueTealRefl.addColorStop(0, 'rgba(32, 205, 185, 0.09)'); // Soft teal sheen
+  blueTealRefl.addColorStop(0.32, 'rgba(45, 105, 225, 0.14)'); // Ambient electric blue
+  blueTealRefl.addColorStop(0.75, 'rgba(80, 30, 160, 0.06)'); // Indigo transition
+  blueTealRefl.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = blueTealRefl;
+  ctx.fill();
+
+  // 3. Thick metallic gold reflection along Left Peak
+  const goldLeft = ctx.createRadialGradient(
+    ax - blobWidth * 0.42 + o3 * 0.8, ay - blobHeight * 0.86 + o2 * 0.8, H * 0.01,
+    ax - blobWidth * 0.42 + o3 * 0.8, ay - blobHeight * 0.86 + o2 * 0.8, H * 0.22
+  );
+  goldLeft.addColorStop(0, 'rgba(255, 252, 235, 0.92)');    // Bright white-gold core
+  goldLeft.addColorStop(0.14, 'rgba(246, 200, 56, 0.80)');   // Liquid yellow gold
+  goldLeft.addColorStop(0.36, 'rgba(196, 125, 16, 0.52)');   // Warm metallic copper-gold
+  goldLeft.addColorStop(0.68, 'rgba(125, 68, 6, 0.20)');     // Dark amber boundary
+  goldLeft.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = goldLeft;
+  ctx.fill();
+
+  // 4. Soft metallic gold reflection along Right Peak
+  const goldRight = ctx.createRadialGradient(
+    ax + blobWidth * 0.38 + o2 * 0.7, ay - blobHeight * 0.65 + o4 * 0.7, H * 0.01,
+    ax + blobWidth * 0.38 + o2 * 0.7, ay - blobHeight * 0.65 + o4 * 0.7, H * 0.18
+  );
+  goldRight.addColorStop(0, 'rgba(255, 248, 220, 0.80)');
+  goldRight.addColorStop(0.16, 'rgba(238, 186, 48, 0.68)');
+  goldRight.addColorStop(0.42, 'rgba(182, 112, 12, 0.40)');
+  goldRight.addColorStop(0.72, 'rgba(110, 55, 6, 0.14)');
+  goldRight.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = goldRight;
+  ctx.fill();
+
+  // 5. Ambient glowing bottom-left crescent reflection (adds 3D volume)
+  const bottomRim = ctx.createRadialGradient(
+    ax - blobWidth * 0.60 + o1 * 0.5, H * 1.02 + o5, H * 0.10,
+    ax - blobWidth * 0.60 + o1 * 0.5, H * 1.02 + o5, H * 0.48
+  );
+  bottomRim.addColorStop(0, 'rgba(255, 255, 255, 0.90)');    // Brilliant specular rim
+  bottomRim.addColorStop(0.18, 'rgba(242, 218, 142, 0.70)'); // Gold luster reflection
+  bottomRim.addColorStop(0.38, 'rgba(125, 165, 242, 0.38)'); // Light blue ambient glow
+  bottomRim.addColorStop(0.72, 'rgba(40, 20, 135, 0.10)');   // Deep purple fade
+  bottomRim.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = bottomRim;
+  ctx.fill();
+
+  ctx.restore(); // Resets globalCompositeOperation and filter back to standard
+
+  /* ─────────────────────────────────────────────────────────
+     STEP 3 — SPECULAR HIGHLIGHTS (ON TOP OF THE BLURRED MASK)
+     Drawn with a tight, high-contrast blur to keep details
+     glossy, wet, and high-fidelity like physical liquid-glass.
+  ───────────────────────────────────────────────────────── */
+  ctx.save();
+  ctx.filter = 'blur(4px)'; // Crisp specular spot blur
+
+  // Hot spot 1 (Left Peak key light)
+  const s1x = ax - blobWidth * 0.42 + o3 * 0.8;
+  const s1y = ay - blobHeight * 0.88 + o2 * 0.8;
+  const spec1 = ctx.createRadialGradient(s1x, s1y, 0, s1x, s1y, W * 0.055);
+  spec1.addColorStop(0, 'rgba(255, 255, 255, 0.95)');    // Intense reflection core
+  spec1.addColorStop(0.26, 'rgba(255, 244, 195, 0.60)'); // Warm gold specular glow
+  spec1.addColorStop(0.65, 'rgba(242, 202, 92, 0.16)');  // Soft gold bloom
+  spec1.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = spec1;
+  ctx.fillRect(0, 0, W, H);
+
+  // Hot spot 2 (Right shoulder secondary light)
+  const s2x = ax + blobWidth * 0.38 + o2 * 0.7;
+  const s2y = ay - blobHeight * 0.67 + o4 * 0.7;
+  const spec2 = ctx.createRadialGradient(s2x, s2y, 0, s2x, s2y, W * 0.038);
+  spec2.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+  spec2.addColorStop(0.30, 'rgba(255, 242, 190, 0.45)');
+  spec2.addColorStop(0.72, 'rgba(238, 192, 72, 0.10)');
+  spec2.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = spec2;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.restore();
 }
