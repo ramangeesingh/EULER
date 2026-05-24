@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Euler - AI Coding Workspace
 
 A futuristic single-page AI development workspace with a cinematic cosmic aesthetic.
@@ -223,3 +224,6 @@ Perfect for AI coding assistants, developer tools, and futuristic applications.
 ## 📄 License
 
 MIT
+=======
+# EULER
+>>>>>>> 2a07fc5dd86a800ca58617f1ef7ddf965af69566

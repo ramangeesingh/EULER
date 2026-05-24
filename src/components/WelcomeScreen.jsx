@@ -3,65 +3,75 @@ import { motion } from 'framer-motion';
 export default function WelcomeScreen() {
   return (
     <motion.div
-      className="h-full flex justify-center px-8 pt-[202px]"
-      initial={{ opacity: 0, y: 20 }}
+      className="h-full flex flex-col items-center justify-start"
+      style={{ paddingTop: '140px' }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.6 }}
+      exit={{ opacity: 0, y: -16 }}
+      transition={{ duration: 0.5 }}
     >
-      <div className="max-w-[720px] -translate-x-[55px] text-center">
-        {/* Animated Orb */}
-        <motion.div
-          className="inline-block mb-[75px]"
-          animate={{
-            y: [0, -10, 0],
-            scale: [1, 1.02, 1],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        >
-          <div className="relative w-[88px] h-[88px] mx-auto">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-500 via-blue-500 to-purple-600 opacity-80" />
-            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-purple-400 via-blue-400 to-purple-500 opacity-60" />
-            <div className="absolute inset-4 rounded-full bg-gradient-to-br from-purple-300 via-blue-300 to-purple-400 opacity-40" />
-            <motion.div
-              className="absolute inset-0 rounded-full bg-purple-500/30 blur-3xl"
-              animate={{
-                scale: [1, 1.3, 1],
-                opacity: [0.3, 0.6, 0.3],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-            />
-          </div>
-        </motion.div>
+      {/* ── Floating purple orb ── */}
+      <motion.div
+        className="mb-14"
+        animate={{ y: [0, -10, 0], scale: [1, 1.03, 1] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <div className="relative w-[80px] h-[80px] mx-auto">
+          {/* Outer ring */}
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{
+              background:
+                'radial-gradient(circle at 35% 28%, rgba(180,130,255,0.9) 0%, rgba(100,60,220,0.8) 40%, rgba(40,20,120,0.95) 75%, rgba(10,8,30,1) 100%)',
+              boxShadow:
+                '0 0 30px rgba(139,92,246,0.5), 0 0 60px rgba(139,92,246,0.2), inset 0 1px 0 rgba(255,255,255,0.15)',
+            }}
+          />
+          {/* Inner highlight */}
+          <div
+            className="absolute rounded-full"
+            style={{
+              inset: '12px',
+              background:
+                'radial-gradient(circle at 35% 30%, rgba(210,180,255,0.35) 0%, transparent 60%)',
+            }}
+          />
+          {/* Pulsing glow */}
+          <motion.div
+            className="absolute rounded-full"
+            style={{
+              inset: '-16px',
+              background:
+                'radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%)',
+            }}
+            animate={{ scale: [1, 1.25, 1], opacity: [0.4, 0.7, 0.4] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </div>
+      </motion.div>
 
-        {/* Welcome Text */}
-        <motion.h1
-          className="text-[40px] leading-[1.12] font-normal mb-[25px] whitespace-nowrap"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <span className="text-glow-strong font-bold">Hey Arjun, </span>
-          <span className="text-white">how can I help you today?</span>
-        </motion.h1>
+      {/* ── Headline ── */}
+      <motion.h1
+        className="text-[34px] font-normal leading-tight mb-4 text-center"
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.5 }}
+      >
+        <span className="text-glow-strong font-semibold">Hey Arjun, </span>
+        <span className="text-white/90">how can I help you today?</span>
+      </motion.h1>
 
-        <motion.p
-          className="text-[22px] text-gray-300/85 leading-[1.55]"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          Ask me anything about code, architecture, debugging,<br />or your next big idea.
-        </motion.p>
-      </div>
+      {/* ── Subtext ── */}
+      <motion.p
+        className="text-[16px] text-gray-400 leading-relaxed text-center"
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.28, duration: 0.5 }}
+      >
+        Ask me anything about code, architecture, debugging,
+        <br />
+        or your next big idea.
+      </motion.p>
     </motion.div>
   );
 }

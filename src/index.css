@@ -9,103 +9,84 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    font-family: 'Inter', sans-serif;
   }
 
   body {
-    @apply m-0 bg-black text-white antialiased;
+    @apply m-0 antialiased;
+    background: #060609;
+    color: #fff;
   }
 }
 
 @layer utilities {
+  /* ── Sidebar ── */
+  .glass-sidebar {
+    background: linear-gradient(180deg, rgba(10, 10, 18, 0.97) 0%, rgba(6, 6, 11, 0.98) 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    box-shadow: 4px 0 40px rgba(0, 0, 0, 0.6);
+  }
+
+  /* ── Generic glass ── */
   .glass {
-    background: rgba(255, 255, 255, 0.035);
+    background: rgba(255, 255, 255, 0.04);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.07);
   }
 
   .glass-premium {
-    background:
-      linear-gradient(135deg, rgba(255, 255, 255, 0.043), rgba(255, 255, 255, 0.014)),
-      rgba(11, 11, 16, 0.55);
-    backdrop-filter: blur(26px) saturate(118%);
-    border: 1px solid rgba(255, 255, 255, 0.035);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.026),
-      0 14px 34px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
   }
 
   .glass-profile {
-    background:
-      linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012)),
-      rgba(6, 7, 11, 0.62);
-    backdrop-filter: blur(26px) saturate(112%);
-    border: 1px solid rgba(255, 255, 255, 0.028);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.02),
-      0 18px 40px rgba(0, 0, 0, 0.28);
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
-  
+
   .glass-dark {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
-  .glass-sidebar {
-    background:
-      radial-gradient(circle at 18% 0%, rgba(124, 58, 237, 0.075), transparent 30%),
-      linear-gradient(180deg, rgba(8, 9, 13, 0.9), rgba(2, 3, 6, 0.78));
-    backdrop-filter: blur(38px) saturate(110%);
-    border-right: 1px solid rgba(255, 255, 255, 0.045);
-    box-shadow:
-      inset -1px 0 0 rgba(139, 92, 246, 0.015),
-      18px 0 58px rgba(0, 0, 0, 0.28);
-  }
-
+  /* ── Scrollbar ── */
   .sidebar-scroll {
     scrollbar-width: thin;
-    scrollbar-color: rgba(167, 139, 250, 0.13) transparent;
+    scrollbar-color: rgba(139, 92, 246, 0.15) transparent;
   }
-
-  .sidebar-scroll::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .sidebar-scroll::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
+  .sidebar-scroll::-webkit-scrollbar { width: 3px; }
+  .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
   .sidebar-scroll::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, rgba(167, 139, 250, 0.18), rgba(59, 130, 246, 0.09));
+    background: rgba(139, 92, 246, 0.2);
     border-radius: 999px;
   }
 
-  .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, rgba(196, 181, 253, 0.26), rgba(96, 165, 250, 0.15));
-  }
-  
-  .glow-orb {
-    filter: blur(56px);
-    opacity: 0.42;
-  }
-  
-  .text-glow {
-    text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
-  }
-
+  /* ── Text effects ── */
   .text-glow-strong {
-    background: linear-gradient(135deg, #a855f7 0%, #7c3aed 50%, #6366f1 100%);
+    background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 40%, #7c3aed 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 14px rgba(139, 92, 246, 0.28));
   }
 
-  .cosmic-glow {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.22), inset 0 0 22px rgba(255, 255, 255, 0.03);
+  /* ── New-chat button ── */
+  .new-chat-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    transition: background 0.2s;
+  }
+  .new-chat-btn:hover {
+    background: rgba(255, 255, 255, 0.07);
   }
 
-  .input-glow {
-    box-shadow: 0 0 32px rgba(139, 92, 246, 0.18), 0 14px 48px rgba(0, 0, 0, 0.55);
+  /* ── Chat item ── */
+  .chat-item-active {
+    background: rgba(139, 92, 246, 0.08);
+  }
+  .chat-item:hover {
+    background: rgba(255, 255, 255, 0.03);
   }
 }

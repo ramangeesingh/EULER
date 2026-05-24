@@ -5,9 +5,9 @@ import MessageInput from './MessageInput';
 
 export default function ChatWorkspace({ messages, onSendMessage, hasActiveChat }) {
   return (
-    <div className="flex-1 flex flex-col relative">
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 flex flex-col relative overflow-hidden">
+      {/* Scrollable message / welcome area */}
+      <div className="flex-1 overflow-y-auto sidebar-scroll">
         <AnimatePresence mode="wait">
           {!hasActiveChat ? (
             <WelcomeScreen key="welcome" />
@@ -17,7 +17,7 @@ export default function ChatWorkspace({ messages, onSendMessage, hasActiveChat }
         </AnimatePresence>
       </div>
 
-      {/* Input Area */}
+      {/* Input bar — always at bottom */}
       <MessageInput onSendMessage={onSendMessage} />
     </div>
   );

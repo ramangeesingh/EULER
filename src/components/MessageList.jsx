@@ -3,50 +3,55 @@ import { Sparkles, User } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 export default function MessageList({ messages }) {
-  const messagesEndRef = useRef(null);
+  const endRef = useRef(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   return (
     <motion.div
-      className="max-w-4xl mx-auto px-8 py-12 space-y-8"
+      className="max-w-3xl mx-auto px-6 py-10 space-y-7"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      {messages.map((message, i) => (
+      {messages.map((msg, i) => (
         <motion.div
           key={i}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.1 }}
+          transition={{ delay: i * 0.06 }}
           className="flex gap-4"
         >
           {/* Avatar */}
-          <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
-            message.role === 'assistant' ? 'bg-purple-500/20' : 'bg-white/10'
-          }`}>
-            {message.role === 'assistant' ? (
-              <Sparkles className="w-5 h-5 text-purple-400" />
+          <div
+            className="shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{
+              background:
+                msg.role === 'assistant'
+                  ? 'rgba(124,58,237,0.18)'
+                  : 'rgba(255,255,255,0.07)',
+              border: '1px solid rgba(255,255,255,0.07)',
+            }}
+          >
+            {msg.role === 'assistant' ? (
+              <Sparkles className="w-4 h-4 text-purple-400" />
             ) : (
-              <User className="w-5 h-5 text-gray-400" />
+              <User className="w-4 h-4 text-gray-400" />
             )}
           </div>
 
-          {/* Message Content */}
-          <div className="flex-1 space-y-2">
-            <div className="text-sm font-medium text-gray-400">
-              {message.role === 'assistant' ? 'Euler' : 'You'}
+          {/* Content */}
+          <div className="flex-1 space-y-1.5">
+            <div className="text-[12px] font-medium text-gray-500 uppercase tracking-wide">
+              {msg.role === 'assistant' ? 'Euler' : 'You'}
             </div>
-            <div className="text-gray-200 leading-relaxed">
-              {message.content}
-            </div>
+            <div className="text-[15px] text-gray-200 leading-relaxed">{msg.content}</div>
           </div>
         </motion.div>
       ))}
-      <div ref={messagesEndRef} />
+      <div ref={endRef} />
     </motion.div>
   );
 }
