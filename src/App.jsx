@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatWorkspace from './components/ChatWorkspace';
-import StarField from './components/StarField';
-import CosmicBackground from './components/CosmicBackground';
+import VideoBackground from './components/VideoBackground';
 
 const INITIAL_CHATS = [
   { id: 1, title: 'AI architecture design',   timestamp: '2m ago'    },
@@ -40,15 +39,25 @@ export default function App() {
   };
 
   return (
-    <div
-      className="h-screen w-screen overflow-hidden relative"
-      style={{ background: '#0a0a12' }}
-    >
-      {/* ── Background layers ── */}
-      <StarField />
-      <CosmicBackground />
+    <div className="h-screen w-screen overflow-hidden relative">
+      {/* ONLY Video Background */}
+      <VideoBackground />
+      
+      {/* Elegant top overlay to cover watermark */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '80px',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.92), rgba(0,0,0,0))',
+          zIndex: 5,
+          pointerEvents: 'none',
+        }}
+      />
 
-      {/* ── App shell ── */}
+      {/* UI Layer */}
       <div className="relative z-10 h-full flex">
         <Sidebar
           chats={chats}
