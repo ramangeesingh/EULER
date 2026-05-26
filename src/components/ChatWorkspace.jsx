@@ -3,7 +3,7 @@ import WelcomeScreen from './WelcomeScreen';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 
-export default function ChatWorkspace({ messages, onSendMessage, hasActiveChat }) {
+export default function ChatWorkspace({ messages, onSendMessage, hasActiveChat, isStreaming }) {
   return (
     <div className="flex-1 flex flex-col relative overflow-hidden">
       {/* Scrollable message / welcome area */}
@@ -18,7 +18,7 @@ export default function ChatWorkspace({ messages, onSendMessage, hasActiveChat }
       </div>
 
       {/* Input bar — always at bottom */}
-      <MessageInput onSendMessage={onSendMessage} />
+      <MessageInput onSendMessage={onSendMessage} isStreaming={isStreaming} />
     </div>
   );
 }

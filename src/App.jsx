@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Sidebar from './components/Sidebar';
 import ChatWorkspace from './components/ChatWorkspace';
 import VideoBackground from './components/VideoBackground';
+import { streamChat } from './lib/api';
 
 const INITIAL_CHATS = [
   { id: 1, title: 'AI architecture design',   timestamp: '2m ago'    },
@@ -15,28 +16,91 @@ export default function App() {
   const [chats]       = useState(INITIAL_CHATS);
   const [activeChat, setActiveChat] = useState(null);
   const [messages,   setMessages]   = useState([]);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const abortRef = useRef(null);
 
   const handleNewChat = () => {
+    // Abort any in-flight stream
+    abortRef.current?.();
+    abortRef.current = null;
     setActiveChat(null);
     setMessages([]);
+    setIsStreaming(false);
   };
 
-  const handleSendMessage = (text) => {
-    setMessages((prev) => [
-      ...prev,
-      { role: 'user', content: text, timestamp: new Date() },
-    ]);
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
+  const handleSendMessage = useCallback((text) => {
+    if (isStreaming) return; // Don't allow sending while streaming
+
+    const userMsg = { role: 'user', content: text, timestamp: new Date() };
+
+    setMessages((prev) => {
+      const updated = [...prev, userMsg];
+
+      // Create the assistant placeholder
+      const assistantMsg = {
+        role: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        isStreaming: true,
+      };
+
+      const withAssistant = [...updated, assistantMsg];
+
+      // Start streaming (using the messages WITHOUT the empty assistant msg)
+      setIsStreaming(true);
+
+      const abort = streamChat(
+        updated.map((m) => ({ role: m.role, content: m.content })),
         {
-          role: 'assistant',
-          content: 'I can help you with that. Let me analyse your request and come up with the best solution.',
-          timestamp: new Date(),
-        },
-      ]);
-    }, 900);
-  };
+          onToken: (token) => {
+            setMessages((curr) => {
+              const copy = [...curr];
+              const lastIdx = copy.length - 1;
+              if (copy[lastIdx]?.role === 'assistant') {
+                copy[lastIdx] = {
+                  ...copy[lastIdx],
+                  content: copy[lastIdx].content + token,
+                };
+              }
+              return copy;
+            });
+          },
+          onComplete: () => {
+            setMessages((curr) => {
+              const copy = [...curr];
+              const lastIdx = copy.length - 1;
+              if (copy[lastIdx]?.role === 'assistant') {
+                copy[lastIdx] = { ...copy[lastIdx], isStreaming: false };
+              }
+              return copy;
+            });
+            setIsStreaming(false);
+            abortRef.current = null;
+          },
+          onError: (error) => {
+            setMessages((curr) => {
+              const copy = [...curr];
+              const lastIdx = copy.length - 1;
+              if (copy[lastIdx]?.role === 'assistant') {
+                copy[lastIdx] = {
+                  ...copy[lastIdx],
+                  content: copy[lastIdx].content || `⚠️ Error: ${error}`,
+                  isStreaming: false,
+                  isError: true,
+                };
+              }
+              return copy;
+            });
+            setIsStreaming(false);
+            abortRef.current = null;
+          },
+        }
+      );
+
+      abortRef.current = abort;
+      return withAssistant;
+    });
+  }, [isStreaming]);
 
   return (
     <div className="h-screen w-screen overflow-hidden relative">
@@ -69,6 +133,7 @@ export default function App() {
           messages={messages}
           onSendMessage={handleSendMessage}
           hasActiveChat={messages.length > 0}
+          isStreaming={isStreaming}
         />
       </div>
     </div>
