@@ -1,0 +1,250 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Prisma Schema — Euler SaaS Platform
+// Prisma v7 — Supabase PostgreSQL
+// Connection URL is supplied via prisma.config.ts (no `url` field needed here)
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // ⚠️  In Prisma v7, `url` is set in prisma.config.ts — NOT here.
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum ArchitectureStatus {
+  DRAFT
+  GENERATING
+  READY
+  FAILED
+}
+
+enum WebsiteStatus {
+  QUEUED
+  GENERATING
+  READY
+  FAILED
+}
+
+enum EmbeddingSource {
+  REPOSITORY
+  DOCUMENT
+  WEBSITE
+  CHAT
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// USERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model User {
+  id              String    @id @default(uuid()) @db.Uuid
+  email           String    @unique
+  name            String?
+  avatarUrl       String?
+  plan            Plan      @default(FREE)
+  supabaseUserId  String?   @unique  // links to Supabase Auth uid
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  projects             Project[]
+  chats                Chat[]
+  websiteGenerations   WebsiteGeneration[]
+
+  @@index([email])
+  @@index([supabaseUserId])
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PROJECTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Project {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
+  name        String
+  description String?
+  slug        String   @unique
+  isPublic    Boolean  @default(false)
+  metadata    Json?    // flexible key-value store for SaaS extensions
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repositories  Repository[]
+  chats         Chat[]
+  architectures Architecture[]
+
+  @@index([userId])
+  @@index([slug])
+  @@map("projects")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REPOSITORIES
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Repository {
+  id            String   @id @default(uuid()) @db.Uuid
+  projectId     String   @db.Uuid
+  name          String
+  fullName      String   // e.g. "owner/repo"
+  provider      String   @default("github")  // github | gitlab | bitbucket
+  cloneUrl      String?
+  defaultBranch String   @default("main")
+  isIndexed     Boolean  @default(false)
+  indexedAt     DateTime?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  project            Project             @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  embeddingsMetadata EmbeddingMetadata[]
+
+  @@index([projectId])
+  @@index([fullName])
+  @@map("repositories")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CHATS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Chat {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  projectId String?  @db.Uuid
+  title     String   @default("New Chat")
+  model     String   @default("gemini-pro")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project  Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  messages Message[]
+
+  @@index([userId])
+  @@index([projectId])
+  @@map("chats")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MESSAGES
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Message {
+  id          String      @id @default(uuid()) @db.Uuid
+  chatId      String      @db.Uuid
+  role        MessageRole
+  content     String      @db.Text
+  tokenCount  Int?
+  metadata    Json?       // tool calls, citations, RAG context references, etc.
+  createdAt   DateTime    @default(now())
+
+  // Relations
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@index([chatId, createdAt])
+  @@map("messages")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ARCHITECTURES
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Architecture {
+  id          String             @id @default(uuid()) @db.Uuid
+  projectId   String             @db.Uuid
+  title       String
+  description String?
+  diagramJson Json?              // raw diagram data (nodes, edges)
+  diagramSvg  String?            @db.Text
+  status      ArchitectureStatus @default(DRAFT)
+  version     Int                @default(1)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("architectures")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EMBEDDINGS METADATA  (RAG-ready)
+// Stores chunk metadata + vector IDs; actual vectors live in pgvector / Pinecone
+// ─────────────────────────────────────────────────────────────────────────────
+
+model EmbeddingMetadata {
+  id             String          @id @default(uuid()) @db.Uuid
+  repositoryId   String?         @db.Uuid
+  source         EmbeddingSource
+  sourceId       String          // file path, URL, doc id, etc.
+  chunkIndex     Int             @default(0)
+  chunkContent   String          @db.Text
+  tokenCount     Int?
+  vectorId       String?         // ID in external vector store (Pinecone / pgvector)
+  model          String          @default("text-embedding-3-small")
+  metadata       Json?           // page, language, tags, etc.
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  // Relations
+  repository Repository? @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@index([repositoryId])
+  @@index([source, sourceId])
+  @@index([vectorId])
+  @@map("embeddings_metadata")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WEBSITE GENERATIONS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model WebsiteGeneration {
+  id          String        @id @default(uuid()) @db.Uuid
+  userId      String        @db.Uuid
+  prompt      String        @db.Text
+  htmlContent String?       @db.Text
+  cssContent  String?       @db.Text
+  jsContent   String?       @db.Text
+  previewUrl  String?
+  status      WebsiteStatus @default(QUEUED)
+  model       String        @default("gemini-pro")
+  metadata    Json?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("website_generations")
+}

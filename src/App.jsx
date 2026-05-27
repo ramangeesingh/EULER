@@ -1,4 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PanelLeftOpen } from 'lucide-react';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import Sidebar from './components/Sidebar';
 import ChatWorkspace from './components/ChatWorkspace';
 import VideoBackground from './components/VideoBackground';
@@ -12,15 +16,17 @@ const INITIAL_CHATS = [
   { id: 5, title: 'Optimize code performance', timestamp: '2 days ago' },
 ];
 
-export default function App() {
+function ChatApp() {
   const [chats]       = useState(INITIAL_CHATS);
   const [activeChat, setActiveChat] = useState(null);
   const [messages,   setMessages]   = useState([]);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const abortRef = useRef(null);
 
+  const toggleSidebar = () => setSidebarOpen((prev) => !prev);
+
   const handleNewChat = () => {
-    // Abort any in-flight stream
     abortRef.current?.();
     abortRef.current = null;
     setActiveChat(null);
@@ -29,24 +35,15 @@ export default function App() {
   };
 
   const handleSendMessage = useCallback((text) => {
-    if (isStreaming) return; // Don't allow sending while streaming
+    if (isStreaming) return;
 
     const userMsg = { role: 'user', content: text, timestamp: new Date() };
 
     setMessages((prev) => {
       const updated = [...prev, userMsg];
-
-      // Create the assistant placeholder
-      const assistantMsg = {
-        role: 'assistant',
-        content: '',
-        timestamp: new Date(),
-        isStreaming: true,
-      };
-
+      const assistantMsg = { role: 'assistant', content: '', timestamp: new Date(), isStreaming: true };
       const withAssistant = [...updated, assistantMsg];
 
-      // Start streaming (using the messages WITHOUT the empty assistant msg)
       setIsStreaming(true);
 
       const abort = streamChat(
@@ -57,10 +54,7 @@ export default function App() {
               const copy = [...curr];
               const lastIdx = copy.length - 1;
               if (copy[lastIdx]?.role === 'assistant') {
-                copy[lastIdx] = {
-                  ...copy[lastIdx],
-                  content: copy[lastIdx].content + token,
-                };
+                copy[lastIdx] = { ...copy[lastIdx], content: copy[lastIdx].content + token };
               }
               return copy;
             });
@@ -82,12 +76,7 @@ export default function App() {
               const copy = [...curr];
               const lastIdx = copy.length - 1;
               if (copy[lastIdx]?.role === 'assistant') {
-                copy[lastIdx] = {
-                  ...copy[lastIdx],
-                  content: copy[lastIdx].content || `⚠️ Error: ${error}`,
-                  isStreaming: false,
-                  isError: true,
-                };
+                copy[lastIdx] = { ...copy[lastIdx], content: copy[lastIdx].content || `⚠️ Error: ${error}`, isStreaming: false, isError: true };
               }
               return copy;
             });
@@ -104,31 +93,40 @@ export default function App() {
 
   return (
     <div className="h-screen w-screen overflow-hidden relative">
-      {/* ONLY Video Background */}
       <VideoBackground />
-      
-      {/* Elegant top overlay to cover watermark */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '80px',
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.92), rgba(0,0,0,0))',
-          zIndex: 5,
-          pointerEvents: 'none',
-        }}
-      />
 
-      {/* UI Layer */}
+      {/* Top gradient overlay */}
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '80px', background: 'linear-gradient(to bottom, rgba(0,0,0,0.92), rgba(0,0,0,0))', zIndex: 5, pointerEvents: 'none' }} />
+
       <div className="relative z-10 h-full flex">
         <Sidebar
           chats={chats}
           activeChat={activeChat}
           onNewChat={handleNewChat}
           onSelectChat={setActiveChat}
+          isOpen={sidebarOpen}
+          onToggle={toggleSidebar}
         />
+
+        <AnimatePresence>
+          {!sidebarOpen && (
+            <motion.button
+              onClick={toggleSidebar}
+              className="absolute top-4 left-4 z-50 p-2 rounded-xl group"
+              style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.09)', boxShadow: '0 4px 20px rgba(0,0,0,0.35)' }}
+              initial={{ opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -16 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              whileHover={{ scale: 1.07 }}
+              whileTap={{ scale: 0.94 }}
+              title="Open sidebar"
+            >
+              <PanelLeftOpen className="w-[18px] h-[18px] text-gray-400 group-hover:text-white transition-colors" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+
         <ChatWorkspace
           messages={messages}
           onSendMessage={handleSendMessage}
@@ -137,5 +135,15 @@ export default function App() {
         />
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <ProtectedRoute>
+        <ChatApp />
+      </ProtectedRoute>
+    </AuthProvider>
   );
 }
