@@ -1,6 +1,11 @@
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 export default function WelcomeScreen() {
+  const { user } = useAuth();
+  const displayName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
+  const firstName = displayName.trim().split(/\s+/)[0];
+
   return (
     <motion.div
       className="h-full flex flex-col items-center justify-start"
@@ -17,7 +22,7 @@ export default function WelcomeScreen() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.5 }}
       >
-        <span className="text-glow-strong font-semibold">Hey Arjun, </span>
+        <span className="text-glow-strong font-semibold">Hey {firstName}, </span>
         <span className="text-white/90">how can I help you today?</span>
       </motion.h1>
 

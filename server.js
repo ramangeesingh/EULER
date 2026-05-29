@@ -1,11 +1,16 @@
 import express from 'express';
 import { createServer } from 'http';
 import dotenv from 'dotenv';
+import repoRouter from './routes/repo.js';
 
 dotenv.config();
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+// Mount routers
+app.use('/api/repo', repoRouter);
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 

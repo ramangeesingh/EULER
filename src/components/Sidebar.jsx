@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, FileCode, Settings, Code2, MoreHorizontal, PanelLeftClose, LogOut } from 'lucide-react';
+import { Plus, Search, FileCode, Settings, Code2, PanelLeftClose, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, isOpen, onToggle }) {

@@ -7,10 +7,10 @@ import { useState, useRef, useEffect } from 'react';
  * Labels only appear on hover for a clean, premium look.
  */
 const ACTIONS = [
-  { icon: Upload,  label: 'Upload Repository',    color: '#a855f7', glowColor: 'rgba(168,85,247,0.3)' },
-  { icon: Globe,   label: 'Build Website',         color: '#3b82f6', glowColor: 'rgba(59,130,246,0.3)' },
-  { icon: Code,    label: 'Analyze Code',          color: '#22c55e', glowColor: 'rgba(34,197,94,0.3)' },
-  { icon: Network, label: 'Generate Architecture', color: '#f97316', glowColor: 'rgba(249,115,22,0.3)' },
+  { id: 'upload-repo', icon: Upload,  label: 'Upload Repository',    color: '#a855f7', glowColor: 'rgba(168,85,247,0.3)' },
+  { id: 'build-site',  icon: Globe,   label: 'Build Website',         color: '#3b82f6', glowColor: 'rgba(59,130,246,0.3)' },
+  { id: 'analyze',     icon: Code,    label: 'Analyze Code',          color: '#22c55e', glowColor: 'rgba(34,197,94,0.3)' },
+  { id: 'architecture',icon: Network, label: 'Generate Architecture', color: '#f97316', glowColor: 'rgba(249,115,22,0.3)' },
 ];
 
 /** Radius of the semicircle arc (px) */
@@ -35,7 +35,7 @@ function getArcPosition(index, total) {
   };
 }
 
-export default function MessageInput({ onSendMessage, isStreaming }) {
+export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
   const [input, setInput] = useState('');
   const [showActions, setShowActions] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
@@ -54,14 +54,11 @@ export default function MessageInput({ onSendMessage, isStreaming }) {
         
         recognition.onresult = (event) => {
           let finalTranscript = '';
-          let interimTranscript = '';
           
           for (let i = event.resultIndex; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
             if (event.results[i].isFinal) {
               finalTranscript += transcript;
-            } else {
-              interimTranscript += transcript;
             }
           }
           
@@ -227,7 +224,7 @@ export default function MessageInput({ onSendMessage, isStreaming }) {
 
                     {/* Icon button */}
                     <motion.button
-                      onClick={() => setShowActions(false)}
+                      onClick={() => { setShowActions(false); if (action.id) onAction?.(action.id); }}
                       className="relative flex items-center justify-center"
                       style={{
                         width: '52px',
