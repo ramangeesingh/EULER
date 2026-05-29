@@ -1,8 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, FileCode, Settings, Code2, PanelLeftClose, LogOut } from 'lucide-react';
+import { Plus, Search, FileCode, Settings, Code2, PanelLeftClose, LogOut, FolderCode, Cpu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, isOpen, onToggle }) {
+export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, isOpen, onToggle, onOpenFeature }) {
   const { user, signOut } = useAuth();
 
   const displayName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
@@ -59,6 +59,32 @@ export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, is
 
           {/* ── Primary nav ── */}
           <nav className="px-3 pb-1 space-y-0.5">
+            {/* Feature buttons */}
+            <motion.button
+              onClick={() => onOpenFeature?.('architecture')}
+              className="w-full h-[42px] text-left px-3 rounded-xl flex items-center gap-3 text-[13.5px] transition-all group"
+              style={{
+                background: 'linear-gradient(135deg, rgba(124,58,237,0.12), rgba(79,70,229,0.08))',
+                border: '1px solid rgba(124,58,237,0.2)',
+              }}
+              whileHover={{ x: 1, borderColor: 'rgba(124,58,237,0.4)' }}
+            >
+              <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', boxShadow: '0 2px 8px rgba(124,58,237,0.4)' }}>
+                <Cpu className="w-3.5 h-3.5 text-white" />
+              </div>
+              <span className="text-purple-300/90 font-medium">Architecture Engine</span>
+              <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-md font-medium" style={{ background: 'rgba(124,58,237,0.2)', color: '#c4b5fd', border: '1px solid rgba(124,58,237,0.25)' }}>AI</span>
+            </motion.button>
+
+            <motion.button
+              onClick={() => onOpenFeature?.('repo')}
+              className="w-full h-[38px] text-left px-3 rounded-lg hover:bg-white/[0.04] transition-colors flex items-center gap-3 text-[13.5px]"
+              whileHover={{ x: 1 }}
+            >
+              <FolderCode className="w-[17px] h-[17px] text-gray-500 shrink-0" />
+              <span className="text-gray-400">Repo Intelligence</span>
+            </motion.button>
+
             {[
               { icon: Search, label: 'Semantic Search' },
               { icon: FileCode, label: 'Last Opened Files' },

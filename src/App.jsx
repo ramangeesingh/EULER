@@ -7,6 +7,8 @@ import Sidebar from './components/Sidebar';
 import ChatWorkspace from './components/ChatWorkspace';
 import VideoBackground from './components/VideoBackground';
 import { streamChat } from './lib/api';
+import RepoIntelligencePage from './components/repo/RepoIntelligencePage';
+import ArchitectureEnginePage from './components/architecture/ArchitectureEnginePage';
 
 const INITIAL_CHATS = [
   { id: 1, title: 'AI architecture design',   timestamp: '2m ago'    },
@@ -16,7 +18,11 @@ const INITIAL_CHATS = [
   { id: 5, title: 'Optimize code performance', timestamp: '2 days ago' },
 ];
 
-function ChatApp() {
+function AppShell() {
+  // ── Feature overlays ──────────────────────────────────────────────────────
+  const [activeFeature, setActiveFeature] = useState(null); // null | 'repo' | 'architecture'
+
+  // ── Chat state ────────────────────────────────────────────────────────────
   const [chats]       = useState(INITIAL_CHATS);
   const [activeChat, setActiveChat] = useState(null);
   const [messages,   setMessages]   = useState([]);
@@ -106,6 +112,7 @@ function ChatApp() {
           onSelectChat={setActiveChat}
           isOpen={sidebarOpen}
           onToggle={toggleSidebar}
+          onOpenFeature={setActiveFeature}
         />
 
         <AnimatePresence>
@@ -134,6 +141,16 @@ function ChatApp() {
           isStreaming={isStreaming}
         />
       </div>
+
+      {/* ── Feature overlays ─────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {activeFeature === 'repo' && (
+          <RepoIntelligencePage key="repo" onClose={() => setActiveFeature(null)} />
+        )}
+        {activeFeature === 'architecture' && (
+          <ArchitectureEnginePage key="arch" onClose={() => setActiveFeature(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -142,7 +159,7 @@ export default function App() {
   return (
     <AuthProvider>
       <ProtectedRoute>
-        <ChatApp />
+        <AppShell />
       </ProtectedRoute>
     </AuthProvider>
   );

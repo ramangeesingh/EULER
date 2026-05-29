@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Github, X, FolderOpen, Zap } from 'lucide-react';
+import { Upload, GitBranch, X, FolderOpen, Zap } from 'lucide-react';
 import { useState, useRef } from 'react';
 
 export default function UploadZone({ onUpload, isAnalyzing }) {
@@ -168,7 +168,7 @@ export default function UploadZone({ onUpload, isAnalyzing }) {
           transition={{ delay: 0.4 }}
         >
           <div className="flex-1 relative">
-            <Github className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <GitBranch className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             <input
               type="text"
               placeholder="GitHub URL — coming soon"

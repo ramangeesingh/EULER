@@ -7,10 +7,10 @@ import { useState, useRef, useEffect } from 'react';
  * Labels only appear on hover for a clean, premium look.
  */
 const ACTIONS = [
-  { id: 'upload-repo', icon: Upload,  label: 'Upload Repository',    color: '#a855f7', glowColor: 'rgba(168,85,247,0.3)' },
-  { id: 'build-site',  icon: Globe,   label: 'Build Website',         color: '#3b82f6', glowColor: 'rgba(59,130,246,0.3)' },
-  { id: 'analyze',     icon: Code,    label: 'Analyze Code',          color: '#22c55e', glowColor: 'rgba(34,197,94,0.3)' },
-  { id: 'architecture',icon: Network, label: 'Generate Architecture', color: '#f97316', glowColor: 'rgba(249,115,22,0.3)' },
+  { id: 'upload-repo', icon: Upload, label: 'Repo intellegence', color: '#a855f7', glowColor: 'rgba(168,85,247,0.3)' },
+  { id: 'build-site', icon: Globe, label: 'Build Website', color: '#3b82f6', glowColor: 'rgba(59,130,246,0.3)' },
+  { id: 'analyze', icon: Code, label: 'AI dev assistant', color: '#22c55e', glowColor: 'rgba(34,197,94,0.3)' },
+  { id: 'architecture', icon: Network, label: 'Architecture engine', color: '#f97316', glowColor: 'rgba(249,115,22,0.3)' },
 ];
 
 /** Radius of the semicircle arc (px) */
@@ -51,17 +51,17 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
-        
+
         recognition.onresult = (event) => {
           let finalTranscript = '';
-          
+
           for (let i = event.resultIndex; i < event.results.length; i++) {
             const transcript = event.results[i][0].transcript;
             if (event.results[i].isFinal) {
               finalTranscript += transcript;
             }
           }
-          
+
           // If we have final text, append it to the current input
           if (finalTranscript) {
             setInput((prev) => prev + (prev.length > 0 && !prev.endsWith(' ') ? ' ' : '') + finalTranscript);
@@ -356,7 +356,7 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
           <div className="flex-1 flex items-center relative h-full">
             <AnimatePresence>
               {isListening && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, scale: 0.8, x: -10 }}
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.8, x: -10 }}
@@ -366,12 +366,12 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
                     <motion.div
                       key={i}
                       className="w-[3px] rounded-full"
-                      style={{ 
+                      style={{
                         background: 'linear-gradient(to top, #7c3aed, #3b82f6)',
                         boxShadow: '0 0 8px rgba(124,58,237,0.5)'
                       }}
-                      animate={{ 
-                        height: ['20%', '100%', '40%', '80%', '30%'] 
+                      animate={{
+                        height: ['20%', '100%', '40%', '80%', '30%']
                       }}
                       transition={{
                         repeat: Infinity,
@@ -391,10 +391,10 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
               placeholder={isListening ? "Listening..." : "Ask Euler anything..."}
               rows={1}
               className="flex-1 bg-transparent resize-none focus:outline-none text-gray-200 placeholder-gray-600 text-[15px] leading-6 transition-all duration-300"
-              style={{ 
-                minHeight: '28px', 
-                maxHeight: '120px', 
-                paddingTop: '6px', 
+              style={{
+                minHeight: '28px',
+                maxHeight: '120px',
+                paddingTop: '6px',
                 paddingBottom: '6px',
                 paddingLeft: isListening ? '44px' : '0px'
               }}
@@ -405,9 +405,9 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
           <motion.button
             onClick={toggleListening}
             className="w-[40px] h-[40px] rounded-full flex items-center justify-center shrink-0 relative"
-            style={{ 
-              background: isListening ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.04)', 
-              border: `1px solid ${isListening ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}` 
+            style={{
+              background: isListening ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.04)',
+              border: `1px solid ${isListening ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}`
             }}
             whileHover={{ scale: 1.07 }}
             whileTap={{ scale: 0.93 }}
