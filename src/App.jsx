@@ -139,6 +139,7 @@ function AppShell() {
           onSendMessage={handleSendMessage}
           hasActiveChat={messages.length > 0}
           isStreaming={isStreaming}
+          onAction={setActiveFeature}
         />
       </div>
 

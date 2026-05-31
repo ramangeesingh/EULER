@@ -7,7 +7,7 @@ import { useState, useRef, useEffect } from 'react';
  * Labels only appear on hover for a clean, premium look.
  */
 const ACTIONS = [
-  { id: 'upload-repo', icon: Upload, label: 'Repo intellegence', color: '#a855f7', glowColor: 'rgba(168,85,247,0.3)' },
+  { id: 'repo', icon: Upload, label: 'Repo Intelligence', color: '#a855f7', glowColor: 'rgba(168,85,247,0.3)' },
   { id: 'build-site', icon: Globe, label: 'Build Website', color: '#3b82f6', glowColor: 'rgba(59,130,246,0.3)' },
   { id: 'analyze', icon: Code, label: 'AI dev assistant', color: '#22c55e', glowColor: 'rgba(34,197,94,0.3)' },
   { id: 'architecture', icon: Network, label: 'Architecture engine', color: '#f97316', glowColor: 'rgba(249,115,22,0.3)' },

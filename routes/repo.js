@@ -9,6 +9,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import AdmZip from 'adm-zip';
+import { geminiGenerate, geminiStream } from '../server/gemini.js';
 
 const router = Router();
 
@@ -17,10 +18,6 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB cap
 });
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-const GEMINI_STREAM_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
 
 // ── Text file extensions we'll parse ─────────────────────────
 const TEXT_EXTENSIONS = new Set([
@@ -41,32 +38,9 @@ const SKIP_DIRS = new Set([
   'target', 'vendor', '.cache', 'coverage', '.nyc_output',
 ]);
 
-/**
- * Helper — call Gemini non-streaming and return text
- */
-async function geminiGenerate(systemPrompt, userPrompt) {
-  const response = await fetch(GEMINI_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: systemPrompt }] },
-      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-      generationConfig: { temperature: 0.3 },
-    }),
-  });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Gemini error ${response.status}: ${errText}`);
-  }
-
-  const data = await response.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-}
-
-/**
- * Helper — parse ZIP buffer into a file tree + content map
- */
+// ─────────────────────────────────────────────────────────────
+// Helper — parse ZIP buffer into a file tree + content map
+// ─────────────────────────────────────────────────────────────
 function parseZip(buffer) {
   const zip = new AdmZip(buffer);
   const entries = zip.getEntries();
@@ -84,23 +58,21 @@ function parseZip(buffer) {
   for (const entry of entries) {
     if (entry.isDirectory) continue;
 
-    let fullPath = entry.entryName;
-    // Strip common prefix
+    const fullPath = entry.entryName;
     const displayPath = hasPrefix && fullPath.startsWith(commonPrefix)
       ? fullPath.slice(commonPrefix.length)
       : fullPath;
 
     if (!displayPath) continue;
 
-    // Skip hidden/unwanted dirs
     const parts = displayPath.split('/');
     if (parts.some((p) => SKIP_DIRS.has(p.toLowerCase()))) continue;
 
-    // Only parse text files
     const ext = parts[parts.length - 1].split('.').pop().toLowerCase();
-    if (!TEXT_EXTENSIONS.has(ext) && !['dockerfile', 'makefile', 'procfile'].includes(parts[parts.length - 1].toLowerCase())) {
-      continue;
-    }
+    if (
+      !TEXT_EXTENSIONS.has(ext) &&
+      !['dockerfile', 'makefile', 'procfile'].includes(parts[parts.length - 1].toLowerCase())
+    ) continue;
 
     try {
       const content = entry.getData().toString('utf8');
@@ -115,16 +87,16 @@ function parseZip(buffer) {
       const fileName = parts[parts.length - 1];
       node[fileName] = { __type: 'file', path: displayPath, size: content.length };
     } catch {
-      // Binary or unreadable file — skip
+      // Binary or unreadable — skip
     }
   }
 
   return { files, tree };
 }
 
-/**
- * Helper — detect project language stats
- */
+// ─────────────────────────────────────────────────────────────
+// Helper — detect project language stats
+// ─────────────────────────────────────────────────────────────
 function getLanguageStats(files) {
   const extCounts = {};
   let totalLines = 0;
@@ -165,9 +137,10 @@ router.post('/analyze', upload.single('file'), async (req, res) => {
     let contextStr = '';
     const included = [];
 
-    // Prioritize important files
-    const priority = ['package.json', 'requirements.txt', 'Cargo.toml', 'go.mod',
-      'README.md', 'index.js', 'main.py', 'App.jsx', 'App.tsx', 'main.go'];
+    const priority = [
+      'package.json', 'requirements.txt', 'Cargo.toml', 'go.mod',
+      'README.md', 'index.js', 'main.py', 'App.jsx', 'App.tsx', 'main.go',
+    ];
 
     const sortedFiles = Object.keys(files).sort((a, b) => {
       const aName = a.split('/').pop();
@@ -207,11 +180,10 @@ Return this exact JSON structure:
   "techStack": ["tech1", "tech2"]
 }`;
 
-    const raw = await geminiGenerate(systemPrompt, userPrompt);
+    const raw = await geminiGenerate(systemPrompt, userPrompt, 0.3);
 
     let analysis = {};
     try {
-      // Strip markdown fences if present
       const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       analysis = JSON.parse(cleaned);
     } catch {
@@ -226,9 +198,8 @@ Return this exact JSON structure:
       tree,
       fileCount: Object.keys(files).length,
       includedFiles: included,
-      // Send file contents to frontend for search + viewing
       files: Object.fromEntries(
-        Object.entries(files).map(([k, v]) => [k, v.slice(0, 50000)]) // cap per file
+        Object.entries(files).map(([k, v]) => [k, v.slice(0, 50000)])
       ),
     });
   } catch (err) {
@@ -239,62 +210,19 @@ Return this exact JSON structure:
 
 // ─────────────────────────────────────────────────────────────
 // POST /api/repo/explain
-// Explain a single file
+// Explain a single file (streaming)
 // ─────────────────────────────────────────────────────────────
 router.post('/explain', async (req, res) => {
   const { filePath, content, repoContext } = req.body;
   if (!filePath || !content) return res.status(400).json({ error: 'Missing filePath or content' });
 
   try {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no');
-
-    const systemPrompt = `You are an expert code analyst. Explain code files clearly for developers.${repoContext ? `\n\nRepository context: ${repoContext}` : ''}`;
+    const systemPrompt = `You are an expert code analyst. Explain code files clearly for developers.${
+      repoContext ? `\n\nRepository context: ${repoContext}` : ''
+    }`;
     const userPrompt = `Explain this file in detail:\n\nFile: ${filePath}\n\n\`\`\`\n${content.slice(0, 15000)}\n\`\`\`\n\nCover: purpose, key functions/classes, dependencies it uses, how it fits in the project, and any notable patterns or issues.`;
 
-    const response = await fetch(GEMINI_STREAM_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-      }),
-    });
-
-    if (!response.ok) {
-      res.write(`data: ${JSON.stringify({ error: 'Gemini error' })}\n\n`);
-      res.write('data: [DONE]\n\n');
-      res.end();
-      return;
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed || !trimmed.startsWith('data: ')) continue;
-        const data = trimmed.slice(6);
-        if (data === '[DONE]') continue;
-        try {
-          const parsed = JSON.parse(data);
-          const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
-        } catch { /* skip */ }
-      }
-    }
-
-    res.write('data: [DONE]\n\n');
-    res.end();
+    await geminiStream(systemPrompt, [{ role: 'user', parts: [{ text: userPrompt }] }], res);
   } catch (err) {
     console.error('Explain error:', err);
     if (!res.headersSent) res.status(500).json({ error: err.message });
@@ -310,7 +238,6 @@ router.post('/bugs', async (req, res) => {
   if (!files || !Object.keys(files).length) return res.status(400).json({ error: 'No files provided' });
 
   try {
-    // Cap context
     let contextStr = '';
     const MAX = 60000;
     for (const [path, content] of Object.entries(files)) {
@@ -319,7 +246,9 @@ router.post('/bugs', async (req, res) => {
       contextStr += snippet;
     }
 
-    const prompt = `Analyze this codebase for bugs, security vulnerabilities, dead code, and code quality issues.
+    const raw = await geminiGenerate(
+      'You are a senior code reviewer and security analyst. Find real issues in code.',
+      `Analyze this codebase for bugs, security vulnerabilities, dead code, and code quality issues.
 
 ${contextStr}
 
@@ -328,11 +257,8 @@ Respond with ONLY valid JSON (no markdown fences):
   "bugs": [{"file": "path", "line": "~10-20", "severity": "high|medium|low", "type": "Bug|Security|Dead Code|Quality", "description": "what's wrong", "suggestion": "how to fix"}],
   "summary": "overall code health summary",
   "score": 85
-}`;
-
-    const raw = await geminiGenerate(
-      'You are a senior code reviewer and security analyst. Find real issues in code.',
-      prompt
+}`,
+      0.3
     );
 
     let result = {};
@@ -358,16 +284,15 @@ router.post('/deps', async (req, res) => {
   const { files } = req.body;
 
   try {
-    // Find dependency files
-    const depFiles = {};
-    const depFileNames = ['package.json', 'requirements.txt', 'Cargo.toml', 'go.mod',
-      'Gemfile', 'pom.xml', 'build.gradle', 'pyproject.toml'];
+    const depFileNames = [
+      'package.json', 'requirements.txt', 'Cargo.toml', 'go.mod',
+      'Gemfile', 'pom.xml', 'build.gradle', 'pyproject.toml',
+    ];
 
+    const depFiles = {};
     for (const [path, content] of Object.entries(files || {})) {
       const name = path.split('/').pop();
-      if (depFileNames.includes(name)) {
-        depFiles[path] = content;
-      }
+      if (depFileNames.includes(name)) depFiles[path] = content;
     }
 
     let contextStr = Object.entries(depFiles)
@@ -389,7 +314,8 @@ ${contextStr}
   "summary": "brief dep summary",
   "totalDeps": 0,
   "devDeps": 0
-}`
+}`,
+      0.3
     );
 
     let result = {};
@@ -478,11 +404,6 @@ router.post('/chat', async (req, res) => {
   if (!messages.length) return res.status(400).json({ error: 'No messages' });
 
   try {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no');
-
     const systemPrompt = `You are Euler, an expert AI code analyst with full knowledge of the uploaded repository.
 
 Repository Overview: ${JSON.stringify(analysis || {})}
@@ -497,47 +418,7 @@ Answer questions about this codebase precisely. Reference specific files and lin
       parts: [{ text: m.content }],
     }));
 
-    const response = await fetch(GEMINI_STREAM_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: geminiContents,
-      }),
-    });
-
-    if (!response.ok) {
-      res.write(`data: ${JSON.stringify({ error: 'Gemini error' })}\n\n`);
-      res.write('data: [DONE]\n\n');
-      res.end();
-      return;
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed || !trimmed.startsWith('data: ')) continue;
-        const data = trimmed.slice(6);
-        if (data === '[DONE]') continue;
-        try {
-          const parsed = JSON.parse(data);
-          const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
-        } catch { /* skip */ }
-      }
-    }
-
-    res.write('data: [DONE]\n\n');
-    res.end();
+    await geminiStream(systemPrompt, geminiContents, res);
   } catch (err) {
     console.error('Repo chat error:', err);
     if (!res.headersSent) res.status(500).json({ error: err.message });
@@ -565,7 +446,7 @@ router.post('/search', (req, res) => {
           content: lines[i].trim(),
           context: lines.slice(Math.max(0, i - 1), i + 2).join('\n'),
         });
-        if (results.length >= 100) break; // cap results
+        if (results.length >= 100) break;
       }
     }
     if (results.length >= 100) break;

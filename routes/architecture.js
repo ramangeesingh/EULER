@@ -7,53 +7,12 @@
  */
 
 import { Router } from 'express';
+import { geminiGenerate, geminiStream, parseJSON } from '../server/gemini.js';
 
 const router = Router();
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-const GEMINI_STREAM_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
-
 // ── In-memory architecture store (production: use DB) ─────────────────────────
 const architectureStore = new Map();
-
-/**
- * Helper — call Gemini (non-streaming) and return text
- */
-async function geminiGenerate(systemPrompt, userPrompt, temperature = 0.4) {
-  const response = await fetch(GEMINI_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: systemPrompt }] },
-      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-      generationConfig: { temperature },
-    }),
-  });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Gemini error ${response.status}: ${errText}`);
-  }
-
-  const data = await response.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-}
-
-/**
- * Helper — strip JSON markdown fences and parse safely
- */
-function parseJSON(raw, fallback = {}) {
-  try {
-    const cleaned = raw
-      .replace(/```json\n?/g, '')
-      .replace(/```\n?/g, '')
-      .trim();
-    return JSON.parse(cleaned);
-  } catch {
-    return fallback;
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SYSTEM PROMPT
@@ -305,11 +264,6 @@ router.post('/chat', async (req, res) => {
     return res.status(400).json({ error: 'No messages provided' });
   }
 
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no');
-
   const systemPrompt = `You are an expert software architect refining an architecture plan with the user.
 
 Current Architecture Context:
@@ -323,47 +277,7 @@ Help the user refine, expand, question, or modify their architecture. Be specifi
   }));
 
   try {
-    const response = await fetch(GEMINI_STREAM_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents: geminiContents,
-      }),
-    });
-
-    if (!response.ok) {
-      res.write(`data: ${JSON.stringify({ error: 'Gemini error' })}\n\n`);
-      res.write('data: [DONE]\n\n');
-      res.end();
-      return;
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed || !trimmed.startsWith('data: ')) continue;
-        const data = trimmed.slice(6);
-        if (data === '[DONE]') continue;
-        try {
-          const parsed = JSON.parse(data);
-          const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (text) res.write(`data: ${JSON.stringify({ content: text })}\n\n`);
-        } catch { /* skip */ }
-      }
-    }
-
-    res.write('data: [DONE]\n\n');
-    res.end();
+    await geminiStream(systemPrompt, geminiContents, res);
   } catch (err) {
     console.error('Architecture chat error:', err);
     if (!res.headersSent) res.status(500).json({ error: err.message });
