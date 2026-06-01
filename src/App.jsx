@@ -9,6 +9,8 @@ import VideoBackground from './components/VideoBackground';
 import { streamChat } from './lib/api';
 import RepoIntelligencePage from './components/repo/RepoIntelligencePage';
 import ArchitectureEnginePage from './components/architecture/ArchitectureEnginePage';
+import BuildWebsitePage from './components/website/BuildWebsitePage';
+import DevAssistantPage from './components/devassistant/DevAssistantPage';
 
 const INITIAL_CHATS = [
   { id: 1, title: 'AI architecture design',   timestamp: '2m ago'    },
@@ -139,7 +141,17 @@ function AppShell() {
           onSendMessage={handleSendMessage}
           hasActiveChat={messages.length > 0}
           isStreaming={isStreaming}
-          onAction={setActiveFeature}
+          onAction={(actionId) => {
+            // Map floating-icon ACTIONS ids → overlay feature keys
+            const FEATURE_MAP = {
+              'repo':         'repo',
+              'architecture': 'architecture',
+              'build-site':   'website',
+              'analyze':      'devassistant',
+            };
+            const feature = FEATURE_MAP[actionId] ?? actionId;
+            setActiveFeature(feature);
+          }}
         />
       </div>
 
@@ -150,6 +162,12 @@ function AppShell() {
         )}
         {activeFeature === 'architecture' && (
           <ArchitectureEnginePage key="arch" onClose={() => setActiveFeature(null)} />
+        )}
+        {activeFeature === 'website' && (
+          <BuildWebsitePage key="website" onClose={() => setActiveFeature(null)} />
+        )}
+        {activeFeature === 'devassistant' && (
+          <DevAssistantPage key="devassistant" onClose={() => setActiveFeature(null)} />
         )}
       </AnimatePresence>
     </div>

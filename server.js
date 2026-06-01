@@ -3,6 +3,8 @@ import { createServer } from 'http';
 import dotenv from 'dotenv';
 import repoRouter from './routes/repo.js';
 import architectureRouter from './routes/architecture.js';
+import websiteRouter from './routes/website.js';
+import devAssistantRouter from './routes/devassistant.js';
 
 dotenv.config();
 
@@ -13,6 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 // Mount routers
 app.use('/api/repo', repoRouter);
 app.use('/api/architecture', architectureRouter);
+app.use('/api/website', websiteRouter);
+app.use('/api/devassistant', devAssistantRouter);
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 

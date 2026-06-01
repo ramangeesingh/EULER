@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, FileCode, Settings, Code2, PanelLeftClose, LogOut, FolderCode, Cpu } from 'lucide-react';
+import { Plus, Search, FileCode, Settings, Code2, PanelLeftClose, LogOut, FolderCode, Cpu, Globe, Bot } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, isOpen, onToggle, onOpenFeature }) {
@@ -83,6 +83,24 @@ export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, is
             >
               <FolderCode className="w-[17px] h-[17px] text-gray-500 shrink-0" />
               <span className="text-gray-400">Repo Intelligence</span>
+            </motion.button>
+
+            <motion.button
+              onClick={() => onOpenFeature?.('website')}
+              className="w-full h-[38px] text-left px-3 rounded-lg hover:bg-white/[0.04] transition-colors flex items-center gap-3 text-[13.5px]"
+              whileHover={{ x: 1 }}
+            >
+              <Globe className="w-[17px] h-[17px] text-gray-500 shrink-0" />
+              <span className="text-gray-400">Build Website</span>
+            </motion.button>
+
+            <motion.button
+              onClick={() => onOpenFeature?.('devassistant')}
+              className="w-full h-[38px] text-left px-3 rounded-lg hover:bg-white/[0.04] transition-colors flex items-center gap-3 text-[13.5px]"
+              whileHover={{ x: 1 }}
+            >
+              <Bot className="w-[17px] h-[17px] text-gray-500 shrink-0" />
+              <span className="text-gray-400">AI Dev Assistant</span>
             </motion.button>
 
             {[

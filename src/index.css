@@ -143,4 +143,41 @@
     background: rgba(255, 255, 255, 0.07);
     border-color: rgba(255, 255, 255, 0.13);
   }
+
+  /* ── Website builder ── */
+  .wb-preview-frame {
+    border: none;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .wb-code-area {
+    resize: none;
+    outline: none;
+    background: transparent;
+    color: #e5e7eb;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 14px 16px;
+    border: none;
+    caret-color: #a78bfa;
+  }
+}
+
+/* ── Keyframe animations (global, outside @layer) ── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
 }
