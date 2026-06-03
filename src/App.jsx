@@ -114,7 +114,6 @@ function AppShell() {
           onSelectChat={setActiveChat}
           isOpen={sidebarOpen}
           onToggle={toggleSidebar}
-          onOpenFeature={setActiveFeature}
         />
 
         <AnimatePresence>
@@ -141,17 +140,7 @@ function AppShell() {
           onSendMessage={handleSendMessage}
           hasActiveChat={messages.length > 0}
           isStreaming={isStreaming}
-          onAction={(actionId) => {
-            // Map floating-icon ACTIONS ids → overlay feature keys
-            const FEATURE_MAP = {
-              'repo':         'repo',
-              'architecture': 'architecture',
-              'build-site':   'website',
-              'analyze':      'devassistant',
-            };
-            const feature = FEATURE_MAP[actionId] ?? actionId;
-            setActiveFeature(feature);
-          }}
+          onAction={setActiveFeature}
         />
       </div>
 

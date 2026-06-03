@@ -1,11 +1,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, FileCode, Settings, Code2, PanelLeftClose, LogOut, FolderCode, Cpu, Globe, Bot } from 'lucide-react';
+import { Plus, Code2, PanelLeftClose, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, isOpen, onToggle, onOpenFeature }) {
+export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, isOpen, onToggle }) {
   const { user, signOut } = useAuth();
 
-  const displayName = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
+  const displayName  = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
   const displayEmail = user?.email || '';
   const avatarLetter = displayName[0]?.toUpperCase() ?? 'U';
 
@@ -43,7 +43,7 @@ export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, is
           </div>
 
           {/* ── New Chat button ── */}
-          <div className="px-3 mb-2">
+          <div className="px-3 mb-3">
             <motion.button
               onClick={onNewChat}
               className="new-chat-btn w-full rounded-xl px-4 flex items-center gap-3 text-[14px] font-medium text-white/85"
@@ -57,70 +57,8 @@ export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, is
             </motion.button>
           </div>
 
-          {/* ── Primary nav ── */}
-          <nav className="px-3 pb-1 space-y-0.5">
-            {/* Feature buttons */}
-            <motion.button
-              onClick={() => onOpenFeature?.('architecture')}
-              className="w-full h-[42px] text-left px-3 rounded-xl flex items-center gap-3 text-[13.5px] transition-all group"
-              style={{
-                background: 'linear-gradient(135deg, rgba(124,58,237,0.12), rgba(79,70,229,0.08))',
-                border: '1px solid rgba(124,58,237,0.2)',
-              }}
-              whileHover={{ x: 1, borderColor: 'rgba(124,58,237,0.4)' }}
-            >
-              <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', boxShadow: '0 2px 8px rgba(124,58,237,0.4)' }}>
-                <Cpu className="w-3.5 h-3.5 text-white" />
-              </div>
-              <span className="text-purple-300/90 font-medium">Architecture Engine</span>
-              <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-md font-medium" style={{ background: 'rgba(124,58,237,0.2)', color: '#c4b5fd', border: '1px solid rgba(124,58,237,0.25)' }}>AI</span>
-            </motion.button>
-
-            <motion.button
-              onClick={() => onOpenFeature?.('repo')}
-              className="w-full h-[38px] text-left px-3 rounded-lg hover:bg-white/[0.04] transition-colors flex items-center gap-3 text-[13.5px]"
-              whileHover={{ x: 1 }}
-            >
-              <FolderCode className="w-[17px] h-[17px] text-gray-500 shrink-0" />
-              <span className="text-gray-400">Repo Intelligence</span>
-            </motion.button>
-
-            <motion.button
-              onClick={() => onOpenFeature?.('website')}
-              className="w-full h-[38px] text-left px-3 rounded-lg hover:bg-white/[0.04] transition-colors flex items-center gap-3 text-[13.5px]"
-              whileHover={{ x: 1 }}
-            >
-              <Globe className="w-[17px] h-[17px] text-gray-500 shrink-0" />
-              <span className="text-gray-400">Build Website</span>
-            </motion.button>
-
-            <motion.button
-              onClick={() => onOpenFeature?.('devassistant')}
-              className="w-full h-[38px] text-left px-3 rounded-lg hover:bg-white/[0.04] transition-colors flex items-center gap-3 text-[13.5px]"
-              whileHover={{ x: 1 }}
-            >
-              <Bot className="w-[17px] h-[17px] text-gray-500 shrink-0" />
-              <span className="text-gray-400">AI Dev Assistant</span>
-            </motion.button>
-
-            {[
-              { icon: Search, label: 'Semantic Search' },
-              { icon: FileCode, label: 'Last Opened Files' },
-              { icon: Settings, label: 'Settings' },
-            ].map(({ icon: Icon, label }) => (
-              <motion.button
-                key={label}
-                className="w-full h-[38px] text-left px-3 rounded-lg hover:bg-white/[0.04] transition-colors flex items-center gap-3 text-[13.5px]"
-                whileHover={{ x: 1 }}
-              >
-                <Icon className="w-[17px] h-[17px] text-gray-500 shrink-0" />
-                <span className="text-gray-400">{label}</span>
-              </motion.button>
-            ))}
-          </nav>
-
           {/* ── Divider ── */}
-          <div className="mx-4 my-3 h-px bg-white/[0.04]" />
+          <div className="mx-4 mb-3 h-px bg-white/[0.04]" />
 
           {/* ── Recent Chats ── */}
           <div className="px-4 mb-2">
@@ -147,7 +85,6 @@ export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, is
           {/* ── Profile ── */}
           <div className="px-3 pb-4 pt-2">
             <div className="glass-profile rounded-xl px-3 flex items-center gap-2.5 group" style={{ height: '60px' }}>
-              {/* Avatar initial */}
               <div
                 className="w-[34px] h-[34px] rounded-full shrink-0 flex items-center justify-center text-white text-[13px] font-semibold"
                 style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)', boxShadow: '0 4px 14px rgba(124,58,237,0.4)' }}
@@ -158,7 +95,6 @@ export default function Sidebar({ chats, activeChat, onNewChat, onSelectChat, is
                 <div className="text-[13px] font-medium text-white/90 truncate leading-5">{displayName}</div>
                 <div className="text-[11px] text-gray-500 leading-4 truncate">{displayEmail}</div>
               </div>
-              {/* Sign out — visible on hover */}
               <motion.button
                 onClick={signOut}
                 className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-white/[0.07] transition-all shrink-0"
