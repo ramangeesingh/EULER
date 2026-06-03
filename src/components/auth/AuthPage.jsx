@@ -128,17 +128,27 @@ export default function AuthPage() {
       >
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <motion.div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
+          <motion.img
+            src="/euler-logo.jpg"
+            alt="Euler Logo"
+            className="w-20 h-20 rounded-2xl object-cover mb-3"
             style={{
-              background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-              boxShadow: '0 0 40px rgba(124,58,237,0.5)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              boxShadow: '0 0 40px rgba(124,58,237,0.4)',
             }}
-            animate={{ boxShadow: ['0 0 30px rgba(124,58,237,0.4)', '0 0 50px rgba(124,58,237,0.7)', '0 0 30px rgba(124,58,237,0.4)'] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <Code2 className="w-6 h-6 text-white" />
-          </motion.div>
+            animate={{ 
+              boxShadow: [
+                '0 0 30px rgba(124,58,237,0.3)', 
+                '0 0 50px rgba(124,58,237,0.6)', 
+                '0 0 30px rgba(124,58,237,0.3)'
+              ],
+              y: [0, -4, 0]
+            }}
+            transition={{ 
+              boxShadow: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
+              y: { duration: 4, repeat: Infinity, ease: 'easeInOut' }
+            }}
+          />
           <h1 className="text-2xl font-bold text-white tracking-tight">Euler</h1>
           <p className="text-sm text-gray-500 mt-1">Your AI coding co-pilot</p>
         </div>

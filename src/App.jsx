@@ -1,7 +1,7 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PanelLeftOpen } from 'lucide-react';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Sidebar from './components/Sidebar';
 import ChatWorkspace from './components/ChatWorkspace';
@@ -12,27 +12,75 @@ import ArchitectureEnginePage from './components/architecture/ArchitectureEngine
 import BuildWebsitePage from './components/website/BuildWebsitePage';
 import DevAssistantPage from './components/devassistant/DevAssistantPage';
 
-const INITIAL_CHATS = [
-  { id: 1, title: 'AI architecture design',   timestamp: '2m ago'    },
-  { id: 2, title: 'Fix authentication bug',   timestamp: '1h ago'    },
-  { id: 3, title: 'Next.js project structure', timestamp: '3h ago'   },
-  { id: 4, title: 'Database schema review',   timestamp: 'Yesterday'  },
-  { id: 5, title: 'Optimize code performance', timestamp: '2 days ago' },
-];
-
 function AppShell() {
+  const { session } = useAuth();
+
   // ── Feature overlays ──────────────────────────────────────────────────────
   const [activeFeature, setActiveFeature] = useState(null); // null | 'repo' | 'architecture'
 
   // ── Chat state ────────────────────────────────────────────────────────────
-  const [chats]       = useState(INITIAL_CHATS);
-  const [activeChat, setActiveChat] = useState(null);
-  const [messages,   setMessages]   = useState([]);
+  const [chats, setChats]             = useState([]);
+  const [activeChat, setActiveChat]   = useState(null);
+  const [messages,   setMessages]     = useState([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const abortRef = useRef(null);
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
+
+  // Load user's chat history on mount or when session changes
+  const fetchChats = useCallback(async () => {
+    if (!session?.access_token) return;
+    try {
+      const res = await fetch('/api/chats', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setChats(data.chats || []);
+      }
+    } catch (err) {
+      console.error('Failed to load chats:', err);
+    }
+  }, [session]);
+
+  useEffect(() => {
+    fetchChats();
+  }, [fetchChats]);
+
+  // Load chat messages when activeChat changes
+  useEffect(() => {
+    if (!session?.access_token) return;
+    if (!activeChat) {
+      setMessages([]);
+      return;
+    }
+
+    const fetchMessages = async () => {
+      try {
+        const res = await fetch(`/api/chats/${activeChat.id}/messages`, {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const normalized = (data.messages || []).map((m) => ({
+            role: m.role.toLowerCase(),
+            content: m.content,
+            timestamp: m.createdAt,
+          }));
+          setMessages(normalized);
+        }
+      } catch (err) {
+        console.error('Failed to fetch messages:', err);
+      }
+    };
+
+    fetchMessages();
+  }, [activeChat, session]);
 
   const handleNewChat = () => {
     abortRef.current?.();
@@ -42,8 +90,53 @@ function AppShell() {
     setIsStreaming(false);
   };
 
+  const handleRenameChat = useCallback(async (chatId, newTitle) => {
+    if (!session?.access_token) return;
+    try {
+      const res = await fetch(`/api/chats/${chatId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ title: newTitle }),
+      });
+      if (res.ok) {
+        setChats((prev) =>
+          prev.map((c) => (c.id === chatId ? { ...c, title: newTitle } : c))
+        );
+        if (activeChat?.id === chatId) {
+          setActiveChat((prev) => prev ? { ...prev, title: newTitle } : null);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to rename chat:', err);
+    }
+  }, [session, activeChat]);
+
+  const handleDeleteChat = useCallback(async (chatId) => {
+    if (!session?.access_token) return;
+    try {
+      const res = await fetch(`/api/chats/${chatId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+      });
+      if (res.ok) {
+        setChats((prev) => prev.filter((c) => c.id !== chatId));
+        if (activeChat?.id === chatId) {
+          setActiveChat(null);
+          setMessages([]);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to delete chat:', err);
+    }
+  }, [session, activeChat]);
+
   const handleSendMessage = useCallback((text) => {
-    if (isStreaming) return;
+    if (isStreaming || !session?.access_token) return;
 
     const userMsg = { role: 'user', content: text, timestamp: new Date() };
 
@@ -57,6 +150,8 @@ function AppShell() {
       const abort = streamChat(
         updated.map((m) => ({ role: m.role, content: m.content })),
         {
+          accessToken: session.access_token,
+          chatId: activeChat?.id,
           onToken: (token) => {
             setMessages((curr) => {
               const copy = [...curr];
@@ -67,7 +162,7 @@ function AppShell() {
               return copy;
             });
           },
-          onComplete: () => {
+          onComplete: (fullText, metadata) => {
             setMessages((curr) => {
               const copy = [...curr];
               const lastIdx = copy.length - 1;
@@ -78,6 +173,14 @@ function AppShell() {
             });
             setIsStreaming(false);
             abortRef.current = null;
+
+            if (metadata) {
+              const { chatId, title } = metadata;
+              setActiveChat({ id: chatId, title });
+              fetchChats();
+            } else {
+              fetchChats();
+            }
           },
           onError: (error) => {
             setMessages((curr) => {
@@ -97,7 +200,7 @@ function AppShell() {
       abortRef.current = abort;
       return withAssistant;
     });
-  }, [isStreaming]);
+  }, [isStreaming, session, activeChat, fetchChats]);
 
   return (
     <div className="h-screen w-screen overflow-hidden relative">
@@ -112,6 +215,8 @@ function AppShell() {
           activeChat={activeChat}
           onNewChat={handleNewChat}
           onSelectChat={setActiveChat}
+          onRenameChat={handleRenameChat}
+          onDeleteChat={handleDeleteChat}
           isOpen={sidebarOpen}
           onToggle={toggleSidebar}
         />

@@ -7,15 +7,20 @@
  * @param {(error: string) => void} onError                   - Called on error
  * @returns {() => void} abort function to cancel the stream
  */
-export function streamChat(messages, { onToken, onComplete, onError }) {
+export function streamChat(messages, { onToken, onComplete, onError, accessToken, chatId }) {
   const controller = new AbortController();
 
   (async () => {
     try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages }),
+        headers,
+        body: JSON.stringify({ messages, chatId }),
         signal: controller.signal,
       });
 
@@ -29,6 +34,7 @@ export function streamChat(messages, { onToken, onComplete, onError }) {
       const decoder = new TextDecoder();
       let buffer = '';
       let fullText = '';
+      let metadata = null;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -44,7 +50,7 @@ export function streamChat(messages, { onToken, onComplete, onError }) {
 
           const data = trimmed.slice(6);
           if (data === '[DONE]') {
-            onComplete?.(fullText);
+            onComplete?.(fullText, metadata);
             return;
           }
 
@@ -53,6 +59,10 @@ export function streamChat(messages, { onToken, onComplete, onError }) {
             if (parsed.error) {
               onError?.(parsed.error);
               return;
+            }
+            if (parsed.chatId && parsed.title) {
+              metadata = { chatId: parsed.chatId, title: parsed.title };
+              continue;
             }
             if (parsed.content) {
               fullText += parsed.content;
@@ -65,7 +75,7 @@ export function streamChat(messages, { onToken, onComplete, onError }) {
       }
 
       // Stream ended without [DONE] — still call onComplete
-      onComplete?.(fullText);
+      onComplete?.(fullText, metadata);
     } catch (err) {
       if (err.name !== 'AbortError') {
         onError?.(err.message || 'Network error');
