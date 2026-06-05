@@ -43,7 +43,7 @@ function syntaxHighlight(code, lang) {
       .replace(/(`[^`]*`)/g, '<span style="color:#86efac">$1</span>')
       .replace(/("[^"]*"|'[^']*')/g, '<span style="color:#fca5a5">$1</span>')
       .replace(/\b(const|let|var|function|return|if|else|for|while|class|import|export|from|default|async|await|try|catch|throw|new|typeof|instanceof|null|undefined|true|false|this|super|extends|of|in|do|switch|case|break|continue|void|delete|yield|static|get|set|public|private|protected|interface|type|enum|namespace|declare|abstract|readonly|override)\b/g,
-        '<span style="color:#c4b5fd">$1</span>')
+        '<span style="color:#93C5FD">$1</span>')
       .replace(/\b(\d+\.?\d*)\b/g, '<span style="color:#fb923c">$1</span>');
   }
 
@@ -53,7 +53,7 @@ function syntaxHighlight(code, lang) {
       .replace(/(#[^\n]*)/g, '<span style="color:#6b7280;font-style:italic">$1</span>')
       .replace(/("[^"]*"|'[^']*'|"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\')/g, '<span style="color:#fca5a5">$1</span>')
       .replace(/\b(def|class|return|if|elif|else|for|while|import|from|as|with|try|except|finally|raise|pass|break|continue|lambda|yield|async|await|None|True|False|and|or|not|in|is|global|nonlocal)\b/g,
-        '<span style="color:#c4b5fd">$1</span>')
+        '<span style="color:#93C5FD">$1</span>')
       .replace(/\b(\d+\.?\d*)\b/g, '<span style="color:#fb923c">$1</span>');
   }
 
@@ -65,7 +65,7 @@ function syntaxHighlight(code, lang) {
       .replace(/(#[0-9a-fA-F]{3,8})/g, '<span style="color:#fb923c">$1</span>')
       .replace(/\b(px|em|rem|vw|vh|%|auto|none|flex|grid|block|inline|absolute|relative|fixed|sticky)\b/g,
         '<span style="color:#67e8f9">$1</span>')
-      .replace(/(@[a-zA-Z-]+)/g, '<span style="color:#c4b5fd">$1</span>');
+      .replace(/(@[a-zA-Z-]+)/g, '<span style="color:#93C5FD">$1</span>');
   }
 
   // HTML
@@ -81,7 +81,7 @@ function syntaxHighlight(code, lang) {
     return escaped
       .replace(/("[^"]*")(\s*:)/g, '<span style="color:#93c5fd">$1</span>$2')
       .replace(/:\s*("[^"]*")/g, ': <span style="color:#fca5a5">$1</span>')
-      .replace(/\b(true|false|null)\b/g, '<span style="color:#c4b5fd">$1</span>')
+      .replace(/\b(true|false|null)\b/g, '<span style="color:#93C5FD">$1</span>')
       .replace(/\b(\d+\.?\d*)\b/g, '<span style="color:#fb923c">$1</span>');
   }
 
@@ -101,7 +101,7 @@ function syntaxHighlight(code, lang) {
       .replace(/(--[^\n]*)/g, '<span style="color:#6b7280;font-style:italic">$1</span>')
       .replace(/("[^"]*"|'[^']*')/g, '<span style="color:#fca5a5">$1</span>')
       .replace(/\b(SELECT|FROM|WHERE|JOIN|LEFT|RIGHT|INNER|OUTER|ON|AS|GROUP|BY|ORDER|HAVING|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE|INDEX|DROP|ALTER|ADD|COLUMN|PRIMARY|KEY|FOREIGN|REFERENCES|UNIQUE|NOT|NULL|AND|OR|IN|LIKE|BETWEEN|LIMIT|OFFSET|DISTINCT|COUNT|SUM|AVG|MAX|MIN)\b/gi,
-        '<span style="color:#c4b5fd">$1</span>');
+        '<span style="color:#93C5FD">$1</span>');
   }
 
   return escaped;
@@ -212,7 +212,7 @@ function MarkdownContent({ content }) {
                 const num = line.match(/^(\d+)\./)[1];
                 return (
                   <div key={j} className="flex gap-2 my-0.5">
-                    <span className="text-[13px] text-purple-400 font-medium shrink-0 mt-[1px]">{num}.</span>
+                    <span className="text-[13px] text-blue-400 font-medium shrink-0 mt-[1px]">{num}.</span>
                     <span className="text-[13.5px] text-gray-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: inlineMarkdown(line.replace(/^\d+\.\s/, '')) }} />
                   </div>
                 );
@@ -221,7 +221,7 @@ function MarkdownContent({ content }) {
               if (line.startsWith('- ') || line.startsWith('* ')) {
                 return (
                   <div key={j} className="flex gap-2 my-0.5">
-                    <span className="text-purple-500 mt-[6px] shrink-0" style={{ fontSize: '8px' }}>●</span>
+                    <span className="text-blue-500 mt-[6px] shrink-0" style={{ fontSize: '8px' }}>●</span>
                     <span className="text-[13.5px] text-gray-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: inlineMarkdown(line.slice(2)) }} />
                   </div>
                 );
@@ -250,7 +250,7 @@ function inlineMarkdown(text) {
   return text
     .replace(/\*\*([^*]+)\*\*/g, '<strong style="color:#f3f4f6;font-weight:600">$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em style="color:#d1d5db">$1</em>')
-    .replace(/`([^`]+)`/g, '<code style="background:rgba(124,58,237,0.15);color:#c4b5fd;padding:1px 6px;border-radius:5px;font-family:monospace;font-size:12px;border:1px solid rgba(124,58,237,0.2)">$1</code>')
+    .replace(/`([^`]+)`/g, '<code style="background:rgba(37, 99, 235,0.15);color:#93C5FD;padding:1px 6px;border-radius:5px;font-family:monospace;font-size:12px;border:1px solid rgba(37, 99, 235,0.2)">$1</code>')
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" style="color:#93c5fd;text-decoration:underline" target="_blank" rel="noopener">$1</a>');
 }
 
@@ -284,14 +284,14 @@ const DevMessageBubble = memo(function DevMessageBubble({ message }) {
         className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center mt-0.5 text-[11px] font-bold"
         style={
           isUser
-            ? { background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: '#fff' }
+            ? { background: 'linear-gradient(135deg, #2563EB, #3B82F6)', color: '#fff' }
             : {
-                background: 'linear-gradient(135deg, rgba(124,58,237,0.2), rgba(79,70,229,0.12))',
-                border: '1px solid rgba(124,58,237,0.3)',
+                background: 'linear-gradient(135deg, rgba(37, 99, 235,0.2), rgba(59, 130, 246,0.12))',
+                border: '1px solid rgba(37, 99, 235,0.3)',
               }
         }
       >
-        {isUser ? 'U' : <Bot className="w-3.5 h-3.5 text-purple-400" />}
+        {isUser ? 'U' : <Bot className="w-3.5 h-3.5 text-blue-400" />}
       </div>
 
       {/* Bubble */}
@@ -300,8 +300,8 @@ const DevMessageBubble = memo(function DevMessageBubble({ message }) {
         style={
           isUser
             ? {
-                background: 'linear-gradient(135deg, rgba(124,58,237,0.2), rgba(79,70,229,0.15))',
-                border: '1px solid rgba(124,58,237,0.28)',
+                background: 'linear-gradient(135deg, rgba(37, 99, 235,0.2), rgba(59, 130, 246,0.15))',
+                border: '1px solid rgba(37, 99, 235,0.28)',
                 borderTopRightRadius: '6px',
               }
             : {
@@ -334,7 +334,7 @@ const DevMessageBubble = memo(function DevMessageBubble({ message }) {
             {message.isStreaming && (
               <span
                 className="inline-block w-0.5 h-4 ml-0.5 rounded-full align-middle"
-                style={{ background: '#a78bfa', animation: 'pulse 1s ease-in-out infinite' }}
+                style={{ background: '#60A5FA', animation: 'pulse 1s ease-in-out infinite' }}
               />
             )}
           </>

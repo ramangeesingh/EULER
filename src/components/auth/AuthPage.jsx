@@ -23,7 +23,7 @@ function GoogleIcon() {
 function AuthInput({ icon: Icon, label, type = 'text', value, onChange, id, showToggle, onToggle, showPassword }) {
   return (
     <div className="relative group">
-      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-violet-400 transition-colors z-10">
+      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-blue-400 transition-colors z-10">
         <Icon size={16} />
       </div>
       <input
@@ -39,7 +39,7 @@ function AuthInput({ icon: Icon, label, type = 'text', value, onChange, id, show
         htmlFor={id}
         className="absolute left-10 top-1/2 -translate-y-1/2 text-[13px] text-gray-500 
           peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-[13px]
-          peer-focus:top-3 peer-focus:text-[10px] peer-focus:text-violet-400
+          peer-focus:top-3 peer-focus:text-[10px] peer-focus:text-blue-400
           peer-not-placeholder-shown:top-3 peer-not-placeholder-shown:text-[10px]
           transition-all duration-200 pointer-events-none select-none"
       >
@@ -217,13 +217,13 @@ export default function AuthPage() {
                 className="w-20 h-20 rounded-2xl object-cover mb-3"
                 style={{
                   border: '1px solid rgba(255,255,255,0.15)',
-                  boxShadow: '0 0 40px rgba(124,58,237,0.4)',
+                  boxShadow: '0 0 40px rgba(37, 99, 235,0.4)',
                 }}
                 animate={{
                   boxShadow: [
-                    '0 0 30px rgba(124,58,237,0.3)',
-                    '0 0 50px rgba(124,58,237,0.6)',
-                    '0 0 30px rgba(124,58,237,0.3)'
+                    '0 0 30px rgba(37, 99, 235,0.3)',
+                    '0 0 50px rgba(37, 99, 235,0.6)',
+                    '0 0 30px rgba(37, 99, 235,0.3)'
                   ],
                   y: [0, -4, 0]
                 }}
@@ -252,7 +252,7 @@ export default function AuthPage() {
                       <motion.div
                         layoutId="auth-tab-indicator"
                         className="absolute bottom-0 left-0 right-0 h-px"
-                        style={{ background: 'linear-gradient(90deg, transparent, #7c3aed, transparent)' }}
+                        style={{ background: 'linear-gradient(90deg, transparent, #2563EB, transparent)' }}
                       />
                     )}
                   </button>

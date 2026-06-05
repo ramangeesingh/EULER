@@ -23,14 +23,14 @@ function MessageBubble({ msg }) {
         className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center mt-0.5"
         style={{
           background: isUser
-            ? 'linear-gradient(135deg, #7c3aed, #4f46e5)'
+            ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
             : 'rgba(255,255,255,0.06)',
           border: '1px solid rgba(255,255,255,0.1)',
         }}
       >
         {isUser
           ? <User className="w-3.5 h-3.5 text-white" />
-          : <Bot className="w-3.5 h-3.5 text-purple-400" />
+          : <Bot className="w-3.5 h-3.5 text-blue-400" />
         }
       </div>
 
@@ -38,8 +38,8 @@ function MessageBubble({ msg }) {
       <div
         className="max-w-[80%] px-4 py-3 rounded-2xl text-[13px] leading-relaxed"
         style={isUser ? {
-          background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(79,70,229,0.2))',
-          border: '1px solid rgba(124,58,237,0.3)',
+          background: 'linear-gradient(135deg, rgba(37, 99, 235,0.25), rgba(59, 130, 246,0.2))',
+          border: '1px solid rgba(37, 99, 235,0.3)',
           color: '#e9d5ff',
           borderRadius: '18px 18px 4px 18px',
         } : {
@@ -54,7 +54,7 @@ function MessageBubble({ msg }) {
         {msg.isStreaming && (
           <span
             className="inline-block w-1.5 h-4 ml-0.5 rounded-sm align-middle"
-            style={{ background: '#a78bfa', animation: 'pulse 1s infinite' }}
+            style={{ background: '#60A5FA', animation: 'pulse 1s infinite' }}
           />
         )}
       </div>
@@ -168,11 +168,11 @@ export default function ArchChatPanel({ architecture }) {
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
               style={{
-                background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(79,70,229,0.2))',
-                border: '1px solid rgba(124,58,237,0.3)',
+                background: 'linear-gradient(135deg, rgba(37, 99, 235,0.3), rgba(59, 130, 246,0.2))',
+                border: '1px solid rgba(37, 99, 235,0.3)',
               }}
             >
-              <Sparkles className="w-6 h-6 text-purple-400" />
+              <Sparkles className="w-6 h-6 text-blue-400" />
             </div>
             <h3 className="text-white font-semibold mb-1">Refine Your Architecture</h3>
             <p className="text-gray-500 text-sm mb-6 text-center max-w-xs">
@@ -221,7 +221,7 @@ export default function ArchChatPanel({ architecture }) {
             className="p-2 rounded-xl flex items-center justify-center shrink-0 transition-all"
             style={{
               background: input.trim() && !isStreaming
-                ? 'linear-gradient(135deg, #7c3aed, #4f46e5)'
+                ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
                 : 'rgba(255,255,255,0.06)',
               opacity: input.trim() && !isStreaming ? 1 : 0.4,
               cursor: input.trim() && !isStreaming ? 'pointer' : 'not-allowed',

@@ -27,11 +27,11 @@ function ThinkingIndicator() {
       <div
         className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center mt-0.5"
         style={{
-          background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(79,70,229,0.18))',
-          border: '1px solid rgba(124,58,237,0.35)',
+          background: 'linear-gradient(135deg, rgba(37, 99, 235,0.25), rgba(59, 130, 246,0.18))',
+          border: '1px solid rgba(37, 99, 235,0.35)',
         }}
       >
-        <svg className="w-3.5 h-3.5 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
+        <svg className="w-3.5 h-3.5 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
         </svg>
       </div>
@@ -50,7 +50,7 @@ function ThinkingIndicator() {
             <motion.div
               key={i}
               className="w-1.5 h-1.5 rounded-full"
-              style={{ background: '#7c3aed' }}
+              style={{ background: '#2563EB' }}
               animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.1, 0.8] }}
               transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
             />
@@ -82,8 +82,8 @@ function StarterPrompts({ onSelect }) {
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all"
             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
             whileHover={{
-              background: 'rgba(124,58,237,0.08)',
-              borderColor: 'rgba(124,58,237,0.3)',
+              background: 'rgba(37, 99, 235,0.08)',
+              borderColor: 'rgba(37, 99, 235,0.3)',
               x: 2,
             }}
             whileTap={{ scale: 0.98 }}

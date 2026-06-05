@@ -70,7 +70,7 @@ export default function Sidebar({
                 className="w-11 h-11 rounded-xl object-cover shrink-0"
                 style={{
                   border: '1px solid rgba(255,255,255,0.1)',
-                  boxShadow: '0 4px 16px rgba(124,58,237,0.2)'
+                  boxShadow: '0 4px 16px rgba(37, 99, 235,0.2)'
                 }}
               />
               <span className="text-[20px] font-semibold tracking-[-0.01em] text-white">Euler</span>
@@ -129,7 +129,7 @@ export default function Sidebar({
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
                         onKeyDown={(e) => handleKeyDown(e, chat.id)}
-                        className="flex-1 bg-white/[0.04] border border-white/10 rounded px-2 py-0.5 text-[12.5px] text-white outline-none focus:border-violet-500/50 transition-colors"
+                        className="flex-1 bg-white/[0.04] border border-white/10 rounded px-2 py-0.5 text-[12.5px] text-white outline-none focus:border-blue-500/50 transition-colors"
                         autoFocus
                         onClick={(e) => e.stopPropagation()}
                       />
@@ -166,7 +166,7 @@ export default function Sidebar({
                       <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity ml-2 shrink-0">
                         <button
                           onClick={(e) => handleStartEdit(e, chat)}
-                          className="p-1 rounded hover:bg-white/10 text-gray-500 hover:text-violet-400 transition-colors"
+                          className="p-1 rounded hover:bg-white/10 text-gray-500 hover:text-blue-400 transition-colors"
                           title="Rename chat"
                         >
                           <Pencil className="w-3.5 h-3.5" />
@@ -196,7 +196,7 @@ export default function Sidebar({
             <div className="glass-profile rounded-xl px-3 flex items-center gap-2.5 group" style={{ height: '60px' }}>
               <div
                 className="w-[34px] h-[34px] rounded-full shrink-0 flex items-center justify-center text-white text-[13px] font-semibold"
-                style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)', boxShadow: '0 4px 14px rgba(124,58,237,0.4)' }}
+                style={{ background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)', boxShadow: '0 4px 14px rgba(37, 99, 235,0.4)' }}
               >
                 {avatarLetter}
               </div>

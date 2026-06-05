@@ -56,11 +56,11 @@ function MermaidDisplay({ code }) {
             // Color-code mermaid syntax
             const trimmed = line.trim();
             let color = '#d1d5db';
-            if (i === 0) color = '#c4b5fd'; // diagram type
+            if (i === 0) color = '#93C5FD'; // diagram type
             else if (trimmed.startsWith('%%')) color = '#4b5563';
             else if (trimmed.includes('-->') || trimmed.includes('->')) color = '#93c5fd';
             else if (trimmed.includes(':::') || trimmed.startsWith('style')) color = '#fcd34d';
-            else if (trimmed.startsWith('subgraph') || trimmed === 'end') color = '#a78bfa';
+            else if (trimmed.startsWith('subgraph') || trimmed === 'end') color = '#60A5FA';
             else if (trimmed.startsWith('note') || trimmed.startsWith('participant') || trimmed.startsWith('actor')) color = '#6ee7b7';
 
             return (
@@ -78,7 +78,7 @@ function MermaidDisplay({ code }) {
         style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}
       >
         💡 Paste this code into{' '}
-        <a href="https://mermaid.live" target="_blank" rel="noreferrer" className="text-purple-400 hover:text-purple-300 underline">
+        <a href="https://mermaid.live" target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-300 underline">
           mermaid.live
         </a>
         {' '}to render the interactive diagram.
@@ -137,9 +137,9 @@ export default function DiagramView({ architecture }) {
             onClick={() => loadDiagram(id)}
             className="flex items-center gap-2 px-3 py-2 rounded-xl text-[12px] font-medium whitespace-nowrap transition-all"
             style={{
-              background: activeType === id ? 'rgba(124,58,237,0.18)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${activeType === id ? 'rgba(124,58,237,0.35)' : 'rgba(255,255,255,0.06)'}`,
-              color: activeType === id ? '#c4b5fd' : '#6b7280',
+              background: activeType === id ? 'rgba(37, 99, 235,0.18)' : 'rgba(255,255,255,0.03)',
+              border: `1px solid ${activeType === id ? 'rgba(37, 99, 235,0.35)' : 'rgba(255,255,255,0.06)'}`,
+              color: activeType === id ? '#93C5FD' : '#6b7280',
             }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -175,9 +175,9 @@ export default function DiagramView({ architecture }) {
             >
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)' }}
+                style={{ background: 'rgba(37, 99, 235,0.15)', border: '1px solid rgba(37, 99, 235,0.3)' }}
               >
-                <Loader2 className="w-7 h-7 text-purple-400 animate-spin" />
+                <Loader2 className="w-7 h-7 text-blue-400 animate-spin" />
               </div>
               <p className="text-gray-500 text-sm">Generating diagram...</p>
             </motion.div>
@@ -229,7 +229,7 @@ export default function DiagramView({ architecture }) {
               <button
                 onClick={() => loadDiagram('system')}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-medium text-white"
-                style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.3), rgba(79,70,229,0.2))', border: '1px solid rgba(124,58,237,0.3)' }}
+                style={{ background: 'linear-gradient(135deg, rgba(37, 99, 235,0.3), rgba(59, 130, 246,0.2))', border: '1px solid rgba(37, 99, 235,0.3)' }}
               >
                 <GitBranch className="w-4 h-4" />
                 Generate System Overview

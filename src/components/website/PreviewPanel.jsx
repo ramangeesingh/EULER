@@ -97,7 +97,7 @@ export default function PreviewPanel({ html, device, siteTitle }) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+                <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
                 <span className="text-[13px] text-gray-500">Rendering preview...</span>
               </motion.div>
             )}

@@ -113,7 +113,7 @@ export default function RepoChatPanel({ files, analysis }) {
         className="px-4 py-3 flex items-center gap-2 flex-shrink-0"
         style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
       >
-        <Bot className="w-4 h-4 text-purple-400" />
+        <Bot className="w-4 h-4 text-blue-400" />
         <span className="text-[13px] font-semibold text-gray-300">Repo Chat</span>
         <span
           className="text-[10px] px-2 py-0.5 rounded-full ml-auto"
@@ -137,7 +137,7 @@ export default function RepoChatPanel({ files, analysis }) {
               className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
               style={{
                 background: msg.role === 'assistant'
-                  ? 'linear-gradient(135deg, #7c3aed, #4f46e5)'
+                  ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
                   : 'rgba(255,255,255,0.06)',
               }}
             >
@@ -150,9 +150,9 @@ export default function RepoChatPanel({ files, analysis }) {
               className="rounded-xl px-4 py-3 max-w-[85%]"
               style={{
                 background: msg.role === 'user'
-                  ? 'rgba(124,58,237,0.15)'
+                  ? 'rgba(37, 99, 235,0.15)'
                   : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${msg.role === 'user' ? 'rgba(124,58,237,0.25)' : 'rgba(255,255,255,0.06)'}`,
+                border: `1px solid ${msg.role === 'user' ? 'rgba(37, 99, 235,0.25)' : 'rgba(255,255,255,0.06)'}`,
               }}
             >
               <p className="text-[13px] text-gray-200 whitespace-pre-wrap leading-relaxed">
@@ -161,7 +161,7 @@ export default function RepoChatPanel({ files, analysis }) {
                   <motion.span
                     animate={{ opacity: [1, 0] }}
                     transition={{ duration: 0.6, repeat: Infinity }}
-                    className="inline-block w-1.5 h-3.5 bg-purple-400 ml-0.5 rounded-sm"
+                    className="inline-block w-1.5 h-3.5 bg-blue-400 ml-0.5 rounded-sm"
                   />
                 )}
               </p>
@@ -194,7 +194,7 @@ export default function RepoChatPanel({ files, analysis }) {
             disabled={!input.trim() || isStreaming}
             className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{
-              background: input.trim() ? 'linear-gradient(135deg, #7c3aed, #4f46e5)' : 'rgba(255,255,255,0.05)',
+              background: input.trim() ? 'linear-gradient(135deg, #2563EB, #3B82F6)' : 'rgba(255,255,255,0.05)',
               opacity: !input.trim() || isStreaming ? 0.5 : 1,
             }}
             whileHover={input.trim() ? { scale: 1.05 } : {}}

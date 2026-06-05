@@ -56,18 +56,18 @@
   /* ── Scrollbar ── */
   .sidebar-scroll {
     scrollbar-width: thin;
-    scrollbar-color: rgba(139, 92, 246, 0.15) transparent;
+    scrollbar-color: rgba(59, 130, 246, 0.15) transparent;
   }
   .sidebar-scroll::-webkit-scrollbar { width: 3px; }
   .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
   .sidebar-scroll::-webkit-scrollbar-thumb {
-    background: rgba(139, 92, 246, 0.2);
+    background: rgba(59, 130, 246, 0.2);
     border-radius: 999px;
   }
 
   /* ── Text effects ── */
   .text-glow-strong {
-    background: linear-gradient(135deg, #a855f7 0%, #8b5cf6 40%, #7c3aed 100%);
+    background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 40%, #2563EB 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -85,7 +85,7 @@
 
   /* ── Chat item ── */
   .chat-item-active {
-    background: rgba(139, 92, 246, 0.08);
+    background: rgba(59, 130, 246, 0.08);
   }
   .chat-item:hover {
     background: rgba(255, 255, 255, 0.03);
@@ -108,8 +108,8 @@
     transition: border-color 0.2s, box-shadow 0.2s;
   }
   .auth-input:focus {
-    border-color: rgba(124, 58, 237, 0.6);
-    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+    border-color: rgba(37, 99, 235, 0.6);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
     background: rgba(255, 255, 255, 0.05);
   }
   /* Float label when value present */
@@ -117,17 +117,27 @@
   .auth-input:focus ~ label {
     top: 0.65rem;
     font-size: 10px;
-    color: rgba(167, 139, 250, 0.85);
+    color: rgba(96, 165, 250, 0.85);
   }
 
   /* ── Auth submit button ── */
   .auth-submit-btn {
-    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
-    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
-    transition: box-shadow 0.2s, opacity 0.2s;
+    background: linear-gradient(
+      135deg,
+      #2563EB,
+      #3B82F6,
+      #60A5FA
+    );
+    box-shadow:
+      0 0 20px rgba(59, 130, 246, 0.35),
+      0 0 40px rgba(59, 130, 246, 0.15);
+    transition: box-shadow 0.2s, opacity 0.2s, transform 0.2s;
   }
   .auth-submit-btn:hover:not(:disabled) {
-    box-shadow: 0 6px 28px rgba(124, 58, 237, 0.55);
+    box-shadow:
+      0 0 25px rgba(59, 130, 246, 0.5),
+      0 0 50px rgba(59, 130, 246, 0.25);
+    opacity: 0.95;
   }
   .auth-submit-btn:disabled {
     opacity: 0.6;
@@ -162,7 +172,7 @@
     line-height: 1.6;
     padding: 14px 16px;
     border: none;
-    caret-color: #a78bfa;
+    caret-color: #60A5FA;
   }
 }
 

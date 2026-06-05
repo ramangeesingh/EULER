@@ -9,7 +9,7 @@ function StreamingIndicator() {
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
-          className="w-1.5 h-1.5 rounded-full bg-purple-400"
+          className="w-1.5 h-1.5 rounded-full bg-blue-400"
           animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1, 0.8] }}
           transition={{
             repeat: Infinity,
@@ -71,8 +71,8 @@ function renderContent(text) {
             {line.split(/(`[^`]+`)/g).map((seg, si) => {
               if (seg.startsWith('`') && seg.endsWith('`')) {
                 return (
-                  <code key={si} className="px-1.5 py-0.5 rounded-md text-[13px] font-mono text-purple-200"
-                    style={{ background: 'rgba(124,58,237,0.2)' }}>
+                  <code key={si} className="px-1.5 py-0.5 rounded-md text-[13px] font-mono text-blue-200"
+                    style={{ background: 'rgba(37, 99, 235,0.2)' }}>
                     {seg.slice(1, -1)}
                   </code>
                 );
@@ -121,16 +121,16 @@ export default function MessageList({ messages }) {
               className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center self-end mb-1"
               style={{
                 background: isUser
-                  ? 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)' // User avatar
-                  : 'rgba(124,58,237,0.18)', // AI avatar
+                  ? 'linear-gradient(135deg, #60A5FA 0%, #2563EB 100%)' // User avatar
+                  : 'rgba(37, 99, 235,0.18)', // AI avatar
                 border: '1px solid rgba(255,255,255,0.1)',
-                boxShadow: isUser ? '0 4px 12px rgba(124,58,237,0.3)' : 'none',
+                boxShadow: isUser ? '0 4px 12px rgba(37, 99, 235,0.3)' : 'none',
               }}
             >
               {isUser ? (
                 <User className="w-[15px] h-[15px] text-white" />
               ) : (
-                <Sparkles className="w-[15px] h-[15px] text-purple-400" />
+                <Sparkles className="w-[15px] h-[15px] text-blue-400" />
               )}
             </div>
 
@@ -143,7 +143,7 @@ export default function MessageList({ messages }) {
               }`}
               style={{
                 background: isUser
-                  ? 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)' // Purple gradient for user
+                  ? 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)' // Purple gradient for user
                   : 'rgba(20,20,30,0.85)', // Dark glass for AI
                 border: isUser
                   ? '1px solid rgba(255,255,255,0.15)'
@@ -155,7 +155,7 @@ export default function MessageList({ messages }) {
               }}
             >
               {!isUser && (
-                <div className="text-[11px] font-semibold text-purple-300 uppercase tracking-wider mb-1.5 opacity-80">
+                <div className="text-[11px] font-semibold text-blue-300 uppercase tracking-wider mb-1.5 opacity-80">
                   Euler AI
                 </div>
               )}

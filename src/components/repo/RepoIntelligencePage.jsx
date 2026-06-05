@@ -43,7 +43,7 @@ function MarkdownRenderer({ content }) {
 function LoadingTab({ label }) {
   return (
     <div className="flex flex-col items-center justify-center h-64 gap-4">
-      <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+      <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
       <p className="text-gray-400 text-sm">Generating {label}...</p>
     </div>
   );
@@ -177,7 +177,7 @@ export default function RepoIntelligencePage({ onClose }) {
         <div className="flex items-center gap-2">
           <div
             className="w-6 h-6 rounded-lg flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
+            style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}
           >
             <FileCode className="w-3.5 h-3.5 text-white" />
           </div>
@@ -204,9 +204,9 @@ export default function RepoIntelligencePage({ onClose }) {
                   onClick={() => handleTabChange(id)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium transition-all"
                   style={{
-                    background: activeTab === id ? 'rgba(124,58,237,0.25)' : 'transparent',
-                    color: activeTab === id ? '#c4b5fd' : 'rgba(156,163,175,0.7)',
-                    border: activeTab === id ? '1px solid rgba(124,58,237,0.3)' : '1px solid transparent',
+                    background: activeTab === id ? 'rgba(37, 99, 235,0.25)' : 'transparent',
+                    color: activeTab === id ? '#93C5FD' : 'rgba(156,163,175,0.7)',
+                    border: activeTab === id ? '1px solid rgba(37, 99, 235,0.3)' : '1px solid transparent',
                   }}
                 >
                   <Icon className="w-3.5 h-3.5" />

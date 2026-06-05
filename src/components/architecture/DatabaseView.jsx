@@ -6,7 +6,7 @@ const METHOD_COLORS = {
   GET:    { bg: 'rgba(16,185,129,0.12)', text: '#6ee7b7',  border: 'rgba(16,185,129,0.3)' },
   POST:   { bg: 'rgba(59,130,246,0.12)', text: '#93c5fd',  border: 'rgba(59,130,246,0.3)' },
   PUT:    { bg: 'rgba(245,158,11,0.12)', text: '#fcd34d',  border: 'rgba(245,158,11,0.3)' },
-  PATCH:  { bg: 'rgba(124,58,237,0.12)', text: '#c4b5fd',  border: 'rgba(124,58,237,0.3)' },
+  PATCH:  { bg: 'rgba(37, 99, 235,0.12)', text: '#93C5FD',  border: 'rgba(37, 99, 235,0.3)' },
   DELETE: { bg: 'rgba(239,68,68,0.12)',  text: '#fca5a5',  border: 'rgba(239,68,68,0.3)'  },
 };
 
@@ -126,7 +126,7 @@ function SchemaTable({ schema, index }) {
             <div className="px-4 py-2 flex gap-2 flex-wrap" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
               <span className="text-[10px] text-gray-600">Indexes:</span>
               {schema.indexes.map((idx, i) => (
-                <span key={i} className="text-[10px] px-1.5 py-0.5 rounded font-mono" style={{ background: 'rgba(124,58,237,0.1)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.15)' }}>
+                <span key={i} className="text-[10px] px-1.5 py-0.5 rounded font-mono" style={{ background: 'rgba(37, 99, 235,0.1)', color: '#60A5FA', border: '1px solid rgba(37, 99, 235,0.15)' }}>
                   {idx}
                 </span>
               ))}
@@ -152,9 +152,9 @@ export default function DatabaseView({ database = {}, api = {} }) {
               onClick={() => setActiveTab(id)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[12px] font-medium transition-all"
               style={{
-                background: activeTab === id ? 'rgba(124,58,237,0.2)' : 'transparent',
-                color: activeTab === id ? '#c4b5fd' : 'rgba(156,163,175,0.7)',
-                border: activeTab === id ? '1px solid rgba(124,58,237,0.3)' : '1px solid transparent',
+                background: activeTab === id ? 'rgba(37, 99, 235,0.2)' : 'transparent',
+                color: activeTab === id ? '#93C5FD' : 'rgba(156,163,175,0.7)',
+                border: activeTab === id ? '1px solid rgba(37, 99, 235,0.3)' : '1px solid transparent',
               }}
             >
               <Icon className="w-3.5 h-3.5" />{label}
@@ -190,7 +190,7 @@ export default function DatabaseView({ database = {}, api = {} }) {
               <h2 className="text-lg font-bold text-white">API Structure</h2>
               <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
                 <span>{api.style}</span>
-                {api.baseUrl && <><span>·</span><code className="font-mono text-purple-400/70">{api.baseUrl}</code></>}
+                {api.baseUrl && <><span>·</span><code className="font-mono text-blue-400/70">{api.baseUrl}</code></>}
                 {api.versioning && <><span>·</span><span>{api.versioning}</span></>}
               </div>
               {api.rateLimit && (
@@ -202,8 +202,8 @@ export default function DatabaseView({ database = {}, api = {} }) {
             {(api.routes || []).map((group, gi) => (
               <div key={gi} className="mb-5">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-purple-400/60">{group.group}</span>
-                  <div className="flex-1 h-px" style={{ background: 'rgba(124,58,237,0.1)' }} />
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.1em] text-blue-400/60">{group.group}</span>
+                  <div className="flex-1 h-px" style={{ background: 'rgba(37, 99, 235,0.1)' }} />
                 </div>
                 <div className="space-y-1.5">
                   {(group.endpoints || []).map((ep, ei) => (

@@ -31,8 +31,8 @@ export default function UploadZone({ onUpload, isAnalyzing }) {
         <div
           className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6"
           style={{
-            background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #3b82f6 100%)',
-            boxShadow: '0 0 60px rgba(124,58,237,0.4), 0 0 120px rgba(124,58,237,0.15)',
+            background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #3b82f6 100%)',
+            boxShadow: '0 0 60px rgba(37, 99, 235,0.4), 0 0 120px rgba(37, 99, 235,0.15)',
           }}
         >
           <FolderOpen className="w-10 h-10 text-white" />
@@ -40,7 +40,7 @@ export default function UploadZone({ onUpload, isAnalyzing }) {
         <h1 className="text-4xl font-bold text-white mb-3" style={{ letterSpacing: '-0.02em' }}>
           Repo{' '}
           <span style={{
-            background: 'linear-gradient(135deg, #a855f7, #6366f1)',
+            background: 'linear-gradient(135deg, #60A5FA, #6366f1)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}>
@@ -70,7 +70,7 @@ export default function UploadZone({ onUpload, isAnalyzing }) {
             borderRadius: '20px',
             padding: '60px 40px',
             background: isDragging
-              ? 'rgba(124,58,237,0.08)'
+              ? 'rgba(37, 99, 235,0.08)'
               : 'rgba(255,255,255,0.02)',
             backdropFilter: 'blur(20px)',
             transition: 'all 0.25s ease',
@@ -81,7 +81,7 @@ export default function UploadZone({ onUpload, isAnalyzing }) {
             <motion.div
               className="absolute inset-0 rounded-[18px] pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse at center, rgba(124,58,237,0.12) 0%, transparent 70%)',
+                background: 'radial-gradient(ellipse at center, rgba(37, 99, 235,0.12) 0%, transparent 70%)',
               }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -98,13 +98,13 @@ export default function UploadZone({ onUpload, isAnalyzing }) {
               >
                 <div className="relative">
                   <motion.div
-                    className="w-14 h-14 rounded-full border-2 border-purple-500/30"
+                    className="w-14 h-14 rounded-full border-2 border-blue-500/30"
                     animate={{ rotate: 360 }}
                     transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                    style={{ borderTopColor: '#a855f7' }}
+                    style={{ borderTopColor: '#60A5FA' }}
                   />
                   <Zap
-                    className="absolute inset-0 m-auto w-6 h-6 text-purple-400"
+                    className="absolute inset-0 m-auto w-6 h-6 text-blue-400"
                   />
                 </div>
                 <div>
@@ -116,7 +116,7 @@ export default function UploadZone({ onUpload, isAnalyzing }) {
                   {[0, 1, 2, 3, 4].map((i) => (
                     <motion.div
                       key={i}
-                      className="w-1.5 h-1.5 rounded-full bg-purple-400"
+                      className="w-1.5 h-1.5 rounded-full bg-blue-400"
                       animate={{ opacity: [0.3, 1, 0.3] }}
                       transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
                     />
@@ -140,8 +140,8 @@ export default function UploadZone({ onUpload, isAnalyzing }) {
                 <div
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium text-white"
                   style={{
-                    background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
-                    boxShadow: '0 4px 20px rgba(124,58,237,0.35)',
+                    background: 'linear-gradient(135deg, #2563EB, #3B82F6)',
+                    boxShadow: '0 4px 20px rgba(37, 99, 235,0.35)',
                   }}
                 >
                   <Upload className="w-4 h-4" />
@@ -206,8 +206,8 @@ export default function UploadZone({ onUpload, isAnalyzing }) {
               key={f}
               className="px-3 py-1 rounded-full text-xs font-medium"
               style={{
-                background: 'rgba(124,58,237,0.1)',
-                border: '1px solid rgba(124,58,237,0.2)',
+                background: 'rgba(37, 99, 235,0.1)',
+                border: '1px solid rgba(37, 99, 235,0.2)',
                 color: 'rgba(167,139,250,0.85)',
               }}
             >

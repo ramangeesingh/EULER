@@ -8,7 +8,7 @@ import {
 
 // ─── Data ──────────────────────────────────────────────────────────────────
 const SITE_TYPES = [
-  { id: 'landing',   label: 'Landing Page',   icon: LayoutTemplate, color: '#a78bfa', desc: 'Marketing & hero' },
+  { id: 'landing',   label: 'Landing Page',   icon: LayoutTemplate, color: '#60A5FA', desc: 'Marketing & hero' },
   { id: 'dashboard', label: 'Dashboard',      icon: BarChart2,      color: '#67e8f9', desc: 'Admin & analytics' },
   { id: 'portfolio', label: 'Portfolio',      icon: User,           color: '#fcd34d', desc: 'Showcase work' },
   { id: 'ecommerce', label: 'E-Commerce',     icon: ShoppingBag,    color: '#86efac', desc: 'Products & shop' },
@@ -17,7 +17,7 @@ const SITE_TYPES = [
 ];
 
 const STYLE_THEMES = [
-  { id: 'glassmorphism', label: 'Glassmorphism', preview: 'linear-gradient(135deg, rgba(124,58,237,0.4), rgba(79,70,229,0.2))', border: '#7c3aed' },
+  { id: 'glassmorphism', label: 'Glassmorphism', preview: 'linear-gradient(135deg, rgba(37, 99, 235,0.4), rgba(59, 130, 246,0.2))', border: '#2563EB' },
   { id: 'modern-dark',   label: 'Modern Dark',   preview: 'linear-gradient(135deg, #0f172a, #1e293b)',                         border: '#3b82f6' },
   { id: 'minimal-light', label: 'Minimal Light', preview: 'linear-gradient(135deg, #f8fafc, #e2e8f0)',                         border: '#6366f1' },
   { id: 'cyberpunk',     label: 'Cyberpunk',     preview: 'linear-gradient(135deg, #0a0010, #1a0030)',                         border: '#00ffff' },
@@ -26,7 +26,7 @@ const STYLE_THEMES = [
 ];
 
 const ACCENT_COLORS = [
-  '#7c3aed', '#4f46e5', '#0891b2', '#059669', '#d97706', '#dc2626',
+  '#2563EB', '#3B82F6', '#0891b2', '#059669', '#d97706', '#dc2626',
 ];
 
 const EXAMPLE_PROMPTS = [
@@ -43,7 +43,7 @@ export default function WebPromptPanel({ onGenerate, isGenerating }) {
   const [prompt, setPrompt]           = useState('');
   const [siteType, setSiteType]       = useState('landing');
   const [style, setStyle]             = useState('glassmorphism');
-  const [accentColor, setAccentColor] = useState('#7c3aed');
+  const [accentColor, setAccentColor] = useState('#2563EB');
   const [features, setFeatures]       = useState({
     responsive: true,
     animations: true,
@@ -75,15 +75,15 @@ export default function WebPromptPanel({ onGenerate, isGenerating }) {
           <motion.div
             className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-5"
             style={{
-              background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(79,70,229,0.18))',
-              border: '1px solid rgba(124,58,237,0.4)',
-              boxShadow: '0 0 40px rgba(124,58,237,0.25)',
+              background: 'linear-gradient(135deg, rgba(37, 99, 235,0.25), rgba(59, 130, 246,0.18))',
+              border: '1px solid rgba(37, 99, 235,0.4)',
+              boxShadow: '0 0 40px rgba(37, 99, 235,0.25)',
             }}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', stiffness: 200 }}
           >
-            <Globe className="w-8 h-8 text-purple-400" />
+            <Globe className="w-8 h-8 text-blue-400" />
           </motion.div>
 
           <motion.h1
@@ -117,7 +117,7 @@ export default function WebPromptPanel({ onGenerate, isGenerating }) {
             </label>
             <button
               onClick={() => setShowExamples(!showExamples)}
-              className="text-[12px] text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
+              className="text-[12px] text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
             >
               <Sparkles className="w-3 h-3" />
               Examples
@@ -141,12 +141,12 @@ export default function WebPromptPanel({ onGenerate, isGenerating }) {
                       background: 'rgba(255,255,255,0.03)',
                       border: '1px solid rgba(255,255,255,0.07)',
                     }}
-                    whileHover={{ borderColor: 'rgba(124,58,237,0.3)', backgroundColor: 'rgba(124,58,237,0.06)' }}
+                    whileHover={{ borderColor: 'rgba(37, 99, 235,0.3)', backgroundColor: 'rgba(37, 99, 235,0.06)' }}
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.04 }}
                   >
-                    <ChevronRight className="w-3 h-3 inline mr-1.5 text-purple-400" />
+                    <ChevronRight className="w-3 h-3 inline mr-1.5 text-blue-400" />
                     {ex}
                   </motion.button>
                 ))}
@@ -171,8 +171,8 @@ export default function WebPromptPanel({ onGenerate, isGenerating }) {
                 lineHeight: 1.6,
               }}
               onFocus={(e) => {
-                e.target.style.borderColor = 'rgba(124,58,237,0.5)';
-                e.target.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.1)';
+                e.target.style.borderColor = 'rgba(37, 99, 235,0.5)';
+                e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235,0.1)';
                 e.target.style.background = 'rgba(255,255,255,0.05)';
               }}
               onBlur={(e) => {
@@ -186,7 +186,7 @@ export default function WebPromptPanel({ onGenerate, isGenerating }) {
               disabled={!prompt.trim() || isGenerating}
               className="absolute bottom-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center transition-all"
               style={{
-                background: prompt.trim() ? 'linear-gradient(135deg, #7c3aed, #4f46e5)' : 'rgba(255,255,255,0.1)',
+                background: prompt.trim() ? 'linear-gradient(135deg, #2563EB, #3B82F6)' : 'rgba(255,255,255,0.1)',
                 color: prompt.trim() ? '#ffffff' : '#6b7280',
                 cursor: !prompt.trim() || isGenerating ? 'not-allowed' : 'pointer',
                 opacity: !prompt.trim() ? 0.5 : 1,
@@ -322,9 +322,9 @@ export default function WebPromptPanel({ onGenerate, isGenerating }) {
                   onClick={() => toggleFeature(key)}
                   className="px-3 py-1 rounded-full text-[12px] transition-all"
                   style={{
-                    background: features[key] ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.04)',
-                    color: features[key] ? '#c4b5fd' : '#6b7280',
-                    border: `1px solid ${features[key] ? 'rgba(124,58,237,0.4)' : 'rgba(255,255,255,0.07)'}`,
+                    background: features[key] ? 'rgba(37, 99, 235,0.2)' : 'rgba(255,255,255,0.04)',
+                    color: features[key] ? '#93C5FD' : '#6b7280',
+                    border: `1px solid ${features[key] ? 'rgba(37, 99, 235,0.4)' : 'rgba(255,255,255,0.07)'}`,
                   }}
                 >
                   {features[key] ? '✓ ' : ''}{label}
@@ -346,13 +346,13 @@ export default function WebPromptPanel({ onGenerate, isGenerating }) {
             className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 text-[15px] font-semibold text-white relative overflow-hidden"
             style={{
               background: !prompt.trim()
-                ? 'rgba(124,58,237,0.3)'
-                : 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 60%, #6366f1 100%)',
-              boxShadow: prompt.trim() ? '0 4px 32px rgba(124,58,237,0.5), 0 0 64px rgba(124,58,237,0.2)' : 'none',
+                ? 'rgba(37, 99, 235,0.3)'
+                : 'linear-gradient(135deg, #2563EB 0%, #3B82F6 60%, #6366f1 100%)',
+              boxShadow: prompt.trim() ? '0 4px 32px rgba(37, 99, 235,0.5), 0 0 64px rgba(37, 99, 235,0.2)' : 'none',
               opacity: !prompt.trim() ? 0.6 : 1,
               cursor: !prompt.trim() || isGenerating ? 'not-allowed' : 'pointer',
             }}
-            whileHover={prompt.trim() ? { scale: 1.01, boxShadow: '0 6px 40px rgba(124,58,237,0.6)' } : {}}
+            whileHover={prompt.trim() ? { scale: 1.01, boxShadow: '0 6px 40px rgba(37, 99, 235,0.6)' } : {}}
             whileTap={prompt.trim() ? { scale: 0.98 } : {}}
           >
             {/* Shimmer overlay */}

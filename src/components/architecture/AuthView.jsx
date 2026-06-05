@@ -14,15 +14,15 @@ function FlowStep({ step, index, total }) {
         <div
           className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold"
           style={{
-            background: 'linear-gradient(135deg, rgba(124,58,237,0.4), rgba(79,70,229,0.4))',
-            border: '1px solid rgba(124,58,237,0.5)',
-            color: '#c4b5fd',
+            background: 'linear-gradient(135deg, rgba(37, 99, 235,0.4), rgba(59, 130, 246,0.4))',
+            border: '1px solid rgba(37, 99, 235,0.5)',
+            color: '#93C5FD',
           }}
         >
           {index + 1}
         </div>
         {index < total - 1 && (
-          <div className="w-px flex-1 my-1" style={{ background: 'rgba(124,58,237,0.2)', minHeight: '20px' }} />
+          <div className="w-px flex-1 my-1" style={{ background: 'rgba(37, 99, 235,0.2)', minHeight: '20px' }} />
         )}
       </div>
       <div className="pb-4 min-w-0">
@@ -82,19 +82,19 @@ export default function AuthView({ authentication = {}, security = {} }) {
         <motion.div
           className="p-5 rounded-2xl"
           style={{
-            background: 'linear-gradient(135deg, rgba(124,58,237,0.1), rgba(79,70,229,0.06))',
-            border: '1px solid rgba(124,58,237,0.25)',
+            background: 'linear-gradient(135deg, rgba(37, 99, 235,0.1), rgba(59, 130, 246,0.06))',
+            border: '1px solid rgba(37, 99, 235,0.25)',
           }}
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(124,58,237,0.25)' }}>
-              <Lock className="w-4.5 h-4.5 text-purple-400" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(37, 99, 235,0.25)' }}>
+              <Lock className="w-4.5 h-4.5 text-blue-400" />
             </div>
             <div>
               <div className="text-[14px] font-bold text-white">{strategy || 'JWT + Refresh Tokens'}</div>
-              <div className="text-[12px] text-purple-300/60">via {provider || 'Custom'}</div>
+              <div className="text-[12px] text-blue-300/60">via {provider || 'Custom'}</div>
             </div>
           </div>
         </motion.div>
@@ -163,7 +163,7 @@ export default function AuthView({ authentication = {}, security = {} }) {
             style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
           >
             <div className="flex items-center gap-2 mb-4">
-              <Shield className="w-4 h-4 text-purple-400" />
+              <Shield className="w-4 h-4 text-blue-400" />
               <h3 className="text-[13px] font-semibold text-white">Security Hardening Checklist</h3>
             </div>
             <div className="space-y-2.5">

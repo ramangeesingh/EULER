@@ -30,7 +30,7 @@ function CodeContextPanel({ value, onChange, onClose }) {
         style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
       >
         <div className="flex items-center gap-2">
-          <Code2 className="w-3.5 h-3.5 text-purple-400" />
+          <Code2 className="w-3.5 h-3.5 text-blue-400" />
           <span className="text-[12px] font-medium text-gray-400">Code Context</span>
           <span className="text-[11px] text-gray-600">— AI will reference this code</span>
         </div>
@@ -200,8 +200,8 @@ export default function DevInput({
           className="rounded-2xl overflow-hidden"
           style={{
             background: 'rgba(255,255,255,0.04)',
-            border: `1px solid ${isStreaming ? 'rgba(124,58,237,0.3)' : 'rgba(255,255,255,0.09)'}`,
-            boxShadow: isStreaming ? '0 0 0 3px rgba(124,58,237,0.08)' : 'none',
+            border: `1px solid ${isStreaming ? 'rgba(37, 99, 235,0.3)' : 'rgba(255,255,255,0.09)'}`,
+            boxShadow: isStreaming ? '0 0 0 3px rgba(37, 99, 235,0.08)' : 'none',
             transition: 'border-color 0.2s, box-shadow 0.2s',
           }}
         >
@@ -212,7 +212,7 @@ export default function DevInput({
               style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
               onClick={() => setShowCodePanel(true)}
             >
-              <Code2 className="w-3 h-3 text-purple-400" />
+              <Code2 className="w-3 h-3 text-blue-400" />
               <span className="text-[11.5px] text-gray-500">
                 Code context attached ({codeContext.split('\n').length} lines)
               </span>
@@ -267,9 +267,9 @@ export default function DevInput({
               onClick={() => setShowCodePanel(!showCodePanel)}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[12px] transition-all"
               style={{
-                background: hasCode ? 'rgba(124,58,237,0.15)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${hasCode ? 'rgba(124,58,237,0.3)' : 'rgba(255,255,255,0.07)'}`,
-                color: hasCode ? '#a78bfa' : '#6b7280',
+                background: hasCode ? 'rgba(37, 99, 235,0.15)' : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${hasCode ? 'rgba(37, 99, 235,0.3)' : 'rgba(255,255,255,0.07)'}`,
+                color: hasCode ? '#60A5FA' : '#6b7280',
               }}
               title="Attach code context"
             >
@@ -313,11 +313,11 @@ export default function DevInput({
                 className="w-9 h-9 rounded-xl flex items-center justify-center transition-all"
                 style={{
                   background: text.trim()
-                    ? `linear-gradient(135deg, ${activeMode?.color || '#7c3aed'}60, rgba(79,70,229,0.5))`
+                    ? `linear-gradient(135deg, ${activeMode?.color || '#2563EB'}60, rgba(59, 130, 246,0.5))`
                     : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${text.trim() ? (activeMode?.color || '#7c3aed') + '50' : 'rgba(255,255,255,0.07)'}`,
+                  border: `1px solid ${text.trim() ? (activeMode?.color || '#2563EB') + '50' : 'rgba(255,255,255,0.07)'}`,
                   color: text.trim() ? '#fff' : '#374151',
-                  boxShadow: text.trim() ? `0 4px 16px ${activeMode?.color || '#7c3aed'}30` : 'none',
+                  boxShadow: text.trim() ? `0 4px 16px ${activeMode?.color || '#2563EB'}30` : 'none',
                 }}
                 whileHover={text.trim() ? { scale: 1.06 } : {}}
                 whileTap={text.trim() ? { scale: 0.94 } : {}}

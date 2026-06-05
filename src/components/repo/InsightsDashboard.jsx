@@ -40,7 +40,7 @@ function StatCard({ icon: Icon, label, value, color }) {
 function LoadingSection({ label }) {
   return (
     <div className="flex items-center gap-3 p-6 text-gray-500 text-sm">
-      <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
+      <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
       <span>Loading {label}...</span>
     </div>
   );
@@ -102,9 +102,9 @@ export default function InsightsDashboard({ analysis, stats, files, repoName }) 
             onClick={() => setActiveSection(s.id)}
             className="px-4 py-1.5 rounded-lg text-[13px] font-medium transition-colors"
             style={{
-              background: activeSection === s.id ? 'rgba(124,58,237,0.15)' : 'transparent',
-              color: activeSection === s.id ? '#a78bfa' : 'rgba(156,163,175,0.8)',
-              border: activeSection === s.id ? '1px solid rgba(124,58,237,0.25)' : '1px solid transparent',
+              background: activeSection === s.id ? 'rgba(37, 99, 235,0.15)' : 'transparent',
+              color: activeSection === s.id ? '#60A5FA' : 'rgba(156,163,175,0.8)',
+              border: activeSection === s.id ? '1px solid rgba(37, 99, 235,0.25)' : '1px solid transparent',
             }}
           >
             {s.label}
@@ -119,7 +119,7 @@ export default function InsightsDashboard({ analysis, stats, files, repoName }) 
           <div className="space-y-6">
             {/* Stats grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard icon={FileCode} label="Total Files" value={stats?.totalFiles ?? '—'} color="#a855f7" />
+              <StatCard icon={FileCode} label="Total Files" value={stats?.totalFiles ?? '—'} color="#60A5FA" />
               <StatCard icon={TrendingUp} label="Lines of Code" value={stats?.totalLines?.toLocaleString() ?? '—'} color="#3b82f6" />
               <StatCard icon={Layers} label="Frameworks" value={(analysis?.frameworks || []).length} color="#22c55e" />
               <StatCard icon={Package} label="Tech Stack" value={(analysis?.techStack || []).length} color="#f97316" />
@@ -135,7 +135,7 @@ export default function InsightsDashboard({ analysis, stats, files, repoName }) 
                 transition={{ delay: 0.1 }}
               >
                 <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-purple-400" />
+                  <Layers className="w-4 h-4 text-blue-400" />
                   Project Overview
                 </h3>
                 <div className="space-y-3">
@@ -176,7 +176,7 @@ export default function InsightsDashboard({ analysis, stats, files, repoName }) 
                 <div className="space-y-2.5">
                   {stats.languages.map((lang, i) => {
                     const pct = Math.round((lang.count / stats.totalFiles) * 100);
-                    const COLORS = ['#a855f7', '#3b82f6', '#22c55e', '#f97316', '#eab308', '#ec4899', '#6366f1', '#14b8a6'];
+                    const COLORS = ['#60A5FA', '#3b82f6', '#22c55e', '#f97316', '#eab308', '#ec4899', '#6366f1', '#14b8a6'];
                     const color = COLORS[i % COLORS.length];
                     return (
                       <div key={lang.ext} className="flex items-center gap-3">
@@ -213,7 +213,7 @@ export default function InsightsDashboard({ analysis, stats, files, repoName }) 
                     <div key={i} className="flex items-start gap-3">
                       <div
                         className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
-                        style={{ background: '#a855f7' }}
+                        style={{ background: '#60A5FA' }}
                       />
                       <div>
                         <div className="flex items-center gap-2">
@@ -246,9 +246,9 @@ export default function InsightsDashboard({ analysis, stats, files, repoName }) 
                       key={tech}
                       className="px-3 py-1 rounded-full text-xs font-medium"
                       style={{
-                        background: 'rgba(124,58,237,0.1)',
-                        border: '1px solid rgba(124,58,237,0.2)',
-                        color: '#c4b5fd',
+                        background: 'rgba(37, 99, 235,0.1)',
+                        border: '1px solid rgba(37, 99, 235,0.2)',
+                        color: '#93C5FD',
                       }}
                     >
                       {tech}

@@ -89,7 +89,7 @@ export default function FolderStructureView({ folderStructure = {} }) {
         <p className="text-gray-500 text-sm mb-6">Recommended project organization. Click folders to expand/collapse.</p>
         <div className="grid grid-cols-1 gap-4">
           {folderStructure.frontend && (
-            <FolderTree label="Frontend" data={folderStructure.frontend} color="#c4b5fd" />
+            <FolderTree label="Frontend" data={folderStructure.frontend} color="#93C5FD" />
           )}
           {folderStructure.backend && (
             <FolderTree label="Backend / API" data={folderStructure.backend} color="#93c5fd" />

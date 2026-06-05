@@ -47,8 +47,8 @@ export default function OverviewPanel({ architecture = {} }) {
         <motion.div
           className="mb-6 p-6 rounded-2xl relative overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, rgba(124,58,237,0.12) 0%, rgba(79,70,229,0.08) 100%)',
-            border: '1px solid rgba(124,58,237,0.2)',
+            background: 'linear-gradient(135deg, rgba(37, 99, 235,0.12) 0%, rgba(59, 130, 246,0.08) 100%)',
+            border: '1px solid rgba(37, 99, 235,0.2)',
           }}
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -56,13 +56,13 @@ export default function OverviewPanel({ architecture = {} }) {
           {/* Glow orb */}
           <div
             className="absolute -top-8 -right-8 w-32 h-32 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.25), transparent 70%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(37, 99, 235,0.25), transparent 70%)' }}
           />
           <div className="relative">
             <div className="flex items-start justify-between gap-4 mb-3">
               <div>
                 <h2 className="text-2xl font-bold text-white mb-1 tracking-tight">{appName || 'Architecture'}</h2>
-                {tagline && <p className="text-purple-300/70 text-[14px]">{tagline}</p>}
+                {tagline && <p className="text-blue-300/70 text-[14px]">{tagline}</p>}
               </div>
               {complexity && (
                 <span
@@ -82,7 +82,7 @@ export default function OverviewPanel({ architecture = {} }) {
         {/* Metrics row */}
         <div className="grid grid-cols-3 gap-3 mb-6">
           {estimatedTimeline && (
-            <MetricCard icon={Clock}  label="Timeline" value={estimatedTimeline} color="#c4b5fd" delay={0.1} />
+            <MetricCard icon={Clock}  label="Timeline" value={estimatedTimeline} color="#93C5FD" delay={0.1} />
           )}
           {teamSize && (
             <MetricCard icon={Users}  label="Team Size" value={teamSize}         color="#93c5fd" delay={0.15} />

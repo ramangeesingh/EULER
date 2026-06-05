@@ -29,7 +29,7 @@ function LineNumbers({ code }) {
 // ─── File tab button ────────────────────────────────────────────────────────
 function FileTab({ id, label, ext, active, onClick, lineCount }) {
   const colors = { html: '#f97316', css: '#38bdf8', js: '#fcd34d' };
-  const color = colors[id] || '#a78bfa';
+  const color = colors[id] || '#60A5FA';
   return (
     <button
       onClick={onClick}
@@ -130,8 +130,8 @@ export default function CodeEditorPanel({
             className="p-1.5 rounded-lg transition-all"
             title="Toggle word wrap"
             style={{
-              background: wordWrap ? 'rgba(124,58,237,0.2)' : 'transparent',
-              color: wordWrap ? '#c4b5fd' : 'rgba(107,114,128,0.7)',
+              background: wordWrap ? 'rgba(37, 99, 235,0.2)' : 'transparent',
+              color: wordWrap ? '#93C5FD' : 'rgba(107,114,128,0.7)',
             }}
           >
             <WrapText className="w-3.5 h-3.5" />
@@ -175,7 +175,7 @@ export default function CodeEditorPanel({
             overflowX: wordWrap ? 'hidden' : 'auto',
             overflowY: 'auto',
             border: 'none',
-            caretColor: '#a78bfa',
+            caretColor: '#60A5FA',
           }}
         />
       </div>
@@ -192,7 +192,7 @@ export default function CodeEditorPanel({
         <span>Lines: {lineCount.toLocaleString()}</span>
         <span>Characters: {charCount.toLocaleString()}</span>
         <div className="flex-1" />
-        <span style={{ color: 'rgba(124,58,237,0.6)' }}>
+        <span style={{ color: 'rgba(37, 99, 235,0.6)' }}>
           {activeFile === 'html' ? 'HTML' : activeFile === 'css' ? 'CSS' : 'JavaScript'}
         </span>
         <span>UTF-8</span>

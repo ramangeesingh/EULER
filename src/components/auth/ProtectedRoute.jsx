@@ -14,8 +14,8 @@ export default function ProtectedRoute({ children }) {
           <div
             className="w-10 h-10 rounded-2xl flex items-center justify-center animate-pulse"
             style={{
-              background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-              boxShadow: '0 0 30px rgba(124,58,237,0.5)',
+              background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
+              boxShadow: '0 0 30px rgba(37, 99, 235,0.5)',
             }}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">

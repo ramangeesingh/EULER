@@ -20,7 +20,7 @@ const EXT_ICONS = {
   yaml: { icon: Cog, color: '#cb171e' },
   yml: { icon: Cog, color: '#cb171e' },
   sql: { icon: Database, color: '#336791' },
-  prisma: { icon: Database, color: '#a855f7' },
+  prisma: { icon: Database, color: '#60A5FA' },
 };
 
 function getFileIcon(name) {
@@ -40,10 +40,10 @@ function FileNode({ name, node, path, onSelectFile, selectedFile, depth = 0 }) {
         className="flex items-center gap-1.5 px-2 py-[5px] rounded-lg cursor-pointer group"
         style={{
           paddingLeft: `${depth * 14 + 8}px`,
-          background: isSelected ? 'rgba(124,58,237,0.15)' : 'transparent',
-          borderLeft: isSelected ? '2px solid rgba(124,58,237,0.5)' : '2px solid transparent',
+          background: isSelected ? 'rgba(37, 99, 235,0.15)' : 'transparent',
+          borderLeft: isSelected ? '2px solid rgba(37, 99, 235,0.5)' : '2px solid transparent',
         }}
-        whileHover={{ background: isSelected ? 'rgba(124,58,237,0.18)' : 'rgba(255,255,255,0.04)' }}
+        whileHover={{ background: isSelected ? 'rgba(37, 99, 235,0.18)' : 'rgba(255,255,255,0.04)' }}
         onClick={() => {
           if (isDir) setOpen((o) => !o);
           else onSelectFile(node.path);
@@ -114,7 +114,7 @@ export default function FileTreePanel({ tree, onSelectFile, selectedFile, repoNa
         style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
       >
         <div className="flex items-center gap-2">
-          <FolderOpen className="w-4 h-4 text-purple-400" />
+          <FolderOpen className="w-4 h-4 text-blue-400" />
           <span className="text-[12px] font-semibold text-gray-300 truncate">{repoName || 'Repository'}</span>
         </div>
       </div>

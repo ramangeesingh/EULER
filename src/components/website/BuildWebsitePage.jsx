@@ -39,18 +39,18 @@ function GeneratingOverlay() {
         <div
           className="w-24 h-24 rounded-3xl flex items-center justify-center"
           style={{
-            background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(79,70,229,0.18))',
-            border: '1px solid rgba(124,58,237,0.45)',
-            boxShadow: '0 0 60px rgba(124,58,237,0.4), 0 0 120px rgba(124,58,237,0.18)',
+            background: 'linear-gradient(135deg, rgba(37, 99, 235,0.25), rgba(59, 130, 246,0.18))',
+            border: '1px solid rgba(37, 99, 235,0.45)',
+            boxShadow: '0 0 60px rgba(37, 99, 235,0.4), 0 0 120px rgba(37, 99, 235,0.18)',
           }}
         >
-          <Globe className="w-12 h-12 text-purple-400" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
+          <Globe className="w-12 h-12 text-blue-400" style={{ animation: 'pulse 2s ease-in-out infinite' }} />
         </div>
         {/* Orbiting ring 1 */}
         <div
           className="absolute inset-[-12px] rounded-[28px]"
           style={{
-            border: '1px solid rgba(124,58,237,0.22)',
+            border: '1px solid rgba(37, 99, 235,0.22)',
             animation: 'spin 5s linear infinite',
           }}
         />
@@ -58,7 +58,7 @@ function GeneratingOverlay() {
         <div
           className="absolute inset-[-24px] rounded-[36px]"
           style={{
-            border: '1px dashed rgba(124,58,237,0.12)',
+            border: '1px dashed rgba(37, 99, 235,0.12)',
             animation: 'spin 8s linear infinite reverse',
           }}
         />
@@ -80,7 +80,7 @@ function GeneratingOverlay() {
             {i < step ? (
               <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />
             ) : i === step ? (
-              <Loader2 className="w-4 h-4 text-purple-400 animate-spin shrink-0" />
+              <Loader2 className="w-4 h-4 text-blue-400 animate-spin shrink-0" />
             ) : (
               <div className="w-4 h-4 rounded-full shrink-0" style={{ border: '1px solid rgba(255,255,255,0.12)' }} />
             )}
@@ -224,7 +224,7 @@ export default function BuildWebsitePage({ onClose }) {
         <div className="flex items-center gap-2">
           <div
             className="w-6 h-6 rounded-lg flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
+            style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}
           >
             <Globe className="w-3.5 h-3.5 text-white" />
           </div>
@@ -253,9 +253,9 @@ export default function BuildWebsitePage({ onClose }) {
                   onClick={() => setActiveTab(id)}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11.5px] font-medium whitespace-nowrap transition-all"
                   style={{
-                    background: activeTab === id ? 'rgba(124,58,237,0.22)' : 'transparent',
-                    color: activeTab === id ? '#c4b5fd' : 'rgba(156,163,175,0.7)',
-                    border: activeTab === id ? '1px solid rgba(124,58,237,0.32)' : '1px solid transparent',
+                    background: activeTab === id ? 'rgba(37, 99, 235,0.22)' : 'transparent',
+                    color: activeTab === id ? '#93C5FD' : 'rgba(156,163,175,0.7)',
+                    border: activeTab === id ? '1px solid rgba(37, 99, 235,0.32)' : '1px solid transparent',
                   }}
                 >
                   <Icon className="w-3 h-3" />
@@ -274,8 +274,8 @@ export default function BuildWebsitePage({ onClose }) {
                   onClick={() => setDevice('desktop')}
                   className="p-1.5 rounded-md transition-all"
                   style={{
-                    background: device === 'desktop' ? 'rgba(124,58,237,0.22)' : 'transparent',
-                    color: device === 'desktop' ? '#c4b5fd' : 'rgba(156,163,175,0.6)',
+                    background: device === 'desktop' ? 'rgba(37, 99, 235,0.22)' : 'transparent',
+                    color: device === 'desktop' ? '#93C5FD' : 'rgba(156,163,175,0.6)',
                   }}
                   title="Desktop view"
                 >
@@ -285,8 +285,8 @@ export default function BuildWebsitePage({ onClose }) {
                   onClick={() => setDevice('mobile')}
                   className="p-1.5 rounded-md transition-all"
                   style={{
-                    background: device === 'mobile' ? 'rgba(124,58,237,0.22)' : 'transparent',
-                    color: device === 'mobile' ? '#c4b5fd' : 'rgba(156,163,175,0.6)',
+                    background: device === 'mobile' ? 'rgba(37, 99, 235,0.22)' : 'transparent',
+                    color: device === 'mobile' ? '#93C5FD' : 'rgba(156,163,175,0.6)',
                   }}
                   title="Mobile view"
                 >

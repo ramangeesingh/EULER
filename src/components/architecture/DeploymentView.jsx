@@ -11,7 +11,7 @@ function CheckItem({ text, index }) {
     >
       <div
         className="w-1.5 h-1.5 rounded-full mt-2 shrink-0"
-        style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
+        style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}
       />
       <span className="text-[13px] text-gray-300 leading-relaxed">{text}</span>
     </motion.div>
@@ -38,7 +38,7 @@ function SolutionCard({ item, index }) {
         {item.when && (
           <span
             className="text-[10px] px-2 py-1 rounded-lg shrink-0 whitespace-nowrap"
-            style={{ background: 'rgba(124,58,237,0.1)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.2)' }}
+            style={{ background: 'rgba(37, 99, 235,0.1)', color: '#60A5FA', border: '1px solid rgba(37, 99, 235,0.2)' }}
           >
             {item.when}
           </span>
@@ -75,9 +75,9 @@ function PipelineStage({ stage, index }) {
       <motion.div
         className="px-3 py-1.5 rounded-lg text-[11px] font-medium font-mono"
         style={{
-          background: 'rgba(124,58,237,0.1)',
-          border: '1px solid rgba(124,58,237,0.2)',
-          color: '#c4b5fd',
+          background: 'rgba(37, 99, 235,0.1)',
+          border: '1px solid rgba(37, 99, 235,0.2)',
+          color: '#93C5FD',
         }}
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
@@ -201,9 +201,9 @@ export default function DeploymentView({ deployment = {}, scalability = {} }) {
 
         {/* Caching */}
         {caching.layers?.length > 0 && (
-          <div className="p-5 rounded-2xl" style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.18)' }}>
+          <div className="p-5 rounded-2xl" style={{ background: 'rgba(37, 99, 235,0.06)', border: '1px solid rgba(37, 99, 235,0.18)' }}>
             <div className="flex items-center gap-2 mb-3">
-              <Zap className="w-4 h-4 text-purple-400" />
+              <Zap className="w-4 h-4 text-blue-400" />
               <h3 className="text-[13px] font-semibold text-white">Caching Strategy</h3>
             </div>
             <div className="space-y-2 mb-3">

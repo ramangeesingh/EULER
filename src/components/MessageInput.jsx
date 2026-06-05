@@ -7,7 +7,7 @@ import { useState, useRef, useEffect } from 'react';
  * Labels only appear on hover for a clean, premium look.
  */
 const ACTIONS = [
-  { id: 'repo',         icon: Upload,   label: 'Repo Intelligence',   color: '#a855f7', glowColor: 'rgba(168,85,247,0.3)' },
+  { id: 'repo',         icon: Upload,   label: 'Repo Intelligence',   color: '#60A5FA', glowColor: 'rgba(168,85,247,0.3)' },
   { id: 'website',      icon: Globe,    label: 'Build Website',        color: '#3b82f6', glowColor: 'rgba(59,130,246,0.3)' },
   { id: 'devassistant', icon: Code,     label: 'AI Dev Assistant',     color: '#22c55e', glowColor: 'rgba(34,197,94,0.3)' },
   { id: 'architecture', icon: Network,  label: 'Architecture Engine',  color: '#f97316', glowColor: 'rgba(249,115,22,0.3)' },
@@ -281,7 +281,7 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
                   width: '200px',
                   height: '160px',
                   borderRadius: '50%',
-                  background: 'radial-gradient(ellipse at center bottom, rgba(124,58,237,0.08) 0%, transparent 70%)',
+                  background: 'radial-gradient(ellipse at center bottom, rgba(37, 99, 235,0.08) 0%, transparent 70%)',
                 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -304,7 +304,7 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
             border: '1px solid rgba(255,255,255,0.08)',
             backdropFilter: 'blur(24px)',
             boxShadow:
-              '0 0 0 1px rgba(139,92,246,0.06), 0 24px 64px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.04)',
+              '0 0 0 1px rgba(59, 130, 246,0.06), 0 24px 64px rgba(0,0,0,0.75), inset 0 1px 0 rgba(255,255,255,0.04)',
           }}
         >
           {/* Plus / X toggle button */}
@@ -316,11 +316,11 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
             className="w-[48px] h-[48px] rounded-full flex items-center justify-center shrink-0 relative"
             style={{
               background: showActions
-                ? 'linear-gradient(135deg, #7c3aed, #4f46e5)'
+                ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
                 : 'rgba(255,255,255,0.06)',
               border: '1px solid rgba(255,255,255,0.1)',
               boxShadow: showActions
-                ? '0 0 24px rgba(124,58,237,0.55)'
+                ? '0 0 24px rgba(37, 99, 235,0.55)'
                 : 'none',
             }}
             whileHover={{ scale: 1.06 }}
@@ -367,8 +367,8 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
                       key={i}
                       className="w-[3px] rounded-full"
                       style={{
-                        background: 'linear-gradient(to top, #7c3aed, #3b82f6)',
-                        boxShadow: '0 0 8px rgba(124,58,237,0.5)'
+                        background: 'linear-gradient(to top, #2563EB, #3b82f6)',
+                        boxShadow: '0 0 8px rgba(37, 99, 235,0.5)'
                       }}
                       animate={{
                         height: ['20%', '100%', '40%', '80%', '30%']
@@ -428,8 +428,8 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
             disabled={!input.trim()}
             className="w-[44px] h-[44px] rounded-full flex items-center justify-center shrink-0"
             style={{
-              background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
-              boxShadow: '0 0 24px rgba(124,58,237,0.55)',
+              background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
+              boxShadow: '0 0 24px rgba(37, 99, 235,0.55)',
               opacity: input.trim() ? 1 : 0.85,
             }}
             whileHover={input.trim() ? { scale: 1.07 } : {}}

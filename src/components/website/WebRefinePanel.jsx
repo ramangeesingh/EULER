@@ -90,11 +90,11 @@ function MessageBubble({ message }) {
         className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[11px] font-bold mt-0.5"
         style={
           isUser
-            ? { background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', color: '#fff' }
-            : { background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)' }
+            ? { background: 'linear-gradient(135deg, #2563EB, #3B82F6)', color: '#fff' }
+            : { background: 'rgba(37, 99, 235,0.15)', border: '1px solid rgba(37, 99, 235,0.3)' }
         }
       >
-        {isUser ? 'U' : <Sparkles className="w-3.5 h-3.5 text-purple-400" />}
+        {isUser ? 'U' : <Sparkles className="w-3.5 h-3.5 text-blue-400" />}
       </div>
 
       {/* Bubble */}
@@ -103,8 +103,8 @@ function MessageBubble({ message }) {
         style={
           isUser
             ? {
-                background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(79,70,229,0.18))',
-                border: '1px solid rgba(124,58,237,0.3)',
+                background: 'linear-gradient(135deg, rgba(37, 99, 235,0.25), rgba(59, 130, 246,0.18))',
+                border: '1px solid rgba(37, 99, 235,0.3)',
                 borderTopRightRadius: '6px',
               }
             : {
@@ -118,7 +118,7 @@ function MessageBubble({ message }) {
         {message.isStreaming && (
           <span
             className="inline-block w-1 h-4 ml-1 rounded-full"
-            style={{ background: '#a78bfa', animation: 'pulse 1s ease-in-out infinite', verticalAlign: 'middle' }}
+            style={{ background: '#60A5FA', animation: 'pulse 1s ease-in-out infinite', verticalAlign: 'middle' }}
           />
         )}
       </div>
@@ -248,7 +248,7 @@ Tell me what you'd like to change — add sections, adjust colors, modify layout
       >
         <div
           className="w-6 h-6 rounded-lg flex items-center justify-center"
-          style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
+          style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}
         >
           <Wand2 className="w-3.5 h-3.5 text-white" />
         </div>
@@ -258,7 +258,7 @@ Tell me what you'd like to change — add sections, adjust colors, modify layout
         {messages.length > 1 && (
           <button
             onClick={() => setShowSuggestions(!showSuggestions)}
-            className="text-[11px] text-purple-400 hover:text-purple-300 transition-colors"
+            className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
           >
             <Sparkles className="w-3 h-3 inline mr-1" />
             Suggestions
@@ -287,10 +287,10 @@ Tell me what you'd like to change — add sections, adjust colors, modify layout
                     disabled={isStreaming}
                     className="px-3 py-1.5 rounded-full text-[12px] text-gray-300 hover:text-white transition-all"
                     style={{
-                      background: 'rgba(124,58,237,0.08)',
-                      border: '1px solid rgba(124,58,237,0.2)',
+                      background: 'rgba(37, 99, 235,0.08)',
+                      border: '1px solid rgba(37, 99, 235,0.2)',
                     }}
-                    whileHover={{ borderColor: 'rgba(124,58,237,0.45)', scale: 1.02 }}
+                    whileHover={{ borderColor: 'rgba(37, 99, 235,0.45)', scale: 1.02 }}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.04 }}
@@ -343,15 +343,15 @@ Tell me what you'd like to change — add sections, adjust colors, modify layout
             className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mb-0.5 transition-all"
             style={{
               background: input.trim() && !isStreaming
-                ? 'linear-gradient(135deg, #7c3aed, #4f46e5)'
+                ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
                 : 'rgba(255,255,255,0.05)',
-              boxShadow: input.trim() && !isStreaming ? '0 4px 14px rgba(124,58,237,0.4)' : 'none',
+              boxShadow: input.trim() && !isStreaming ? '0 4px 14px rgba(37, 99, 235,0.4)' : 'none',
             }}
             whileHover={input.trim() ? { scale: 1.06 } : {}}
             whileTap={input.trim() ? { scale: 0.94 } : {}}
           >
             {isStreaming
-              ? <Loader2 className="w-3.5 h-3.5 text-purple-400 animate-spin" />
+              ? <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin" />
               : <Send className="w-3.5 h-3.5 text-white" />
             }
           </motion.button>

@@ -31,10 +31,10 @@ function SelectGroup({ icon: Icon, label, options, value, onChange, hasSubtext }
             onClick={() => onChange(o.v)}
             className="flex flex-col items-start px-3 py-2 rounded-lg text-[12px] font-medium transition-all duration-200"
             style={{
-              background: value === o.v ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.03)',
-              border: value === o.v ? '1px solid rgba(124,58,237,0.45)' : '1px solid rgba(255,255,255,0.06)',
-              color: value === o.v ? '#c4b5fd' : 'rgba(156,163,175,0.8)',
-              boxShadow: value === o.v ? '0 0 12px rgba(124,58,237,0.15)' : 'none',
+              background: value === o.v ? 'rgba(37, 99, 235,0.2)' : 'rgba(255,255,255,0.03)',
+              border: value === o.v ? '1px solid rgba(37, 99, 235,0.45)' : '1px solid rgba(255,255,255,0.06)',
+              color: value === o.v ? '#93C5FD' : 'rgba(156,163,175,0.8)',
+              boxShadow: value === o.v ? '0 0 12px rgba(37, 99, 235,0.15)' : 'none',
             }}
           >
             <span>{o.l}</span>
@@ -75,8 +75,8 @@ export default function ArchPromptPanel({ onGenerate, isGenerating }) {
         <div
           className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
           style={{
-            background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #2563eb 100%)',
-            boxShadow: '0 0 40px rgba(124,58,237,0.5), 0 0 80px rgba(124,58,237,0.2)',
+            background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 50%, #2563eb 100%)',
+            boxShadow: '0 0 40px rgba(37, 99, 235,0.5), 0 0 80px rgba(37, 99, 235,0.2)',
           }}
         >
           <Cpu className="w-8 h-8 text-white" />
@@ -158,7 +158,7 @@ export default function ArchPromptPanel({ onGenerate, isGenerating }) {
             >
               {showPrefs ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               Architecture preferences
-              <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.2)' }}>
+              <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(37, 99, 235,0.15)', color: '#60A5FA', border: '1px solid rgba(37, 99, 235,0.2)' }}>
                 {prefs.scale} · {prefs.style} · {prefs.cloud}
               </span>
             </button>
@@ -193,9 +193,9 @@ export default function ArchPromptPanel({ onGenerate, isGenerating }) {
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all"
               style={{
                 background: prompt.trim() && !isGenerating
-                  ? 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)'
+                  ? 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)'
                   : 'rgba(255,255,255,0.06)',
-                boxShadow: prompt.trim() && !isGenerating ? '0 4px 20px rgba(124,58,237,0.4)' : 'none',
+                boxShadow: prompt.trim() && !isGenerating ? '0 4px 20px rgba(37, 99, 235,0.4)' : 'none',
                 cursor: prompt.trim() && !isGenerating ? 'pointer' : 'not-allowed',
                 opacity: !prompt.trim() || isGenerating ? 0.5 : 1,
               }}

@@ -100,7 +100,7 @@ function ExplanationDrawer({ filePath, content, repoSummary, onClose }) {
         width: '420px',
         background: 'rgba(8,8,16,0.97)',
         backdropFilter: 'blur(30px)',
-        borderLeft: '1px solid rgba(124,58,237,0.2)',
+        borderLeft: '1px solid rgba(37, 99, 235,0.2)',
         boxShadow: '-20px 0 60px rgba(0,0,0,0.5)',
       }}
     >
@@ -109,7 +109,7 @@ function ExplanationDrawer({ filePath, content, repoSummary, onClose }) {
         style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
       >
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-purple-400" />
+          <Sparkles className="w-4 h-4 text-blue-400" />
           <span className="text-sm font-semibold text-white">AI Explanation</span>
         </div>
         <button onClick={onClose} className="p-1 rounded-lg hover:bg-white/10 transition-colors">
@@ -117,14 +117,14 @@ function ExplanationDrawer({ filePath, content, repoSummary, onClose }) {
         </button>
       </div>
       <div className="flex-1 overflow-y-auto sidebar-scroll p-5">
-        <p className="text-[11px] text-purple-400 font-mono mb-4 opacity-70">{filePath}</p>
+        <p className="text-[11px] text-blue-400 font-mono mb-4 opacity-70">{filePath}</p>
         {loading && !explanation && (
           <div className="flex items-center gap-2 text-gray-400 text-sm">
             <motion.div
-              className="w-4 h-4 border-2 border-purple-500/30 rounded-full"
+              className="w-4 h-4 border-2 border-blue-500/30 rounded-full"
               animate={{ rotate: 360 }}
               transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-              style={{ borderTopColor: '#a855f7' }}
+              style={{ borderTopColor: '#60A5FA' }}
             />
             Analyzing file...
           </div>
@@ -135,7 +135,7 @@ function ExplanationDrawer({ filePath, content, repoSummary, onClose }) {
             <motion.span
               animate={{ opacity: [1, 0] }}
               transition={{ duration: 0.6, repeat: Infinity }}
-              className="inline-block w-2 h-4 bg-purple-400 ml-0.5 rounded-sm"
+              className="inline-block w-2 h-4 bg-blue-400 ml-0.5 rounded-sm"
             />
           )}
         </div>
@@ -183,7 +183,7 @@ export default function FileViewer({ filePath, content, repoSummary }) {
           <span className="text-[13px] font-mono text-gray-300 truncate">{filePath}</span>
           <span
             className="text-[10px] px-2 py-0.5 rounded-full flex-shrink-0"
-            style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.2)' }}
+            style={{ background: 'rgba(37, 99, 235,0.15)', color: '#60A5FA', border: '1px solid rgba(37, 99, 235,0.2)' }}
           >
             {language}
           </span>
@@ -195,9 +195,9 @@ export default function FileViewer({ filePath, content, repoSummary }) {
             onClick={() => setShowExplanation((v) => !v)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-medium"
             style={{
-              background: showExplanation ? 'rgba(124,58,237,0.25)' : 'rgba(124,58,237,0.1)',
-              border: `1px solid ${showExplanation ? 'rgba(124,58,237,0.5)' : 'rgba(124,58,237,0.2)'}`,
-              color: '#a78bfa',
+              background: showExplanation ? 'rgba(37, 99, 235,0.25)' : 'rgba(37, 99, 235,0.1)',
+              border: `1px solid ${showExplanation ? 'rgba(37, 99, 235,0.5)' : 'rgba(37, 99, 235,0.2)'}`,
+              color: '#60A5FA',
             }}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}

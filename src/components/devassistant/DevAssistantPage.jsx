@@ -58,13 +58,13 @@ function ConversationList({ conversations, activeId, onSelect, onNew, onDelete }
           onClick={onNew}
           className="w-full h-10 rounded-xl flex items-center gap-2.5 px-3.5 text-[13px] font-medium text-white/85 transition-all"
           style={{
-            background: 'linear-gradient(135deg, rgba(124,58,237,0.2), rgba(79,70,229,0.12))',
-            border: '1px solid rgba(124,58,237,0.3)',
+            background: 'linear-gradient(135deg, rgba(37, 99, 235,0.2), rgba(59, 130, 246,0.12))',
+            border: '1px solid rgba(37, 99, 235,0.3)',
           }}
-          whileHover={{ scale: 1.01, borderColor: 'rgba(124,58,237,0.5)' }}
+          whileHover={{ scale: 1.01, borderColor: 'rgba(37, 99, 235,0.5)' }}
           whileTap={{ scale: 0.98 }}
         >
-          <Plus className="w-4 h-4 text-purple-400" />
+          <Plus className="w-4 h-4 text-blue-400" />
           New Conversation
         </motion.button>
       </div>
@@ -106,15 +106,15 @@ function ConversationList({ conversations, activeId, onSelect, onNew, onDelete }
                 className="w-full text-left px-3 py-2.5 rounded-xl transition-all"
                 style={{
                   background: activeId === conv.id
-                    ? 'rgba(124,58,237,0.14)'
+                    ? 'rgba(37, 99, 235,0.14)'
                     : hoveredId === conv.id ? 'rgba(255,255,255,0.04)' : 'transparent',
-                  border: `1px solid ${activeId === conv.id ? 'rgba(124,58,237,0.25)' : 'transparent'}`,
+                  border: `1px solid ${activeId === conv.id ? 'rgba(37, 99, 235,0.25)' : 'transparent'}`,
                 }}
               >
                 <div className="flex items-start gap-2">
                   <MessageSquare
                     className="w-3.5 h-3.5 mt-0.5 shrink-0"
-                    style={{ color: activeId === conv.id ? '#a78bfa' : '#4b5563' }}
+                    style={{ color: activeId === conv.id ? '#60A5FA' : '#4b5563' }}
                   />
                   <div className="min-w-0 flex-1">
                     <p
@@ -176,12 +176,12 @@ function WelcomeScreen({ onNew }) {
         <div
           className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
           style={{
-            background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(79,70,229,0.18))',
-            border: '1px solid rgba(124,58,237,0.4)',
-            boxShadow: '0 0 40px rgba(124,58,237,0.2)',
+            background: 'linear-gradient(135deg, rgba(37, 99, 235,0.25), rgba(59, 130, 246,0.18))',
+            border: '1px solid rgba(37, 99, 235,0.4)',
+            boxShadow: '0 0 40px rgba(37, 99, 235,0.2)',
           }}
         >
-          <Bot className="w-8 h-8 text-purple-400" />
+          <Bot className="w-8 h-8 text-blue-400" />
         </div>
         <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">AI Dev Assistant</h2>
         <p className="text-gray-500 text-[14px] max-w-sm mx-auto leading-relaxed">
@@ -215,13 +215,13 @@ function WelcomeScreen({ onNew }) {
         onClick={onNew}
         className="flex items-center gap-2.5 px-6 py-3 rounded-xl text-[14px] font-semibold text-white"
         style={{
-          background: 'linear-gradient(135deg, #7c3aed, #4f46e5)',
-          boxShadow: '0 4px 24px rgba(124,58,237,0.45)',
+          background: 'linear-gradient(135deg, #2563EB, #3B82F6)',
+          boxShadow: '0 4px 24px rgba(37, 99, 235,0.45)',
         }}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        whileHover={{ scale: 1.03, boxShadow: '0 6px 32px rgba(124,58,237,0.55)' }}
+        whileHover={{ scale: 1.03, boxShadow: '0 6px 32px rgba(37, 99, 235,0.55)' }}
         whileTap={{ scale: 0.97 }}
       >
         <Sparkles className="w-4 h-4" />
@@ -302,7 +302,7 @@ export default function DevAssistantPage({ onClose }) {
         <div className="flex items-center gap-2">
           <div
             className="w-6 h-6 rounded-lg flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)' }}
+            style={{ background: 'linear-gradient(135deg, #2563EB, #3B82F6)' }}
           >
             <Bot className="w-3.5 h-3.5 text-white" />
           </div>
@@ -321,7 +321,7 @@ export default function DevAssistantPage({ onClose }) {
         {conversations.length > 0 && (
           <div
             className="text-[11px] px-2 py-0.5 rounded-full"
-            style={{ background: 'rgba(124,58,237,0.15)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.25)' }}
+            style={{ background: 'rgba(37, 99, 235,0.15)', color: '#60A5FA', border: '1px solid rgba(37, 99, 235,0.25)' }}
           >
             {conversations.length} conversation{conversations.length !== 1 ? 's' : ''}
           </div>

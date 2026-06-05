@@ -37,7 +37,7 @@ export default function SearchPanel({ files }) {
     return (
       <>
         {text.slice(0, idx)}
-        <mark style={{ background: 'rgba(168,85,247,0.3)', color: '#c4b5fd', borderRadius: '3px', padding: '0 2px' }}>
+        <mark style={{ background: 'rgba(168,85,247,0.3)', color: '#93C5FD', borderRadius: '3px', padding: '0 2px' }}>
           {text.slice(idx, idx + q.length)}
         </mark>
         {text.slice(idx + q.length)}
@@ -81,7 +81,7 @@ export default function SearchPanel({ files }) {
           <motion.button
             onClick={() => doSearch(query)}
             className="px-3 py-1 rounded-lg text-[12px] font-medium"
-            style={{ background: 'rgba(124,58,237,0.2)', color: '#a78bfa', border: '1px solid rgba(124,58,237,0.3)' }}
+            style={{ background: 'rgba(37, 99, 235,0.2)', color: '#60A5FA', border: '1px solid rgba(37, 99, 235,0.3)' }}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
@@ -95,10 +95,10 @@ export default function SearchPanel({ files }) {
         {loading && (
           <div className="flex items-center gap-2 text-gray-500 text-sm">
             <motion.div
-              className="w-4 h-4 border-2 border-purple-500/30 rounded-full"
+              className="w-4 h-4 border-2 border-blue-500/30 rounded-full"
               animate={{ rotate: 360 }}
               transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-              style={{ borderTopColor: '#a855f7' }}
+              style={{ borderTopColor: '#60A5FA' }}
             />
             Searching...
           </div>
@@ -138,11 +138,11 @@ export default function SearchPanel({ files }) {
                     className="flex items-center gap-2 px-4 py-2.5"
                     style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
                   >
-                    <FileCode className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
+                    <FileCode className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
                     <span className="text-[12px] font-mono text-gray-300 truncate">{file}</span>
                     <span
                       className="ml-auto text-[10px] px-2 py-0.5 rounded-full flex-shrink-0"
-                      style={{ background: 'rgba(124,58,237,0.1)', color: '#a78bfa' }}
+                      style={{ background: 'rgba(37, 99, 235,0.1)', color: '#60A5FA' }}
                     >
                       {matches.length}
                     </span>

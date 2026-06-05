@@ -12,7 +12,7 @@ const CATEGORY_ICONS = {
 };
 
 const CATEGORY_COLORS = {
-  Framework:   { bg: 'rgba(124,58,237,0.12)', border: 'rgba(124,58,237,0.3)',  text: '#c4b5fd' },
+  Framework:   { bg: 'rgba(37, 99, 235,0.12)', border: 'rgba(37, 99, 235,0.3)',  text: '#93C5FD' },
   Runtime:     { bg: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)',  text: '#93c5fd' },
   'Primary DB':{ bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)',  text: '#6ee7b7' },
   Cache:       { bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)',  text: '#fcd34d' },
@@ -82,7 +82,7 @@ export default function StackView({ stack = {} }) {
         <h2 className="text-lg font-bold text-white mb-1">Recommended Tech Stack</h2>
         <p className="text-gray-500 text-sm mb-6">Curated technologies optimized for your requirements. Hover for rationale.</p>
 
-        <StackSection title="Frontend"       items={stack.frontend}       icon={Globe}    color="#c4b5fd" />
+        <StackSection title="Frontend"       items={stack.frontend}       icon={Globe}    color="#93C5FD" />
         <StackSection title="Backend"        items={stack.backend}        icon={Server}   color="#93c5fd" />
         <StackSection title="Database"       items={stack.database}       icon={Database} color="#6ee7b7" />
         <StackSection title="Infrastructure" items={stack.infrastructure} icon={Server}   color="#fca5a5" />
