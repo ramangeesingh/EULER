@@ -9,7 +9,7 @@ export default function WelcomeScreen() {
   return (
     <motion.div
       className="h-full flex flex-col items-center justify-start"
-      style={{ paddingTop: '140px' }}
+      style={{ paddingTop: '32vh' }}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16 }}
@@ -17,7 +17,7 @@ export default function WelcomeScreen() {
     >
       {/* ── Headline ── */}
       <motion.h1
-        className="text-[34px] font-normal leading-tight mb-4 text-center"
+        className="text-[34px] font-normal leading-tight mb-3 text-center"
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.5 }}
