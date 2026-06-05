@@ -5,7 +5,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Sidebar from './components/Sidebar';
 import ChatWorkspace from './components/ChatWorkspace';
-import VideoBackground from './components/VideoBackground';
+import CosmicBackground from './components/CosmicBackground';
 import { streamChat } from './lib/api';
 import RepoIntelligencePage from './components/repo/RepoIntelligencePage';
 import ArchitectureEnginePage from './components/architecture/ArchitectureEnginePage';
@@ -204,7 +204,7 @@ function AppShell() {
 
   return (
     <div className="h-screen w-screen overflow-hidden relative">
-      <VideoBackground />
+      <CosmicBackground />
 
       {/* Top gradient overlay */}
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: '80px', background: 'linear-gradient(to bottom, rgba(0,0,0,0.92), rgba(0,0,0,0))', zIndex: 5, pointerEvents: 'none' }} />

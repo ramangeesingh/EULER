@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Globe, Sparkles, Zap, LayoutTemplate, BarChart2,
   User, ShoppingBag, BookOpen, Puzzle, ChevronRight,
-  Wand2,
+  Wand2, Send,
 } from 'lucide-react';
 
 // ─── Data ──────────────────────────────────────────────────────────────────
@@ -60,7 +60,10 @@ export default function WebPromptPanel({ onGenerate, isGenerating }) {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSubmit();
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   return (
@@ -151,33 +154,50 @@ export default function WebPromptPanel({ onGenerate, isGenerating }) {
             )}
           </AnimatePresence>
 
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="e.g. A SaaS landing page for an AI writing assistant with a hero section, feature highlights, pricing tiers, and testimonials..."
-            rows={4}
-            className="w-full resize-none text-[14px] text-white placeholder-gray-600 outline-none transition-all"
-            style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.09)',
-              borderRadius: '14px',
-              padding: '14px 16px',
-              fontFamily: 'Inter, sans-serif',
-              lineHeight: 1.6,
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = 'rgba(124,58,237,0.5)';
-              e.target.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.1)';
-              e.target.style.background = 'rgba(255,255,255,0.05)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(255,255,255,0.09)';
-              e.target.style.boxShadow = 'none';
-              e.target.style.background = 'rgba(255,255,255,0.04)';
-            }}
-          />
-          <p className="text-[11px] text-gray-600 mt-1.5 text-right">⌘ + Enter to generate</p>
+          <div className="relative">
+            <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="e.g. A SaaS landing page for an AI writing assistant with a hero section, feature highlights, pricing tiers, and testimonials..."
+              rows={4}
+              className="w-full resize-none text-[14px] text-white placeholder-gray-600 outline-none transition-all pr-12"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.09)',
+                borderRadius: '14px',
+                padding: '14px 16px',
+                fontFamily: 'Inter, sans-serif',
+                lineHeight: 1.6,
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'rgba(124,58,237,0.5)';
+                e.target.style.boxShadow = '0 0 0 3px rgba(124,58,237,0.1)';
+                e.target.style.background = 'rgba(255,255,255,0.05)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'rgba(255,255,255,0.09)';
+                e.target.style.boxShadow = 'none';
+                e.target.style.background = 'rgba(255,255,255,0.04)';
+              }}
+            />
+            <motion.button
+              onClick={handleSubmit}
+              disabled={!prompt.trim() || isGenerating}
+              className="absolute bottom-3 right-3 w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+              style={{
+                background: prompt.trim() ? 'linear-gradient(135deg, #7c3aed, #4f46e5)' : 'rgba(255,255,255,0.1)',
+                color: prompt.trim() ? '#ffffff' : '#6b7280',
+                cursor: !prompt.trim() || isGenerating ? 'not-allowed' : 'pointer',
+                opacity: !prompt.trim() ? 0.5 : 1,
+              }}
+              whileHover={prompt.trim() ? { scale: 1.05 } : {}}
+              whileTap={prompt.trim() ? { scale: 0.95 } : {}}
+            >
+              <Send className="w-4 h-4" />
+            </motion.button>
+          </div>
+          <p className="text-[11px] text-gray-600 mt-1.5 text-right">Press Enter to send • Shift + Enter for new line</p>
         </motion.div>
 
         {/* ── Site Type ── */}
