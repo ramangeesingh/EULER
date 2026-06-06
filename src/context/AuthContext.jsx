@@ -11,10 +11,40 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
+  const [emailVerifiedNotification, setEmailVerifiedNotification] = useState(false);
 
   // ── Sync session on mount and on auth state changes ──────────────────────
   useEffect(() => {
     console.log('🔑 [AUTH CONTEXT] Initializing');
+
+    const isVerifiedClick = 
+      window.location.search.includes('verified=true') || 
+      window.location.hash.includes('type=signup') ||
+      window.location.search.includes('type=signup');
+
+    if (isVerifiedClick) {
+      console.log('📬 [AUTH CONTEXT] Detected email verification link click. Processing sign out.');
+      setLoading(true);
+      
+      // Execute sign out to prevent auto-login
+      supabase.auth.signOut().then(() => {
+        setEmailVerifiedNotification(true);
+        
+        // Clean URL parameters to restore clean interface URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('verified');
+        url.searchParams.delete('type');
+        url.searchParams.delete('code');
+        url.hash = '';
+        window.history.replaceState(null, document.title, url.toString());
+
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+      });
+      return;
+    }
+
     // Get current session immediately
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('🔑 [AUTH CONTEXT] Session loaded:', !!session);
@@ -44,7 +74,10 @@ export function AuthProvider({ children }) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name } },
+      options: { 
+        data: { name },
+        emailRedirectTo: window.location.origin + '?verified=true',
+      },
     });
     if (error) { setError(error.message); return { error }; }
     return { data };
@@ -73,6 +106,10 @@ export function AuthProvider({ children }) {
 
   const clearError = useCallback(() => setError(null), []);
 
+  const clearEmailVerifiedNotification = useCallback(() => {
+    setEmailVerifiedNotification(false);
+  }, []);
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -84,6 +121,8 @@ export function AuthProvider({ children }) {
       signInWithGoogle,
       signOut,
       clearError,
+      emailVerifiedNotification,
+      clearEmailVerifiedNotification,
     }}>
       {children}
     </AuthContext.Provider>
@@ -96,3 +135,4 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
   return ctx;
 }
+

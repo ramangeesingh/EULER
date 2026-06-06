@@ -1,7 +1,7 @@
 // src/components/auth/AuthPage.jsx
 // Premium cosmic glassmorphism login / sign-up page
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, AlertCircle, Loader2, Code2, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -61,7 +61,15 @@ function AuthInput({ icon: Icon, label, type = 'text', value, onChange, id, show
 
 // ─── Main component ──────────────────────────────────────────────────────────
 export default function AuthPage() {
-  const { signIn, signUp, signInWithGoogle, error, clearError } = useAuth();
+  const { 
+    signIn, 
+    signUp, 
+    signInWithGoogle, 
+    error, 
+    clearError, 
+    emailVerifiedNotification, 
+    clearEmailVerifiedNotification 
+  } = useAuth();
 
   const [tab, setTab] = useState('signin'); // 'signin' | 'signup'
   const [name, setName] = useState('');
@@ -71,6 +79,7 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState('');
   const [showAuth, setShowAuth] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
 
   const displayError = localError || error || '';
 
@@ -78,12 +87,29 @@ export default function AuthPage() {
     setTab(t);
     setLocalError('');
     clearError();
+    clearEmailVerifiedNotification?.();
   };
+
+  // Clear email verification notification on tab change or unmount
+  useEffect(() => {
+    return () => {
+      clearEmailVerifiedNotification?.();
+    };
+  }, [tab, clearEmailVerifiedNotification]);
+
+  // If emailVerifiedNotification is active, make sure we show the signin tab
+  useEffect(() => {
+    if (emailVerifiedNotification) {
+      setTab('signin');
+      setShowAuth(true);
+    }
+  }, [emailVerifiedNotification]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLocalError('');
     clearError();
+    clearEmailVerifiedNotification?.();
 
     if (!email || !password) { setLocalError('Please fill in all fields.'); return; }
     if (tab === 'signup' && !name) { setLocalError('Please enter your name.'); return; }
@@ -91,10 +117,17 @@ export default function AuthPage() {
 
     setLoading(true);
     try {
-      const fn = tab === 'signup' ? signUp : signIn;
-      const params = tab === 'signup' ? { email, password, name } : { email, password };
-      const { error: authError } = await fn(params) ?? {};
-      if (authError) setLocalError(authError.message);
+      if (tab === 'signup') {
+        const { error: authError } = await signUp({ email, password, name }) ?? {};
+        if (authError) {
+          setLocalError(authError.message);
+        } else {
+          setVerificationSent(true);
+        }
+      } else {
+        const { error: authError } = await signIn({ email, password }) ?? {};
+        if (authError) setLocalError(authError.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -103,6 +136,7 @@ export default function AuthPage() {
   const handleGoogle = async () => {
     setLocalError('');
     clearError();
+    clearEmailVerifiedNotification?.();
     await signInWithGoogle();
   };
 
@@ -119,21 +153,9 @@ export default function AuthPage() {
           />
           <span className="text-white font-semibold text-lg tracking-tight">Euler</span>
         </div>
-
-        {/* Badge/pill */}
-        {/* <div
-          className="flex items-center gap-2 px-3.5 py-1.5 bg-white/10 border border-white/20"
-          style={{ borderRadius: '20px' }}
-        >
-          {/* <span className="w-1 h-1 bg-white rounded-full shrink-0" />
-          <span className="text-[13px] font-medium text-white/60 whitespace-nowrap">
-            Early access available from
-            <span className="text-white"> May 1, 2026</span>
-          </span> */}
-        {/* </div>  */}
       </header>
 
-      {/* Cosmic background (reusable component containing video, overlay, stars, and glows) */}
+      {/* Cosmic background */}
       <CosmicBackground />
 
       <AnimatePresence mode="wait">
@@ -202,7 +224,10 @@ export default function AuthPage() {
             {/* Close Button */}
             <button
               type="button"
-              onClick={() => setShowAuth(false)}
+              onClick={() => {
+                setShowAuth(false);
+                setVerificationSent(false);
+              }}
               className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors z-20 p-1.5 hover:bg-white/5 rounded-lg"
               title="Go back"
             >
@@ -238,125 +263,183 @@ export default function AuthPage() {
 
             {/* Card glass */}
             <div className="auth-card rounded-2xl overflow-hidden">
-              {/* Tab bar */}
-              <div className="flex border-b border-white/[0.06]">
-                {['signin', 'signup'].map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => handleTabChange(t)}
-                    className={`flex-1 py-3.5 text-[13px] font-medium transition-all relative ${tab === t ? 'text-white' : 'text-gray-500 hover:text-gray-300'
-                      }`}
+              <AnimatePresence mode="wait">
+                {verificationSent ? (
+                  <motion.div
+                    key="verification-sent"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.25 }}
+                    className="p-6 text-center space-y-5"
                   >
-                    {t === 'signin' ? 'Sign In' : 'Sign Up'}
-                    {tab === t && (
-                      <motion.div
-                        layoutId="auth-tab-indicator"
-                        className="absolute bottom-0 left-0 right-0 h-px"
-                        style={{ background: 'linear-gradient(90deg, transparent, #2563EB, transparent)' }}
-                      />
-                    )}
-                  </button>
-                ))}
-              </div>
-
-              {/* Form body */}
-              <div className="p-6">
-                <AnimatePresence mode="wait">
-                  <motion.form
-                    key={tab}
-                    onSubmit={handleSubmit}
-                    initial={{ opacity: 0, x: tab === 'signin' ? -16 : 16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: tab === 'signin' ? 16 : -16 }}
-                    transition={{ duration: 0.22 }}
-                    className="space-y-3"
-                  >
-                    {/* Name (signup only) */}
-                    {tab === 'signup' && (
-                      <AuthInput
-                        id="auth-name"
-                        icon={User}
-                        label="Full name"
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                      />
-                    )}
-
-                    {/* Email */}
-                    <AuthInput
-                      id="auth-email"
-                      icon={Mail}
-                      label="Email address"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-
-                    {/* Password */}
-                    <AuthInput
-                      id="auth-password"
-                      icon={Lock}
-                      label="Password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      showToggle
-                      showPassword={showPw}
-                      onToggle={() => setShowPw((p) => !p)}
-                    />
-
-                    {/* Error */}
-                    <AnimatePresence>
-                      {displayError && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -6 }}
-                          className="flex items-center gap-2 text-[12px] text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2"
-                        >
-                          <AlertCircle size={13} className="shrink-0" />
-                          <span>{displayError}</span>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-
-                    {/* Submit */}
-                    <motion.button
-                      type="submit"
-                      disabled={loading}
-                      className="auth-submit-btn w-full h-11 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 mt-1"
-                      whileHover={{ scale: loading ? 1 : 1.01 }}
-                      whileTap={{ scale: loading ? 1 : 0.98 }}
-                    >
-                      {loading ? (
-                        <Loader2 size={16} className="animate-spin" />
-                      ) : (
-                        tab === 'signin' ? 'Sign In' : 'Create Account'
-                      )}
-                    </motion.button>
-
-                    {/* Divider */}
-                    <div className="flex items-center gap-3 py-1">
-                      <div className="flex-1 h-px bg-white/[0.06]" />
-                      <span className="text-[11px] text-gray-600">or continue with</span>
-                      <div className="flex-1 h-px bg-white/[0.06]" />
+                    <div className="w-14 h-14 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mx-auto text-blue-400">
+                      <Mail size={26} className="animate-pulse" />
+                    </div>
+                    <div className="space-y-2">
+                      <h2 className="text-xl font-bold text-white tracking-tight">Verify your email</h2>
+                      <p className="text-[13px] text-gray-400 leading-relaxed max-w-[290px] mx-auto">
+                        Please verify your email address. We've sent a verification link to <span className="text-blue-400 font-medium">{email}</span>.
+                      </p>
                     </div>
 
-                    {/* Google OAuth */}
-                    <motion.button
-                      type="button"
-                      onClick={handleGoogle}
-                      className="auth-google-btn w-full h-10 rounded-xl text-[13px] font-medium text-gray-300 flex items-center justify-center gap-2.5"
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <GoogleIcon />
-                      Google
-                    </motion.button>
-                  </motion.form>
-                </AnimatePresence>
-              </div>
+                    <div className="pt-2">
+                      <motion.button
+                        type="button"
+                        onClick={() => {
+                          setVerificationSent(false);
+                          setTab('signin');
+                        }}
+                        className="auth-submit-btn w-full h-11 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2"
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        Back to Sign In
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    key="auth-form-content"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {/* Tab bar */}
+                    <div className="flex border-b border-white/[0.06]">
+                      {['signin', 'signup'].map((t) => (
+                        <button
+                          key={t}
+                          onClick={() => handleTabChange(t)}
+                          className={`flex-1 py-3.5 text-[13px] font-medium transition-all relative ${tab === t ? 'text-white' : 'text-gray-500 hover:text-gray-300'
+                            }`}
+                        >
+                          {t === 'signin' ? 'Sign In' : 'Sign Up'}
+                          {tab === t && (
+                            <motion.div
+                              layoutId="auth-tab-indicator"
+                              className="absolute bottom-0 left-0 right-0 h-px"
+                              style={{ background: 'linear-gradient(90deg, transparent, #2563EB, transparent)' }}
+                            />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Form body */}
+                    <div className="p-6">
+                      <AnimatePresence mode="wait">
+                        <motion.form
+                          key={tab}
+                          onSubmit={handleSubmit}
+                          initial={{ opacity: 0, x: tab === 'signin' ? -16 : 16 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: tab === 'signin' ? 16 : -16 }}
+                          transition={{ duration: 0.22 }}
+                          className="space-y-3"
+                        >
+                          {/* Name (signup only) */}
+                          {tab === 'signup' && (
+                            <AuthInput
+                              id="auth-name"
+                              icon={User}
+                              label="Full name"
+                              type="text"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                            />
+                          )}
+
+                          {/* Email */}
+                          <AuthInput
+                            id="auth-email"
+                            icon={Mail}
+                            label="Email address"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                          />
+
+                          {/* Password */}
+                          <AuthInput
+                            id="auth-password"
+                            icon={Lock}
+                            label="Password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            showToggle
+                            showPassword={showPw}
+                            onToggle={() => setShowPw((p) => !p)}
+                          />
+
+                          {/* Verification notification (Sign in tab only) */}
+                          {tab === 'signin' && emailVerifiedNotification && (
+                            <motion.div
+                              initial={{ opacity: 0, y: -6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="flex items-center gap-2.5 text-[12px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2.5"
+                            >
+                              <div className="shrink-0 w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                              <span className="font-medium text-emerald-300">Email verified! Please sign in again.</span>
+                            </motion.div>
+                          )}
+
+                          {/* Error */}
+                          <AnimatePresence>
+                            {displayError && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -6 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -6 }}
+                                className="flex items-center gap-2 text-[12px] text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2"
+                              >
+                                <AlertCircle size={13} className="shrink-0" />
+                                <span>{displayError}</span>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+
+                          {/* Submit */}
+                          <motion.button
+                            type="submit"
+                            disabled={loading}
+                            className="auth-submit-btn w-full h-11 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 mt-1"
+                            whileHover={{ scale: loading ? 1 : 1.01 }}
+                            whileTap={{ scale: loading ? 1 : 0.98 }}
+                          >
+                            {loading ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              tab === 'signin' ? 'Sign In' : 'Create Account'
+                            )}
+                          </motion.button>
+
+                          {/* Divider */}
+                          <div className="flex items-center gap-3 py-1">
+                            <div className="flex-1 h-px bg-white/[0.06]" />
+                            <span className="text-[11px] text-gray-600">or continue with</span>
+                            <div className="flex-1 h-px bg-white/[0.06]" />
+                          </div>
+
+                          {/* Google OAuth */}
+                          <motion.button
+                            type="button"
+                            onClick={handleGoogle}
+                            className="auth-google-btn w-full h-10 rounded-xl text-[13px] font-medium text-gray-300 flex items-center justify-center gap-2.5"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <GoogleIcon />
+                            Google
+                          </motion.button>
+                        </motion.form>
+                      </AnimatePresence>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Footer */}
@@ -372,3 +455,4 @@ export default function AuthPage() {
     </div>
   );
 }
+
