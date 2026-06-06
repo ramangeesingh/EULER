@@ -1,3 +1,5 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import express from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
@@ -160,7 +162,7 @@ app.post('/api/chat', requireAuth, async (req, res) => {
         if (!trimmed || !trimmed.startsWith('data: ')) continue;
 
         const data = trimmed.slice(6);
-        
+
         // Gemini doesn't always send [DONE], but we'll handle it just in case
         if (data === '[DONE]') {
           res.write('data: [DONE]\n\n');
@@ -171,7 +173,7 @@ app.post('/api/chat', requireAuth, async (req, res) => {
           const parsed = JSON.parse(data);
           // Gemini response format: { candidates: [{ content: { parts: [{ text: "..." }] } }] }
           const textChunk = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-          
+
           if (textChunk) {
             assistantResponseContent += textChunk;
             // Send in the format our frontend expects (same as OpenAI format we set up earlier)
@@ -250,8 +252,17 @@ app.post('/api/chat', requireAuth, async (req, res) => {
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', model: 'gemini-2.5-flash' });
 });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const PORT = 3001;
+// Serve Vite build files
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Serve React app for all non-API routes
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+const PORT = process.env.PORT || 3001;
 createServer(app).listen(PORT, () => {
   console.log(`\n  🚀 Euler backend running at http://localhost:${PORT}`);
   console.log(`  📡 API endpoint: http://localhost:${PORT}/api/chat (Using Gemini)\n`);
