@@ -1,7 +1,9 @@
 import express from 'express';
 import { createServer } from 'http';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import repoRouter from './routes/repo.js';
+import gitCloneRouter from './routes/git-clone.js';
 import architectureRouter from './routes/architecture.js';
 import websiteRouter from './routes/website.js';
 import devAssistantRouter from './routes/devassistant.js';
@@ -13,11 +15,19 @@ import { geminiGenerate } from './server/gemini.js';
 dotenv.config();
 
 const app = express();
+
+// CORS configuration
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true
+}));
+
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Mount routers
 app.use('/api/repo', repoRouter);
+app.use('/api/git-clone', gitCloneRouter);
 app.use('/api/architecture', architectureRouter);
 app.use('/api/website', websiteRouter);
 app.use('/api/devassistant', devAssistantRouter);

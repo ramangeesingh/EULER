@@ -10,6 +10,12 @@ if (!connectionString) {
 }
 
 const pool = new Pool({ connectionString });
+
+// Prevent process crashes from unexpected/idle connection closures by the pooler
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle PG pool client:', err.message);
+});
+
 const adapter = new PrismaPg(pool);
 
 export const prisma = new PrismaClient({

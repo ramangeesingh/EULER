@@ -43,44 +43,11 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
   const containerRef = useRef(null);
   const recognitionRef = useRef(null);
 
-  // Initialize Speech Recognition
+  // Cleanup Speech Recognition on unmount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-
-        recognition.onresult = (event) => {
-          let finalTranscript = '';
-
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-              finalTranscript += transcript;
-            }
-          }
-
-          // If we have final text, append it to the current input
-          if (finalTranscript) {
-            setInput((prev) => prev + (prev.length > 0 && !prev.endsWith(' ') ? ' ' : '') + finalTranscript);
-          }
-          // Note: we could display interim text, but for simplicity we just capture finals
-        };
-
-        recognition.onerror = (event) => {
-          console.error('Speech recognition error:', event.error);
-          setIsListening(false);
-        };
-
-        recognition.onend = () => {
-          setIsListening(false);
-        };
-
-        recognitionRef.current = recognition;
-      }
-    }
+    return () => {
+      recognitionRef.current?.stop();
+    };
   }, []);
 
   const toggleListening = () => {
@@ -88,15 +55,50 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
       recognitionRef.current?.stop();
       setIsListening(false);
     } else {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.start();
-          setIsListening(true);
-        } catch (e) {
-          console.error('Failed to start recognition', e);
-        }
-      } else {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
         alert('Speech recognition is not supported in this browser.');
+        return;
+      }
+
+      // Create a fresh instance for this listening session to avoid InvalidStateError on restart
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      // Capture the current input value to append transcripts to it
+      const initialInput = input;
+
+      recognition.onresult = (event) => {
+        let sessionTranscript = '';
+        for (let i = 0; i < event.results.length; i++) {
+          sessionTranscript += event.results[i][0].transcript;
+        }
+
+        let updatedText = initialInput;
+        if (sessionTranscript) {
+          const spacer = (updatedText.length > 0 && !updatedText.endsWith(' ')) ? ' ' : '';
+          updatedText += spacer + sessionTranscript;
+        }
+        setInput(updatedText);
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+
+      try {
+        recognition.start();
+        setIsListening(true);
+      } catch (e) {
+        console.error('Failed to start speech recognition:', e);
       }
     }
   };

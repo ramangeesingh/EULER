@@ -50,6 +50,9 @@ function LoadingTab({ label }) {
 }
 
 export default function RepoIntelligencePage({ onClose }) {
+  console.log('🎬 [REPO PAGE] Component mounted/rendered');
+  console.log('🎬 [REPO PAGE] onClose function exists:', typeof onClose);
+  
   const [repoData, setRepoData] = useState(null); // { tree, files, analysis, stats, repoName }
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analyzeError, setAnalyzeError] = useState(null);
@@ -61,31 +64,77 @@ export default function RepoIntelligencePage({ onClose }) {
   const [onboardingLoading, setOnboardingLoading] = useState(false);
 
   // ── Upload & analyze ─────────────────────────────────────
-  const handleUpload = useCallback(async (file) => {
+  const handleUpload = useCallback(async (file, gitData = null) => {
+    console.log('🟦 [REPO PAGE] handleUpload called');
+    console.log('🟦 [REPO PAGE] file:', file);
+    console.log('🟦 [REPO PAGE] gitData present:', !!gitData);
+    console.log('🟦 [REPO PAGE] Current location:', window.location.href);
+    
     setIsAnalyzing(true);
     setAnalyzeError(null);
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      const res = await fetch('/api/repo/analyze', { method: 'POST', body: formData });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Upload failed' }));
-        throw new Error(err.error || 'Upload failed');
+      if (gitData) {
+        console.log('🟩 [REPO PAGE] Processing Git clone data');
+        console.log('🟩 [REPO PAGE] gitData keys:', Object.keys(gitData));
+        
+        const newRepoData = {
+          tree: gitData.tree,
+          files: gitData.files,
+          analysis: gitData.analysis,
+          stats: gitData.stats,
+          repoName: gitData.repoName || gitData.fullName,
+          isGitRepo: true,
+          gitInfo: gitData.repoData,
+        };
+        
+        console.log('🟩 [REPO PAGE] Setting repo data');
+        console.log('🟩 [REPO PAGE] repoName:', newRepoData.repoName);
+        console.log('🟩 [REPO PAGE] Location before setRepoData:', window.location.href);
+        
+        setRepoData(newRepoData);
+        
+        console.log('✅ [REPO PAGE] setRepoData completed');
+        console.log('✅ [REPO PAGE] Location after setRepoData:', window.location.href);
+        
+      } else {
+        console.log('📦 [REPO PAGE] Processing ZIP file');
+        
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await fetch('/api/repo/analyze', { method: 'POST', body: formData });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Upload failed' }));
+          throw new Error(err.error || 'Upload failed');
+        }
+        const data = await res.json();
+        
+        setRepoData({
+          tree: data.tree,
+          files: data.files,
+          analysis: data.analysis,
+          stats: data.stats,
+          repoName: data.repoName,
+          isGitRepo: false,
+        });
+        
+        console.log('✅ [REPO PAGE] ZIP data set');
       }
-      const data = await res.json();
-      setRepoData({
-        tree: data.tree,
-        files: data.files,
-        analysis: data.analysis,
-        stats: data.stats,
-        repoName: data.repoName,
-      });
+      
+      console.log('🏁 [REPO PAGE] handleUpload finishing');
+      console.log('🏁 [REPO PAGE] Final location:', window.location.href);
+      
     } catch (err) {
+      console.error('🔴 [REPO PAGE] Error in handleUpload:', err);
+      console.error('🔴 [REPO PAGE] Error message:', err.message);
+      console.error('🔴 [REPO PAGE] Location on error:', window.location.href);
       setAnalyzeError(err.message);
     } finally {
+      console.log('🏁 [REPO PAGE] Finally block');
+      console.log('🏁 [REPO PAGE] Setting isAnalyzing to false');
       setIsAnalyzing(false);
+      console.log('🏁 [REPO PAGE] Location in finally:', window.location.href);
     }
   }, []);
 
@@ -160,7 +209,12 @@ export default function RepoIntelligencePage({ onClose }) {
         style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.4)' }}
       >
         <motion.button
-          onClick={onClose}
+          onClick={() => {
+            console.log('❌ [REPO PAGE] Back button clicked - calling onClose()');
+            console.log('❌ [REPO PAGE] Location before close:', window.location.href);
+            onClose();
+            console.log('❌ [REPO PAGE] Location after close:', window.location.href);
+          }}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-white/[0.07] transition-colors text-gray-400 hover:text-white text-sm"
           whileHover={{ x: -2 }}
           whileTap={{ scale: 0.97 }}
@@ -290,6 +344,8 @@ export default function RepoIntelligencePage({ onClose }) {
                         stats={repoData.stats}
                         files={repoData.files}
                         repoName={repoData.repoName}
+                        gitInfo={repoData.gitInfo}
+                        isGitRepo={repoData.isGitRepo}
                       />
                     </motion.div>
                   )}

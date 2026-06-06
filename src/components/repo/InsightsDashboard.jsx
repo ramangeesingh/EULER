@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   ShieldAlert, AlertTriangle, AlertCircle, CheckCircle,
-  Package, TrendingUp, FileCode, Layers, Loader2,
+  Package, TrendingUp, FileCode, Layers, Loader2, GitBranch,
 } from 'lucide-react';
 
 const SEVERITY_CONFIG = {
@@ -46,7 +46,7 @@ function LoadingSection({ label }) {
   );
 }
 
-export default function InsightsDashboard({ analysis, stats, files, repoName }) {
+export default function InsightsDashboard({ analysis, stats, files, repoName, gitInfo, isGitRepo }) {
   const [bugs, setBugs] = useState(null);
   const [deps, setDeps] = useState(null);
   const [bugsLoading, setBugsLoading] = useState(false);
@@ -117,6 +117,53 @@ export default function InsightsDashboard({ analysis, stats, files, repoName }) 
         {/* ── OVERVIEW ── */}
         {activeSection === 'overview' && (
           <div className="space-y-6">
+            {/* Git Repository Info */}
+            {isGitRepo && gitInfo && (
+              <motion.div
+                className="rounded-2xl p-5"
+                style={{ 
+                  background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(59, 130, 246, 0.04))',
+                  border: '1px solid rgba(37, 99, 235, 0.2)' 
+                }}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ background: 'rgba(37, 99, 235, 0.2)' }}
+                  >
+                    <GitBranch className="w-4 h-4 text-blue-300" />
+                  </div>
+                  <h3 className="text-sm font-semibold text-blue-200">GitHub Repository</h3>
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <p className="text-xs text-blue-300/70 uppercase tracking-wider">Stars</p>
+                    <p className="text-lg font-bold text-white">{gitInfo.stars?.toLocaleString() || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-blue-300/70 uppercase tracking-wider">Size</p>
+                    <p className="text-lg font-bold text-white">{gitInfo.size?.toFixed(1)}MB</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-blue-300/70 uppercase tracking-wider">Language</p>
+                    <p className="text-lg font-bold text-white">{gitInfo.language || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-blue-300/70 uppercase tracking-wider">Default Branch</p>
+                    <p className="text-lg font-bold text-white">{gitInfo.defaultBranch}</p>
+                  </div>
+                </div>
+                {gitInfo.description && (
+                  <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(37, 99, 235, 0.15)' }}>
+                    <p className="text-xs text-blue-300/70 uppercase tracking-wider mb-2">Description</p>
+                    <p className="text-sm text-blue-100">{gitInfo.description}</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
             {/* Stats grid */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard icon={FileCode} label="Total Files" value={stats?.totalFiles ?? '—'} color="#60A5FA" />

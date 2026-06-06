@@ -17,6 +17,12 @@ function AppShell() {
 
   // ── Feature overlays ──────────────────────────────────────────────────────
   const [activeFeature, setActiveFeature] = useState(null); // null | 'repo' | 'architecture'
+  
+  // Log activeFeature changes
+  useEffect(() => {
+    console.log('🎬 [APP] activeFeature changed to:', activeFeature);
+    console.log('🎬 [APP] Location:', window.location.href);
+  }, [activeFeature]);
 
   // ── Chat state ────────────────────────────────────────────────────────────
   const [chats, setChats]             = useState([]);
@@ -136,6 +142,7 @@ function AppShell() {
   }, [session, activeChat]);
 
   const handleSendMessage = useCallback((text) => {
+    console.log('💬 [APP] handleSendMessage called');
     if (isStreaming || !session?.access_token) return;
 
     const userMsg = { role: 'user', content: text, timestamp: new Date() };
@@ -252,7 +259,15 @@ function AppShell() {
       {/* ── Feature overlays ─────────────────────────────────────────────── */}
       <AnimatePresence>
         {activeFeature === 'repo' && (
-          <RepoIntelligencePage key="repo" onClose={() => setActiveFeature(null)} />
+          <RepoIntelligencePage 
+            key="repo" 
+            onClose={() => {
+              console.log('❌ [APP] onClose called for Repo Intelligence');
+              console.log('❌ [APP] Location before setActiveFeature:', window.location.href);
+              setActiveFeature(null);
+              console.log('❌ [APP] Location after setActiveFeature:', window.location.href);
+            }} 
+          />
         )}
         {activeFeature === 'architecture' && (
           <ArchitectureEnginePage key="arch" onClose={() => setActiveFeature(null)} />

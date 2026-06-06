@@ -14,8 +14,10 @@ export function AuthProvider({ children }) {
 
   // ── Sync session on mount and on auth state changes ──────────────────────
   useEffect(() => {
+    console.log('🔑 [AUTH CONTEXT] Initializing');
     // Get current session immediately
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('🔑 [AUTH CONTEXT] Session loaded:', !!session);
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -23,7 +25,10 @@ export function AuthProvider({ children }) {
 
     // Listen for future changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
+        console.log('🔑 [AUTH CONTEXT] Auth state changed:', event);
+        console.log('🔑 [AUTH CONTEXT] Has session:', !!session);
+        console.log('🔑 [AUTH CONTEXT] Location:', window.location.href);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
