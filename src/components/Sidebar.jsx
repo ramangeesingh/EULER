@@ -20,6 +20,8 @@ export default function Sidebar({
   const displayName  = user?.user_metadata?.name || user?.email?.split('@')[0] || 'User';
   const displayEmail = user?.email || '';
   const avatarLetter = displayName[0]?.toUpperCase() ?? 'U';
+  // Google OAuth stores the profile picture in avatar_url or picture
+  const avatarUrl    = user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
 
   const handleStartEdit = (e, chat) => {
     e.stopPropagation();
@@ -194,12 +196,22 @@ export default function Sidebar({
           {/* ── Profile ── */}
           <div className="px-3 pb-4 pt-2">
             <div className="glass-profile rounded-xl px-3 flex items-center gap-2.5 group" style={{ height: '60px' }}>
-              <div
-                className="w-[34px] h-[34px] rounded-full shrink-0 flex items-center justify-center text-white text-[13px] font-semibold"
-                style={{ background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)', boxShadow: '0 4px 14px rgba(37, 99, 235,0.4)' }}
-              >
-                {avatarLetter}
-              </div>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName}
+                  referrerPolicy="no-referrer"
+                  className="w-[34px] h-[34px] rounded-full shrink-0 object-cover"
+                  style={{ boxShadow: '0 4px 14px rgba(37, 99, 235,0.35)', border: '1.5px solid rgba(255,255,255,0.12)' }}
+                />
+              ) : (
+                <div
+                  className="w-[34px] h-[34px] rounded-full shrink-0 flex items-center justify-center text-white text-[13px] font-semibold"
+                  style={{ background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)', boxShadow: '0 4px 14px rgba(37, 99, 235,0.4)' }}
+                >
+                  {avatarLetter}
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <div className="text-[13px] font-medium text-white/90 truncate leading-5">{displayName}</div>
                 <div className="text-[11px] text-gray-500 leading-4 truncate">{displayEmail}</div>
