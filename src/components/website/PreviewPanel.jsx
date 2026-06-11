@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCw, ExternalLink, Loader2, Globe } from 'lucide-react';
+import { RefreshCw, ExternalLink, Globe } from 'lucide-react';
+import { EulerLoader } from '../shared/EulerLogo';
 
 export default function PreviewPanel({ html, device, siteTitle }) {
   const iframeRef = useRef(null);
@@ -97,7 +98,7 @@ export default function PreviewPanel({ html, device, siteTitle }) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+                <EulerLoader className="w-10 h-10" />
                 <span className="text-[13px] text-gray-500">Rendering preview...</span>
               </motion.div>
             )}

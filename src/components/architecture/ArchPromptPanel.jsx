@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Sparkles, Loader2, ChevronDown, ChevronUp,
+  Sparkles, ChevronDown, ChevronUp,
   Cpu, Cloud, DollarSign, Layers,
 } from 'lucide-react';
+import { EulerLoader } from '../shared/EulerLogo';
 
 const SCALE_OPTIONS   = [{ v: 'startup', l: 'Startup', sub: '0–10k users' }, { v: 'medium', l: 'Growth', sub: '10k–1M users' }, { v: 'enterprise', l: 'Enterprise', sub: '1M+ users' }];
 const STYLE_OPTIONS   = [{ v: 'monolith', l: 'Monolith' }, { v: 'microservices', l: 'Microservices' }, { v: 'serverless', l: 'Serverless' }, { v: 'hybrid', l: 'Hybrid' }];
@@ -203,7 +204,7 @@ export default function ArchPromptPanel({ onGenerate, isGenerating }) {
               whileTap={prompt.trim() && !isGenerating ? { scale: 0.97 } : {}}
             >
               {isGenerating ? (
-                <><Loader2 className="w-4 h-4 animate-spin" />Generating...</>
+                <><EulerLoader className="w-4 h-4" />Generating...</>
               ) : (
                 <><Sparkles className="w-4 h-4" />Generate Architecture</>
               )}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Code2, PanelLeftClose, LogOut, Pencil, Trash2, Check, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { EulerLogo } from './shared/EulerLogo';
 
 export default function Sidebar({
   chats = [],
@@ -66,13 +67,10 @@ export default function Sidebar({
           {/* ── Logo row ── */}
           <div className="flex items-center justify-between px-5 pt-[18px] pb-3">
             <div className="flex items-center gap-3">
-              <img
-                src="/euler-logo.jpg"
-                alt="Euler Logo"
-                className="w-11 h-11 rounded-xl object-cover shrink-0"
+              <EulerLogo
+                className="w-11 h-11 shrink-0"
                 style={{
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  boxShadow: '0 4px 16px rgba(37, 99, 235,0.2)'
+                  filter: 'drop-shadow(0 4px 12px rgba(37, 99, 235, 0.25))'
                 }}
               />
               <span className="text-[20px] font-semibold tracking-[-0.01em] text-white">Euler</span>

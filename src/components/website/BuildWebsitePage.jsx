@@ -2,12 +2,13 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Globe, Monitor, Smartphone, Download, Copy,
-  RefreshCw, Plus, Loader2, CheckCircle, Sparkles, Code2,
+  RefreshCw, Plus, CheckCircle, Sparkles, Code2,
   Eye, FileCode, Send, Wand2, ChevronRight, LayoutTemplate,
   BarChart2, User, ShoppingBag, BookOpen, Puzzle, History,
   ExternalLink, X, Settings2,
 } from 'lucide-react';
 import { AIErrorBanner } from '../shared/AIErrorState';
+import { EulerLoader } from '../shared/EulerLogo';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SITE_TYPES = [
@@ -369,7 +370,7 @@ function LeftPanel({
               whileTap={input.trim() && isIdle ? { scale: 0.92 } : {}}
             >
               {isGenerating || isRefining
-                ? <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin" />
+                ? <EulerLoader className="w-3.5 h-3.5" />
                 : <Send className="w-3.5 h-3.5 text-white" />}
             </motion.button>
           </div>
@@ -419,7 +420,7 @@ function ChatMessage({ message }) {
       >
         {message.content || (message.isStreaming && (
           <span className="flex items-center gap-2 text-gray-500">
-            <Loader2 className="w-3 h-3 animate-spin" /> Generating…
+            <EulerLoader className="w-3 h-3" /> Generating…
           </span>
         ))}
         {message.isStreaming && message.content && (
@@ -648,7 +649,7 @@ function RightPanel({
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+                    <EulerLoader className="w-8 h-8" />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -715,7 +716,7 @@ function GeneratingSteps() {
           {i < step
             ? <CheckCircle className="w-3.5 h-3.5 text-green-400 shrink-0" />
             : i === step
-              ? <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin shrink-0" />
+              ? <EulerLoader className="w-3.5 h-3.5 shrink-0" />
               : <div className="w-3.5 h-3.5 rounded-full shrink-0" style={{ border: '1px solid rgba(255,255,255,0.1)' }} />
           }
           <span className="text-[12px] transition-colors" style={{ color: i <= step ? '#9ca3af' : '#374151' }}>{s}</span>
@@ -1036,7 +1037,7 @@ export default function BuildWebsitePage({ onClose }) {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <Loader2 className="w-3 h-3 animate-spin" />
+            <EulerLoader className="w-3 h-3" />
             {isGenerating ? 'Generating…' : 'Refining…'}
           </motion.div>
         )}

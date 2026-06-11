@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useCallback, useId } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  GitBranch, Database, Shield, Rocket, Server, Loader2,
+  GitBranch, Database, Shield, Rocket, Server,
   RefreshCw, Copy, Check, ZoomIn, ZoomOut, Maximize2,
   Minimize2, Code2, Eye, X, AlertCircle,
 } from 'lucide-react';
 import mermaid from 'mermaid';
+import { EulerLoader } from '../shared/EulerLogo';
 
 // ─── One-time mermaid initialisation ─────────────────────────────────────────
 mermaid.initialize({
@@ -29,7 +30,10 @@ mermaid.initialize({
     bottomMarginAdj: 10,
     useMaxWidth: true,
   },
-  er: { useMaxWidth: true },
+  er: {
+    useMaxWidth: true,
+    layoutDirection: 'TB'
+  },
   themeVariables: {
     primaryColor: '#1e3a5f',
     primaryTextColor: '#e2e8f0',
@@ -69,18 +73,40 @@ mermaid.initialize({
 
 // ─── Diagram type definitions ─────────────────────────────────────────────────
 const DIAGRAM_TYPES = [
-  { id: 'system',        label: 'System Overview',    icon: Server,    desc: 'Frontend → Backend → DB flow' },
-  { id: 'sequence',      label: 'Auth Sequence',      icon: Shield,    desc: 'Login & token refresh flow' },
-  { id: 'database',      label: 'ER Diagram',         icon: Database,  desc: 'Tables & relationships' },
-  { id: 'deployment',    label: 'Deployment Pipeline',icon: Rocket,    desc: 'Dev → Staging → Production' },
-  { id: 'microservices', label: 'Microservices',      icon: GitBranch, desc: 'Service communication map' },
+  { id: 'system', label: 'System Overview', icon: Server, desc: 'Frontend → Backend → DB flow' },
+  { id: 'sequence', label: 'Auth Sequence', icon: Shield, desc: 'Login & token refresh flow' },
+  { id: 'database', label: 'ER Diagram', icon: Database, desc: 'Tables & relationships' },
+  { id: 'deployment', label: 'Deployment Pipeline', icon: Rocket, desc: 'Dev → Staging → Production' },
+  { id: 'microservices', label: 'Microservices', icon: GitBranch, desc: 'Service communication map' },
 ];
 
 // Helper functions for Mermaid sanitization
+function extractMermaidCode(raw) {
+  if (!raw) return '';
+  const match = raw.match(/```mermaid([\s\S]*?)```/i);
+  if (match) return match[1].trim();
+  const generalMatch = raw.match(/```([\s\S]*?)```/);
+  if (generalMatch) {
+    const content = generalMatch[1].trim();
+    if (/^(flowchart|graph|sequenceDiagram|erDiagram|classDiagram|stateDiagram|gantt|pie|journey|gitGraph|requirementDiagram)/i.test(content)) {
+      return content;
+    }
+  }
+  const keywords = [
+    'flowchart', 'graph', 'sequenceDiagram', 'erDiagram', 'classDiagram',
+    'stateDiagram-v2', 'stateDiagram', 'gantt', 'pie', 'journey', 'gitGraph', 'requirementDiagram'
+  ];
+  for (const keyword of keywords) {
+    const index = raw.toLowerCase().indexOf(keyword.toLowerCase());
+    if (index !== -1) return raw.slice(index).trim();
+  }
+  return raw.trim();
+}
+
 function sanitizeLabel(label) {
   if (!label) return '';
   let cleaned = label;
-  
+
   // 1. Replace parentheses ()
   cleaned = cleaned.replace(/\s*\(([^)]*)\)/g, (match, p1) => ' - ' + p1);
   cleaned = cleaned.replace(/[()]/g, ' ');
@@ -94,7 +120,7 @@ function sanitizeLabel(label) {
   // 4. Remove unsupported special characters
   cleaned = cleaned.replace(/\bNode\.js\b/gi, 'Node');
   cleaned = cleaned.replace(/['"`]/g, ''); // Remove quotes
-  cleaned = cleaned.replace(/[\[\]\{\}]/g, ''); // Remove braces/brackets
+  //cleaned = cleaned.replace(/[\[\]\{\}]/g, ''); // Remove braces/brackets
   cleaned = cleaned.replace(/[^a-zA-Z0-9\s.\-_]/g, '');
 
   cleaned = cleaned.replace(/\s+/g, ' ');
@@ -104,10 +130,10 @@ function sanitizeLabel(label) {
 
 function sanitizeMermaidCode(code) {
   if (!code) return '';
-  
+
   let sanitized = code.replace(/```mermaid\n?/gi, '')
-                      .replace(/```\n?/g, '')
-                      .trim();
+    .replace(/```\n?/g, '')
+    .trim();
 
   const lines = sanitized.split('\n');
   const processedLines = lines.map(line => {
@@ -165,10 +191,18 @@ function sanitizeMermaidCode(code) {
 // Asynchronous Mermaid syntax validation using mermaid.parse
 async function validateMermaidSyntax(code) {
   try {
-    const result = await mermaid.parse(code, { suppressErrors: true });
-    return result !== false;
+    await mermaid.parse(code);
+
+    console.log('[MERMAID] Validation passed');
+    return true;
   } catch (err) {
-    console.warn('Mermaid validation threw error:', err);
+    console.error('\n[MERMAID VALIDATION FAILED]');
+    console.error('Diagram:\n');
+    console.error(code);
+    console.error('\nError:\n');
+    console.error(err);
+    console.error('----------------------------------\n');
+
     return false;
   }
 }
@@ -233,18 +267,18 @@ function MermaidRenderer({ code, onRenderSuccess, onRenderFailed }) {
         .catch((err) => {
           setStatus('error');
           onRenderFailed?.(err?.message || 'Mermaid render error');
-          try { document.body.removeChild(scratch); } catch {}
+          try { document.body.removeChild(scratch); } catch { }
         });
     } catch (err) {
       setStatus('error');
       onRenderFailed?.(err?.message || 'Mermaid render error');
-      try { document.body.removeChild(scratch); } catch {}
+      try { document.body.removeChild(scratch); } catch { }
     }
 
     return () => {
-      try { document.body.removeChild(scratch); } catch {}
+      try { document.body.removeChild(scratch); } catch { }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 
   // ── Wheel zoom ──
@@ -313,7 +347,7 @@ function MermaidRenderer({ code, onRenderSuccess, onRenderFailed }) {
         >
           {[
             { id: 'diagram', label: 'Diagram', icon: Eye },
-            { id: 'code',    label: 'Code',    icon: Code2 },
+            { id: 'code', label: 'Code', icon: Code2 },
           ].map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -414,7 +448,7 @@ function MermaidRenderer({ code, onRenderSuccess, onRenderFailed }) {
                     className="w-12 h-12 rounded-2xl flex items-center justify-center"
                     style={{ background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.3)' }}
                   >
-                    <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+                    <EulerLoader className="w-8 h-8" />
                   </div>
                   <p className="text-gray-500 text-[12.5px]">Rendering diagram…</p>
                 </motion.div>
@@ -552,7 +586,11 @@ export default function DiagramView({ architecture }) {
       if (data.error) throw new Error(data.error);
 
       // Client-side sanitization
-      const sanitized = sanitizeMermaidCode(data.diagram);
+      const extracted = extractMermaidCode(data.diagram);
+      const sanitized = sanitizeMermaidCode(extracted);
+      console.log('\n========== MERMAID BEFORE VALIDATION ==========');
+      console.log(sanitized);
+      console.log('==============================================\n');
 
       // Client-side validation
       const isValid = await validateMermaidSyntax(sanitized);
@@ -572,7 +610,7 @@ export default function DiagramView({ architecture }) {
           type,
           context: isAutoRetry ? 'Auto-retry generation / validation failure' : 'Initial generation / validation failure'
         })
-      }).catch(() => {});
+      }).catch(() => { });
 
       if (!isAutoRetry) {
         console.warn(`[DiagramView] Validation/generation failed for "${type}". Auto-retrying once...`);
@@ -597,7 +635,7 @@ export default function DiagramView({ architecture }) {
         type,
         context: 'Frontend render failure'
       })
-    }).catch(() => {});
+    }).catch(() => { });
 
     const alreadyRetried = retryFlags[type];
     if (!alreadyRetried) {
@@ -680,7 +718,7 @@ export default function DiagramView({ architecture }) {
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
                 style={{ background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.3)' }}
               >
-                <Loader2 className="w-7 h-7 text-blue-400 animate-spin" />
+                <EulerLoader className="w-9 h-9" />
               </div>
               <p className="text-gray-500 text-[13px]">Generating diagram…</p>
             </motion.div>
@@ -719,8 +757,8 @@ export default function DiagramView({ architecture }) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <MermaidRenderer 
-                code={diagrams[activeType]} 
+              <MermaidRenderer
+                code={diagrams[activeType]}
                 onRenderFailed={(errMsg) => handleRenderFailed(activeType, errMsg)}
               />
             </motion.div>

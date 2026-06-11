@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookMarked, Trash2, Clock, Layers, ChevronRight, Loader2, Plus } from 'lucide-react';
+import { BookMarked, Trash2, Clock, Layers, ChevronRight, Plus } from 'lucide-react';
+import { EulerLoader } from '../shared/EulerLogo';
 
 function formatDate(iso) {
   if (!iso) return '';
@@ -98,7 +99,7 @@ function ArchCard({ item, onLoad, onDelete, index }) {
         title="Delete"
       >
         {deleting
-          ? <Loader2 className="w-3.5 h-3.5 text-gray-500 animate-spin" />
+          ? <EulerLoader className="w-3.5 h-3.5" />
           : <Trash2 className="w-3.5 h-3.5 text-gray-600 hover:text-red-400 transition-colors" />
         }
       </button>
@@ -157,7 +158,7 @@ export default function SavedArchitecturesPanel({ onLoad, onNew }) {
       <div className="flex-1 overflow-y-auto sidebar-scroll p-4">
         {loading ? (
           <div className="flex flex-col items-center justify-center h-40 gap-3">
-            <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+            <EulerLoader className="w-6 h-6" />
             <p className="text-gray-600 text-sm">Loading saved architectures...</p>
           </div>
         ) : saved.length === 0 ? (

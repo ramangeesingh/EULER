@@ -13,7 +13,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, RefreshCw, X, Loader2 } from 'lucide-react';
+import { AlertCircle, RefreshCw, X } from 'lucide-react';
+import { EulerLoader } from './EulerLogo';
 
 /**
  * Full-area centered error state (for page-level failures).
@@ -73,7 +74,7 @@ export function AIErrorState({ onRetry, onDismiss, isRetrying = false }) {
             whileTap={!isRetrying ? { scale: 0.97 } : {}}
           >
             {isRetrying
-              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ? <EulerLoader className="w-3.5 h-3.5" />
               : <RefreshCw className="w-3.5 h-3.5" />}
             {isRetrying ? 'Retrying…' : 'Retry'}
           </motion.button>
@@ -135,7 +136,7 @@ export function AIErrorBanner({ onRetry, onDismiss, isRetrying = false }) {
             }}
           >
             {isRetrying
-              ? <Loader2 className="w-3 h-3 animate-spin" />
+              ? <EulerLoader className="w-3 h-3" />
               : <RefreshCw className="w-3 h-3" />}
             {isRetrying ? 'Retrying…' : 'Retry'}
           </button>

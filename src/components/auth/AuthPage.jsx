@@ -3,9 +3,10 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, User, Eye, EyeOff, AlertCircle, Loader2, Code2, X } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, AlertCircle, Code2, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import CosmicBackground from '../CosmicBackground';
+import { EulerLogo, EulerLoader } from '../shared/EulerLogo';
 
 // ─── Google icon (inline SVG) ───────────────────────────────────────────────
 function GoogleIcon() {
@@ -146,10 +147,11 @@ export default function AuthPage() {
       <header className="absolute top-0 left-0 right-0 w-full flex items-center justify-between px-6 md:px-[120px] py-[20px] z-20">
         {/* Brand/Logo */}
         <div className="flex items-center gap-3">
-          <img
-            src="/euler-logo.jpg"
-            alt="Euler Logo"
-            className="w-8 h-8 rounded-lg object-cover border border-white/15"
+          <EulerLogo
+            className="w-8 h-8 shrink-0"
+            style={{
+              filter: 'drop-shadow(0 2px 8px rgba(37, 99, 235, 0.3))'
+            }}
           />
           <span className="text-white font-semibold text-lg tracking-tight">Euler</span>
         </div>
@@ -236,27 +238,28 @@ export default function AuthPage() {
 
             {/* Logo */}
             <div className="flex flex-col items-center mb-8">
-              <motion.img
-                src="/euler-logo.jpg"
-                alt="Euler Logo"
-                className="w-20 h-20 rounded-2xl object-cover mb-3"
+              <motion.div
+                className="w-20 h-20 mb-3 flex items-center justify-center"
                 style={{
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  boxShadow: '0 0 40px rgba(37, 99, 235,0.4)',
+                  filter: 'drop-shadow(0 0 20px rgba(37, 99, 235, 0.45))'
                 }}
                 animate={{
-                  boxShadow: [
-                    '0 0 30px rgba(37, 99, 235,0.3)',
-                    '0 0 50px rgba(37, 99, 235,0.6)',
-                    '0 0 30px rgba(37, 99, 235,0.3)'
+                  filter: [
+                    'drop-shadow(0 0 16px rgba(37, 99, 235, 0.35))',
+                    'drop-shadow(0 0 32px rgba(37, 99, 235, 0.65))',
+                    'drop-shadow(0 0 16px rgba(37, 99, 235, 0.35))'
                   ],
                   y: [0, -4, 0]
                 }}
                 transition={{
-                  boxShadow: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
-                  y: { duration: 4, repeat: Infinity, ease: 'easeInOut' }
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: 'easeInOut'
                 }}
-              />
+              >
+                <EulerLogo className="w-full h-full" />
+              </motion.div>
+
               <h1 className="text-2xl font-bold text-white tracking-tight">Euler</h1>
               <p className="text-sm text-gray-500 mt-1">Your AI coding co-pilot</p>
             </div>
@@ -410,7 +413,7 @@ export default function AuthPage() {
                             whileTap={{ scale: loading ? 1 : 0.98 }}
                           >
                             {loading ? (
-                              <Loader2 size={16} className="animate-spin" />
+                              <EulerLoader className="w-4 h-4" />
                             ) : (
                               tab === 'signin' ? 'Sign In' : 'Create Account'
                             )}

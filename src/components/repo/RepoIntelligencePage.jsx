@@ -2,8 +2,9 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, BarChart2, FileCode, MessageSquare, Search,
-  BookOpen, GraduationCap, Loader2, RefreshCw,
+  BookOpen, GraduationCap, RefreshCw,
 } from 'lucide-react';
+import { EulerLoader } from '../shared/EulerLogo';
 
 import UploadZone from './UploadZone';
 import FileTreePanel from './FileTreePanel';
@@ -43,7 +44,7 @@ function MarkdownRenderer({ content }) {
 function LoadingTab({ label }) {
   return (
     <div className="flex flex-col items-center justify-center h-64 gap-4">
-      <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+      <EulerLoader className="w-10 h-10" />
       <p className="text-gray-400 text-sm">Generating {label}...</p>
     </div>
   );

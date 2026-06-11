@@ -325,6 +325,28 @@ router.post('/log-error', (req, res) => {
 });
 
 // Helper functions for Mermaid sanitization
+function extractMermaidCode(raw) {
+  if (!raw) return '';
+  const match = raw.match(/```mermaid([\s\S]*?)```/i);
+  if (match) return match[1].trim();
+  const generalMatch = raw.match(/```([\s\S]*?)```/);
+  if (generalMatch) {
+    const content = generalMatch[1].trim();
+    if (/^(flowchart|graph|sequenceDiagram|erDiagram|classDiagram|stateDiagram|gantt|pie|journey|gitGraph|requirementDiagram)/i.test(content)) {
+      return content;
+    }
+  }
+  const keywords = [
+    'flowchart', 'graph', 'sequenceDiagram', 'erDiagram', 'classDiagram',
+    'stateDiagram-v2', 'stateDiagram', 'gantt', 'pie', 'journey', 'gitGraph', 'requirementDiagram'
+  ];
+  for (const keyword of keywords) {
+    const index = raw.toLowerCase().indexOf(keyword.toLowerCase());
+    if (index !== -1) return raw.slice(index).trim();
+  }
+  return raw.trim();
+}
+
 function sanitizeLabel(label) {
   if (!label) return '';
   let cleaned = label;
@@ -458,8 +480,8 @@ Return only the Mermaid diagram code starting with the diagram type (e.g., "flow
     );
 
     // Clean up markdown fences and sanitize code
-    const cleaned = raw.replace(/```mermaid\n?/gi, '').replace(/```\n?/g, '').trim();
-    const diagram = sanitizeMermaidCode(cleaned);
+    const extracted = extractMermaidCode(raw);
+    const diagram = sanitizeMermaidCode(extracted);
     
     console.log(`[Architecture Engine] Generated and sanitized diagram of type "${type}"`);
     res.json({ diagram, type });

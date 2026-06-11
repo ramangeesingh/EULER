@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send, Square, Code2, X, ChevronDown, ChevronUp,
-  Loader2, Zap, Bug, Wrench, Sparkles, MessageSquare,
+  Zap, Bug, Wrench, Sparkles, MessageSquare,
 } from 'lucide-react';
 
 // ─── Action mode definitions ─────────────────────────────────────────────────

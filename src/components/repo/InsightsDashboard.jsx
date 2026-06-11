@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   ShieldAlert, AlertTriangle, AlertCircle, CheckCircle,
-  Package, TrendingUp, FileCode, Layers, Loader2, GitBranch,
+  Package, TrendingUp, FileCode, Layers, GitBranch,
 } from 'lucide-react';
 
 const SEVERITY_CONFIG = {
@@ -37,10 +37,12 @@ function StatCard({ icon: Icon, label, value, color }) {
   );
 }
 
+import { EulerLoader } from '../shared/EulerLogo';
+
 function LoadingSection({ label }) {
   return (
     <div className="flex items-center gap-3 p-6 text-gray-500 text-sm">
-      <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+      <EulerLoader className="w-5 h-5" />
       <span>Loading {label}...</span>
     </div>
   );

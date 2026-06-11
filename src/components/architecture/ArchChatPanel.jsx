@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
+import { Send, Bot, User, Sparkles } from 'lucide-react';
 import { AIErrorBanner } from '../shared/AIErrorState';
+import { EulerLoader } from '../shared/EulerLogo';
 
 const STARTER_QUESTIONS = [
   'How should I handle file uploads at scale?',
@@ -263,7 +264,7 @@ export default function ArchChatPanel({ architecture }) {
             whileTap={input.trim() && !isStreaming ? { scale: 0.95 } : {}}
           >
             {isStreaming
-              ? <Loader2 className="w-4 h-4 text-white animate-spin" />
+              ? <EulerLoader className="w-4 h-4" />
               : <Send className="w-4 h-4 text-white" />
             }
           </motion.button>

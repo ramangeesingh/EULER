@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Cpu, LayoutDashboard, Layers, FolderTree,
   Database, Shield, Rocket, GitBranch, MessageSquare,
-  BookMarked, Plus, Loader2, Download, RefreshCw, CheckCircle,
+  BookMarked, Plus, Download, RefreshCw, CheckCircle,
 } from 'lucide-react';
 
 import ArchPromptPanel       from './ArchPromptPanel';
@@ -17,6 +17,7 @@ import DiagramView           from './DiagramView';
 import ArchChatPanel         from './ArchChatPanel';
 import SavedArchitecturesPanel from './SavedArchitecturesPanel';
 import { AIErrorBanner } from '../shared/AIErrorState';
+import { EulerLoader } from '../shared/EulerLogo';
 
 // ─── Tab definitions ────────────────────────────────────────────────────────
 const TABS = [
@@ -89,7 +90,7 @@ function GeneratingOverlay() {
             {i < step ? (
               <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />
             ) : i === step ? (
-              <Loader2 className="w-4 h-4 text-blue-400 animate-spin shrink-0" />
+              <EulerLoader className="w-4 h-4 shrink-0" />
             ) : (
               <div className="w-4 h-4 rounded-full shrink-0" style={{ border: '1px solid rgba(255,255,255,0.12)' }} />
             )}

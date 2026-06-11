@@ -1,9 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  MessageSquare, Send, Loader2, Wand2, Copy, CheckCircle,
+  MessageSquare, Send, Wand2, Copy, CheckCircle,
   Sparkles, CornerDownLeft,
 } from 'lucide-react';
+import { EulerLoader } from '../shared/EulerLogo';
 
 // ─── Suggestion chips ────────────────────────────────────────────────────────
 const SUGGESTIONS = [
@@ -351,7 +352,7 @@ Tell me what you'd like to change — add sections, adjust colors, modify layout
             whileTap={input.trim() ? { scale: 0.94 } : {}}
           >
             {isStreaming
-              ? <Loader2 className="w-3.5 h-3.5 text-blue-400 animate-spin" />
+              ? <EulerLoader className="w-3.5 h-3.5" />
               : <Send className="w-3.5 h-3.5 text-white" />
             }
           </motion.button>

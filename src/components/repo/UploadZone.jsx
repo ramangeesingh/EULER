@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, GitBranch, X, FolderOpen, Zap, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, GitBranch, X, FolderOpen, Zap, CheckCircle, AlertCircle } from 'lucide-react';
+import { EulerLoader } from '../shared/EulerLogo';
 import { useState, useRef } from 'react';
 
 export default function UploadZone({ onUpload, isAnalyzing }) {
@@ -363,7 +364,7 @@ export default function UploadZone({ onUpload, isAnalyzing }) {
             }}
           >
             {isCloning ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <EulerLoader className="w-4 h-4" />
             ) : (
               <GitBranch className="w-4 h-4" />
             )}
