@@ -12,7 +12,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
-import { geminiGenerate } from '../server/gemini.js';
+import { aiGenerate } from '../server/ai-gateway.js';
 
 const router = Router();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -298,7 +298,7 @@ Return this exact JSON structure:
 }`;
   
   try {
-    const raw = await geminiGenerate(systemPrompt, userPrompt, 0.3);
+    const raw = await aiGenerate(systemPrompt, userPrompt, 0.3);
     const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     return JSON.parse(cleaned);
   } catch (error) {
@@ -338,7 +338,14 @@ router.post('/validate', async (req, res) => {
       repoInfo: { ...repoInfo, ...repoData }
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    // Sanitize: only surface the most user-relevant messages
+    const rawMsg = error.message || '';
+    let safeMsg = 'Failed to validate repository. Please check the URL.';
+    if (/not found|private/i.test(rawMsg)) safeMsg = 'Repository not found. Make sure it is public.';
+    else if (/too large/i.test(rawMsg)) safeMsg = rawMsg; // size message is safe
+    else if (/invalid.*url/i.test(rawMsg)) safeMsg = 'Invalid GitHub URL. Please provide a valid repository URL.';
+    console.error('[git-clone] validate error:', rawMsg);
+    res.status(400).json({ error: safeMsg });
   }
 });
 
@@ -397,8 +404,17 @@ router.post('/clone', async (req, res) => {
       await cleanupRepo(repoPath);
     }
     
-    console.error('Git clone error:', error);
-    res.status(500).json({ error: error.message });
+    const rawErrMsg = error.message || '';
+    console.error('[git-clone] clone error:', rawErrMsg);
+    // Only surface specific actionable messages; hide internal details
+    let safeCloneMsg = 'Something went wrong. Please try again.';
+    if (/not found|private/i.test(rawErrMsg)) safeCloneMsg = 'Repository not found. Make sure it is public.';
+    else if (/too large/i.test(rawErrMsg)) safeCloneMsg = rawErrMsg; // size message is safe
+    else if (/git is not installed/i.test(rawErrMsg)) safeCloneMsg = 'Git is not available on the server. Please contact support.';
+    else if (/timed out/i.test(rawErrMsg)) safeCloneMsg = 'Repository clone timed out. Please try again.';
+    else if (/no readable/i.test(rawErrMsg)) safeCloneMsg = 'No readable source files found in this repository.';
+    else if (/invalid.*url/i.test(rawErrMsg)) safeCloneMsg = 'Invalid GitHub URL.';
+    res.status(500).json({ error: safeCloneMsg });
   }
 });
 

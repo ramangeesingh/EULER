@@ -7,7 +7,7 @@
  */
 
 import { Router } from 'express';
-import { geminiGenerate, geminiStream, parseJSON } from '../server/gemini.js';
+import { aiGenerate, aiStream, parseJSON, sanitizeError } from '../server/ai-gateway.js';
 
 const router = Router();
 
@@ -145,7 +145,7 @@ The "html" field must be a COMPLETE standalone HTML document that works when sav
 Make it visually stunning — use gradients, shadows, animations, real content. At least 6 distinct sections.`;
 
   try {
-    const raw = await geminiGenerate(systemPrompt, userPrompt, 0.7);
+    const raw = await aiGenerate(systemPrompt, userPrompt, 0.7);
     const result = parseJSON(raw, null);
 
     if (!result || !result.html) {
@@ -166,8 +166,7 @@ Make it visually stunning — use gradients, shadows, animations, real content. 
 
     res.json(result);
   } catch (err) {
-    console.error('Website generate error:', err);
-    res.status(500).json({ error: err.message || 'Failed to generate website' });
+    res.status(500).json({ error: sanitizeError(err, 'website/generate') });
   }
 });
 
@@ -176,13 +175,14 @@ Make it visually stunning — use gradients, shadows, animations, real content. 
 // Streaming AI chat for iterative refinement
 // ─────────────────────────────────────────────────────────────
 router.post('/refine', async (req, res) => {
-  const { messages = [], currentCode = '', siteTitle = '' } = req.body;
+  try {
+    const { messages = [], currentCode = '', siteTitle = '' } = req.body;
 
-  if (!messages.length) {
-    return res.status(400).json({ error: 'No messages provided' });
-  }
+    if (!messages.length) {
+      return res.status(400).json({ error: 'No messages provided' });
+    }
 
-  const systemPrompt = `You are an expert frontend developer helping to refine and improve a generated website.
+    const systemPrompt = `You are an expert frontend developer helping to refine and improve a generated website.
 
 Current website: "${siteTitle}"
 
@@ -198,16 +198,9 @@ When the user asks for changes:
 4. If asked to add a section, provide the complete HTML/CSS for it
 5. Keep the same design style and aesthetic as the existing code`;
 
-  const geminiContents = messages.map((m) => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }],
-  }));
-
-  try {
-    await geminiStream(systemPrompt, geminiContents, res);
+    await aiStream(systemPrompt, messages, res);
   } catch (err) {
-    console.error('Website refine error:', err);
-    if (!res.headersSent) res.status(500).json({ error: err.message });
+    if (!res.headersSent) res.status(500).json({ error: sanitizeError(err, 'website/refine') });
   }
 });
 
@@ -242,15 +235,14 @@ Return ONLY valid JSON:
 }`;
 
   try {
-    const raw = await geminiGenerate(systemPrompt, userPrompt, 0.7);
+    const raw = await aiGenerate(systemPrompt, userPrompt, 0.7);
     const result = parseJSON(raw, null);
     if (!result?.html) {
       return res.status(500).json({ error: 'Component generation failed' });
     }
     res.json(result);
   } catch (err) {
-    console.error('Component generate error:', err);
-    res.status(500).json({ error: err.message || 'Failed to generate component' });
+    res.status(500).json({ error: sanitizeError(err, 'website/component') });
   }
 });
 

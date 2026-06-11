@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
+import { AIErrorBanner } from '../shared/AIErrorState';
 
 const STARTER_QUESTIONS = [
   'How should I handle file uploads at scale?',
@@ -66,6 +67,9 @@ export default function ArchChatPanel({ architecture }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [streamError, setStreamError] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const lastInputRef = useRef('');
   const bottomRef = useRef(null);
   const abortRef = useRef(null);
   const textareaRef = useRef(null);
@@ -74,12 +78,24 @@ export default function ArchChatPanel({ architecture }) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = async (text) => {
+  const sendMessage = async (text, retrying = false) => {
     if (!text.trim() || isStreaming) return;
+    lastInputRef.current = text;
     const userMsg = { role: 'user', content: text.trim() };
     const assistantMsg = { role: 'assistant', content: '', isStreaming: true };
 
-    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    if (!retrying) {
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    } else {
+      // Replace last assistant msg for retry
+      setMessages((prev) => {
+        const copy = [...prev];
+        copy[copy.length - 1] = assistantMsg;
+        return copy;
+      });
+    }
+    setStreamError(false);
+    if (retrying) setIsRetrying(true);
     setInput('');
     setIsStreaming(true);
 
@@ -130,9 +146,13 @@ export default function ArchChatPanel({ architecture }) {
       }
     } catch (err) {
       if (err.name !== 'AbortError') {
+        setStreamError(true);
+        // Remove the empty streaming assistant message
         setMessages((curr) => {
           const copy = [...curr];
-          copy[copy.length - 1] = { role: 'assistant', content: '⚠️ Failed to get response. Please try again.' };
+          if (copy[copy.length - 1]?.role === 'assistant' && !copy[copy.length - 1].content) {
+            copy.pop();
+          }
           return copy;
         });
       }
@@ -145,6 +165,7 @@ export default function ArchChatPanel({ architecture }) {
         return copy;
       });
       setIsStreaming(false);
+      setIsRetrying(false);
     }
   };
 
@@ -154,6 +175,8 @@ export default function ArchChatPanel({ architecture }) {
       sendMessage(input);
     }
   };
+
+  const handleRetry = () => sendMessage(lastInputRef.current, true);
 
   return (
     <div className="h-full flex flex-col">
@@ -194,6 +217,16 @@ export default function ArchChatPanel({ architecture }) {
         )}
         <AnimatePresence>
           {messages.map((msg, i) => <MessageBubble key={i} msg={msg} />)}
+        </AnimatePresence>
+        {/* Error banner with retry */}
+        <AnimatePresence>
+          {streamError && (
+            <AIErrorBanner
+              onRetry={handleRetry}
+              onDismiss={() => setStreamError(false)}
+              isRetrying={isRetrying}
+            />
+          )}
         </AnimatePresence>
         <div ref={bottomRef} />
       </div>

@@ -190,11 +190,18 @@ function AppShell() {
             }
           },
           onError: (error) => {
+            // Log raw error for debugging — never put it in the UI
+            console.error('[App] Chat stream error:', error);
             setMessages((curr) => {
               const copy = [...curr];
               const lastIdx = copy.length - 1;
               if (copy[lastIdx]?.role === 'assistant') {
-                copy[lastIdx] = { ...copy[lastIdx], content: copy[lastIdx].content || `⚠️ Error: ${error}`, isStreaming: false, isError: true };
+                copy[lastIdx] = {
+                  ...copy[lastIdx],
+                  content: copy[lastIdx].content || '',
+                  isStreaming: false,
+                  isError: true,
+                };
               }
               return copy;
             });

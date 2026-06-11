@@ -25,8 +25,10 @@ export function streamChat(messages, { onToken, onComplete, onError, accessToken
       });
 
       if (!res.ok) {
-        const errText = await res.text();
-        onError?.(`Server error: ${res.status} — ${errText}`);
+        // Log raw error server-side details client-side (dev only)
+        const errText = await res.text().catch(() => '');
+        console.error('[api] Chat request failed:', res.status, errText.slice(0, 200));
+        onError?.('Something went wrong. Please try again.');
         return;
       }
 
@@ -78,7 +80,8 @@ export function streamChat(messages, { onToken, onComplete, onError, accessToken
       onComplete?.(fullText, metadata);
     } catch (err) {
       if (err.name !== 'AbortError') {
-        onError?.(err.message || 'Network error');
+        console.error('[api] Stream error:', err);
+        onError?.('Something went wrong. Please try again.');
       }
     }
   })();

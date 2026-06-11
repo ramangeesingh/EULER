@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Cpu, LayoutDashboard, Layers, FolderTree,
@@ -16,6 +16,7 @@ import DeploymentView        from './DeploymentView';
 import DiagramView           from './DiagramView';
 import ArchChatPanel         from './ArchChatPanel';
 import SavedArchitecturesPanel from './SavedArchitecturesPanel';
+import { AIErrorBanner } from '../shared/AIErrorState';
 
 // ─── Tab definitions ────────────────────────────────────────────────────────
 const TABS = [
@@ -113,9 +114,11 @@ export default function ArchitectureEnginePage({ onClose }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [archData, setArchData] = useState(null); // { id, architecture, title, prompt }
   const [savedKey, setSavedKey] = useState(0); // force re-render saved panel
+  const lastGenerateArgs = useRef(null); // for retry
 
   // ── Generate ──────────────────────────────────────────────────────────────
   const handleGenerate = useCallback(async (prompt, preferences) => {
+    lastGenerateArgs.current = { prompt, preferences };
     setIsGenerating(true);
     setError(null);
     try {
@@ -290,16 +293,18 @@ export default function ArchitectureEnginePage({ onClose }) {
       {/* ── ERROR BANNER ────────────────────────────────────────────────── */}
       <AnimatePresence>
         {error && (
-          <motion.div
-            className="flex-shrink-0 mx-4 mt-3 px-4 py-2.5 rounded-xl text-sm text-red-300 flex items-center gap-2"
-            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-          >
-            ⚠️ {error}
-            <button onClick={() => setError(null)} className="ml-auto text-red-400/60 hover:text-red-300">✕</button>
-          </motion.div>
+          <div className="flex-shrink-0 px-4 pt-3">
+            <AIErrorBanner
+              onRetry={() => {
+                if (lastGenerateArgs.current) {
+                  const { prompt, preferences } = lastGenerateArgs.current;
+                  handleGenerate(prompt, preferences);
+                }
+              }}
+              onDismiss={() => setError(null)}
+              isRetrying={isGenerating}
+            />
+          </div>
         )}
       </AnimatePresence>
 

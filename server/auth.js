@@ -52,7 +52,7 @@ export async function requireAuth(req, res, next) {
         code:    supabaseError.code,
         name:    supabaseError.name,
       });
-      return res.status(401).json({ error: 'Unauthorized: Invalid token', detail: supabaseError.message });
+      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
 
     if (!user) {
@@ -155,9 +155,7 @@ export async function requireAuth(req, res, next) {
       stack:   err.stack,
     });
     res.status(500).json({
-      error:  'Authentication internal server error',
-      detail: err.message,
-      code:   err.code,
+      error: 'Authentication service error. Please try again.',
     });
   }
 }

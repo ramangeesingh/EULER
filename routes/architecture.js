@@ -7,7 +7,7 @@
  */
 
 import { Router } from 'express';
-import { geminiGenerate, geminiStream, parseJSON } from '../server/gemini.js';
+import { aiGenerate, aiStream, parseJSON, sanitizeError } from '../server/ai-gateway.js';
 
 const router = Router();
 
@@ -231,7 +231,7 @@ Return ONLY a valid JSON object (no markdown fences, no explanation outside JSON
 }`;
 
   try {
-    const raw = await geminiGenerate(ARCH_SYSTEM_PROMPT, userPrompt, 0.5);
+    const raw = await aiGenerate(ARCH_SYSTEM_PROMPT, userPrompt, 0.5);
     const architecture = parseJSON(raw, { overview: { appName: 'App', summary: raw } });
 
     // Store in memory
@@ -248,8 +248,7 @@ Return ONLY a valid JSON object (no markdown fences, no explanation outside JSON
 
     res.json({ success: true, id, architecture, savedAt: saved.createdAt });
   } catch (err) {
-    console.error('Architecture generate error:', err);
-    res.status(500).json({ error: err.message || 'Failed to generate architecture' });
+    res.status(500).json({ error: sanitizeError(err, 'arch/generate') });
   }
 });
 
@@ -270,17 +269,10 @@ Current Architecture Context:
 ${architectureContext ? JSON.stringify(architectureContext, null, 2).slice(0, 8000) : 'No architecture loaded yet.'}
 
 Help the user refine, expand, question, or modify their architecture. Be specific, technical, and actionable. Reference the existing architecture when relevant. Suggest concrete improvements with rationale. Use markdown for formatting when helpful.`;
-
-  const geminiContents = messages.map((m) => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }],
-  }));
-
   try {
-    await geminiStream(systemPrompt, geminiContents, res);
+    await aiStream(systemPrompt, messages, res);
   } catch (err) {
-    console.error('Architecture chat error:', err);
-    if (!res.headersSent) res.status(500).json({ error: err.message });
+    if (!res.headersSent) res.status(500).json({ error: sanitizeError(err, 'arch/chat') });
   }
 });
 
@@ -323,6 +315,102 @@ router.delete('/:id', (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// POST /api/architecture/log-error
+// Log detailed Mermaid parsing and rendering errors to server console only
+// ─────────────────────────────────────────────────────────────────────────────
+router.post('/log-error', (req, res) => {
+  const { error, type, context } = req.body;
+  console.error(`[Mermaid Error] Type: "${type}" | Context: "${context || 'N/A'}"\nError Details:\n${error}`);
+  res.json({ success: true });
+});
+
+// Helper functions for Mermaid sanitization
+function sanitizeLabel(label) {
+  if (!label) return '';
+  let cleaned = label;
+  
+  // 1. Replace parentheses ()
+  cleaned = cleaned.replace(/\s*\(([^)]*)\)/g, (match, p1) => ' - ' + p1);
+  cleaned = cleaned.replace(/[()]/g, ' ');
+
+  // 2. Replace slashes / and \
+  cleaned = cleaned.replace(/[\/\\]/g, ' ');
+
+  // 3. Replace colons :
+  cleaned = cleaned.replace(/:/g, ' ');
+
+  // 4. Remove unsupported special characters
+  cleaned = cleaned.replace(/\bNode\.js\b/gi, 'Node');
+  cleaned = cleaned.replace(/['"`]/g, ''); // Remove quotes
+  cleaned = cleaned.replace(/[\[\]\{\}]/g, ''); // Remove braces/brackets
+  cleaned = cleaned.replace(/[^a-zA-Z0-9\s.\-_]/g, '');
+
+  cleaned = cleaned.replace(/\s+/g, ' ');
+  cleaned = cleaned.replace(/\s*-\s*/g, ' - ');
+  return cleaned.trim();
+}
+
+function sanitizeMermaidCode(code) {
+  if (!code) return '';
+  
+  let sanitized = code.replace(/```mermaid\n?/gi, '')
+                      .replace(/```\n?/g, '')
+                      .trim();
+
+  const lines = sanitized.split('\n');
+  const processedLines = lines.map(line => {
+    if (line.trim().startsWith('%%') || !line.trim()) {
+      return line;
+    }
+
+    // Sequence diagram Note/Participant/Actor processing
+    let sequenceMatch = line.match(/^(.*?\bas\s+)(.+)$/i);
+    if (sequenceMatch) {
+      return sequenceMatch[1] + sanitizeLabel(sequenceMatch[2]);
+    }
+
+    // Sequence diagram message processing
+    let msgMatch = line.match(/^([^:]+:\s*)(.+)$/);
+    if (msgMatch && (line.includes('->') || line.includes('--'))) {
+      return msgMatch[1] + sanitizeLabel(msgMatch[2]);
+    }
+
+    // ER diagram relationships
+    let erMatch = line.match(/^([^:]+:\s*)(.+)$/);
+    if (erMatch && (line.includes('|') || line.includes('}') || line.includes('{'))) {
+      return erMatch[1] + sanitizeLabel(erMatch[2]);
+    }
+
+    let newLine = line;
+
+    // Matching patterns like ID["content"], ID("content"), ID[(content)], etc.
+    newLine = newLine.replace(/(\b[a-zA-Z0-9_-]+\s*\[\"\s*)(.*?)(\s*\"\])/g, (m, p1, p2, p3) => p1 + sanitizeLabel(p2) + p3);
+    newLine = newLine.replace(/(\b[a-zA-Z0-9_-]+\s*\(\"\s*)(.*?)(\s*\"\))/g, (m, p1, p2, p3) => p1 + sanitizeLabel(p2) + p3);
+    newLine = newLine.replace(/(\b[a-zA-Z0-9_-]+\s*\[\(\s*)(.*?)(\s*\)\])/g, (m, p1, p2, p3) => p1 + sanitizeLabel(p2) + p3);
+    newLine = newLine.replace(/(\b[a-zA-Z0-9_-]+\s*\(\[\s*)(.*?)(\s*\]\))/g, (m, p1, p2, p3) => p1 + sanitizeLabel(p2) + p3);
+    newLine = newLine.replace(/(\b[a-zA-Z0-9_-]+\s*\(\(\s*)(.*?)(\s*\)\))/g, (m, p1, p2, p3) => p1 + sanitizeLabel(p2) + p3);
+    newLine = newLine.replace(/(\b[a-zA-Z0-9_-]+\s*\[\[\s*)(.*?)(\s*\]\])/g, (m, p1, p2, p3) => p1 + sanitizeLabel(p2) + p3);
+    newLine = newLine.replace(/(\b[a-zA-Z0-9_-]+\s*\[\s*)(.*?)(\s*\])/g, (m, p1, p2, p3) => {
+      if (p2.startsWith('[') || p2.startsWith('"') || p2.startsWith('(')) return m;
+      return p1 + sanitizeLabel(p2) + p3;
+    });
+    newLine = newLine.replace(/(\b[a-zA-Z0-9_-]+\s*\(\s*)(.*?)(\s*\))/g, (m, p1, p2, p3) => {
+      if (p2.startsWith('[') || p2.startsWith('"') || p2.startsWith('(')) return m;
+      return p1 + sanitizeLabel(p2) + p3;
+    });
+    newLine = newLine.replace(/(\b[a-zA-Z0-9_-]+\s*\{\{\s*)(.*?)(\s*\}\})/g, (m, p1, p2, p3) => p1 + sanitizeLabel(p2) + p3);
+    newLine = newLine.replace(/(\b[a-zA-Z0-9_-]+\s*\{\s*)(.*?)(\s*\})/g, (m, p1, p2, p3) => {
+      if (p2.startsWith('{')) return m;
+      return p1 + sanitizeLabel(p2) + p3;
+    });
+
+    return newLine;
+  });
+
+  return processedLines.join('\n');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // POST /api/architecture/diagram
 // Generate a Mermaid.js diagram for a section of the architecture
 // ─────────────────────────────────────────────────────────────────────────────
@@ -342,8 +430,24 @@ router.post('/diagram', async (req, res) => {
   };
 
   try {
-    const raw = await geminiGenerate(
-      'You are an expert at creating Mermaid.js diagrams. Return ONLY the raw Mermaid diagram code, no explanation, no markdown fences.',
+    const raw = await aiGenerate(
+      `You are an expert at creating Mermaid.js diagrams.
+IMPORTANT:
+Generate valid Mermaid syntax only.
+Do not use:
+()
+/
+:
+{}
+[]
+quotes
+
+Use simple node labels such as:
+Frontend - React Vite
+Backend - Node Express
+Database - MongoDB
+
+Return only Mermaid code with no explanations.`,
       `${diagramPrompts[type] || diagramPrompts.system}
 
 Architecture context:
@@ -353,12 +457,14 @@ Return only the Mermaid diagram code starting with the diagram type (e.g., "flow
       0.3
     );
 
-    // Clean up any accidental fences
-    const diagram = raw.replace(/```mermaid\n?/g, '').replace(/```\n?/g, '').trim();
+    // Clean up markdown fences and sanitize code
+    const cleaned = raw.replace(/```mermaid\n?/gi, '').replace(/```\n?/g, '').trim();
+    const diagram = sanitizeMermaidCode(cleaned);
+    
+    console.log(`[Architecture Engine] Generated and sanitized diagram of type "${type}"`);
     res.json({ diagram, type });
   } catch (err) {
-    console.error('Diagram error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err, 'arch/diagram') });
   }
 });
 

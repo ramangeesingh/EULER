@@ -7,6 +7,7 @@ import {
   BarChart2, User, ShoppingBag, BookOpen, Puzzle, History,
   ExternalLink, X, Settings2,
 } from 'lucide-react';
+import { AIErrorBanner } from '../shared/AIErrorState';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SITE_TYPES = [
@@ -790,6 +791,7 @@ export default function BuildWebsitePage({ onClose }) {
   const [messages, setMessages]   = useState([]);
   const [input, setInput]         = useState('');
   const abortRef                  = useRef(null);
+  const lastPromptRef             = useRef(''); // for retry after error
 
   // ── Handle divider drag ──
   const handleDividerDrag = useCallback((clientX) => {
@@ -801,6 +803,7 @@ export default function BuildWebsitePage({ onClose }) {
 
   // ── Generate new website ──
   const handleGenerate = useCallback(async (promptText) => {
+    lastPromptRef.current = promptText;
     setIsGenerating(true);
     setError(null);
     const userMsg = { role: 'user', content: promptText };
@@ -833,12 +836,14 @@ export default function BuildWebsitePage({ onClose }) {
         return copy;
       });
     } catch (err) {
-      setError(err.message || 'Failed to generate website');
+      // Always show a clean error — never expose raw API messages to the user
+      console.error('[BuildWebsite] generate error:', err);
+      setError(true);
       setMessages(prev => {
         const copy = [...prev];
         copy[copy.length - 1] = {
           role: 'assistant',
-          content: `⚠️ Error: ${err.message}`,
+          content: 'Something went wrong. Please try again.',
           isStreaming: false,
           isError: true,
         };
@@ -1040,18 +1045,13 @@ export default function BuildWebsitePage({ onClose }) {
       {/* ── ERROR BANNER ── */}
       <AnimatePresence>
         {error && (
-          <motion.div
-            className="flex-shrink-0 mx-4 mt-2 px-4 py-2 rounded-xl text-[12px] text-red-300 flex items-center gap-2"
-            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
-          >
-            ⚠️ {error}
-            <button onClick={() => setError(null)} className="ml-auto text-red-400/60 hover:text-red-300">
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </motion.div>
+          <div className="flex-shrink-0 px-4 pt-2">
+            <AIErrorBanner
+              onRetry={() => { if (lastPromptRef.current) handleGenerate(lastPromptRef.current); }}
+              onDismiss={() => setError(null)}
+              isRetrying={isGenerating}
+            />
+          </div>
         )}
       </AnimatePresence>
 

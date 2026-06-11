@@ -9,7 +9,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import AdmZip from 'adm-zip';
-import { geminiGenerate, geminiStream } from '../server/gemini.js';
+import { aiGenerate, aiStream, sanitizeError, parseJSON } from '../server/ai-gateway.js';
 
 const router = Router();
 
@@ -120,18 +120,41 @@ function getLanguageStats(files) {
 // Upload & parse a ZIP, get initial AI summary
 // ─────────────────────────────────────────────────────────────
 router.post('/analyze', upload.single('file'), async (req, res) => {
+  console.log("[REPO_ANALYSIS] Repo analysis request received");
+  if (req.file) {
+    console.log(`[REPO_ANALYSIS] Repository filename: ${req.file.originalname}`);
+    console.log(`[REPO_ANALYSIS] Repository size: ${req.file.size} bytes`);
+  } else {
+    console.log("[REPO_ANALYSIS] No file provided in request");
+  }
+
   try {
+    // Stage 1: Repository cloning
+    console.log("[REPO_ANALYSIS] [Stage 1/7] Repository cloning: Not applicable (received ZIP upload direct to memory)");
+
+    // Stage 2: Repository reading
+    console.log("[REPO_ANALYSIS] [Stage 2/7] Repository reading started");
     if (!req.file) {
+      console.log("[REPO_ANALYSIS] Repository reading failed: No file uploaded");
       return res.status(400).json({ error: 'No file uploaded' });
     }
+    console.log("[REPO_ANALYSIS] Repository reading completed successfully");
 
+    // Stage 3: File extraction
+    console.log("[REPO_ANALYSIS] [Stage 3/7] File extraction from ZIP started");
     const { files, tree } = parseZip(req.file.buffer);
+    console.log(`[REPO_ANALYSIS] File extraction completed. Extracted text file count: ${Object.keys(files).length}`);
+
     const stats = getLanguageStats(files);
+    console.log(`[REPO_ANALYSIS] Repository language stats: ${JSON.stringify(stats)}`);
 
     if (Object.keys(files).length === 0) {
+      console.log("[REPO_ANALYSIS] File extraction failed: No readable text files found in ZIP");
       return res.status(400).json({ error: 'No readable text files found in ZIP' });
     }
 
+    // Stage 4: Chunking/indexing
+    console.log("[REPO_ANALYSIS] [Stage 4/7] Chunking/indexing repository files for AI context started");
     // Build a compact repo snapshot for Gemini (cap at ~80k chars)
     const MAX_CONTEXT = 80000;
     let contextStr = '';
@@ -159,6 +182,8 @@ router.post('/analyze', upload.single('file'), async (req, res) => {
       contextStr += snippet;
       included.push(path);
     }
+    console.log(`[REPO_ANALYSIS] Chunking/indexing completed. Included files count: ${included.length}`);
+    console.log(`[REPO_ANALYSIS] Total context payload size: ${contextStr.length} characters`);
 
     const systemPrompt = `You are an expert software architect and code analyst. Analyze codebases deeply and provide structured, actionable insights.`;
 
@@ -180,15 +205,29 @@ Return this exact JSON structure:
   "techStack": ["tech1", "tech2"]
 }`;
 
-    const raw = await geminiGenerate(systemPrompt, userPrompt, 0.3);
+    // Stage 5: Gemini request
+    console.log("[REPO_ANALYSIS] [Stage 5/7] Gemini request starting");
+    console.log(`[REPO_ANALYSIS] System prompt length: ${systemPrompt.length}`);
+    console.log(`[REPO_ANALYSIS] User prompt length: ${userPrompt.length}`);
 
+    const raw = await aiGenerate(systemPrompt, userPrompt, 0.3);
+
+    // Stage 6: Gemini response
+    console.log("[REPO_ANALYSIS] [Stage 6/7] Gemini response received");
+    console.log(`[REPO_ANALYSIS] Raw Gemini output length: ${raw?.length || 0}`);
+
+    // Stage 7: Analysis generation
+    console.log("[REPO_ANALYSIS] [Stage 7/7] Analysis generation and structuring started");
     let analysis = {};
     try {
       const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       analysis = JSON.parse(cleaned);
-    } catch {
+      console.log("[REPO_ANALYSIS] Analysis structure successfully parsed as JSON");
+    } catch (parseErr) {
+      console.warn(`[REPO_ANALYSIS] Analysis structuring failed, falling back to raw output: ${parseErr?.message}`);
       analysis = { summary: raw, projectName: req.file.originalname.replace('.zip', '') };
     }
+    console.log("[REPO_ANALYSIS] Analysis generation completed successfully");
 
     res.json({
       success: true,
@@ -203,8 +242,23 @@ Return this exact JSON structure:
       ),
     });
   } catch (err) {
-    console.error('Repo analyze error:', err);
-    res.status(500).json({ error: err.message || 'Failed to analyze repository' });
+    console.error("[REPO_ANALYSIS] REPO ANALYSIS ERROR:", err);
+    console.error("[REPO_ANALYSIS] ERROR MESSAGE:", err?.message);
+    console.error("[REPO_ANALYSIS] ERROR STACK:", err?.stack);
+
+    const errMessage = err?.message || err?.toString() || '';
+    if (
+      errMessage.includes('429') ||
+      errMessage.includes('500') ||
+      errMessage.includes('503') ||
+      /timeout|timed.?out/i.test(errMessage)
+    ) {
+      console.error("[REPO_ANALYSIS] ORIGINAL GEMINI ERROR RESPONSE DETAILS:", errMessage);
+    }
+
+    return res.status(500).json({
+      error: "AI service is busy. Please try again in a moment."
+    });
   }
 });
 
@@ -222,10 +276,9 @@ router.post('/explain', async (req, res) => {
     }`;
     const userPrompt = `Explain this file in detail:\n\nFile: ${filePath}\n\n\`\`\`\n${content.slice(0, 15000)}\n\`\`\`\n\nCover: purpose, key functions/classes, dependencies it uses, how it fits in the project, and any notable patterns or issues.`;
 
-    await geminiStream(systemPrompt, [{ role: 'user', parts: [{ text: userPrompt }] }], res);
+    await aiStream(systemPrompt, [{ role: 'user', content: userPrompt }], res);
   } catch (err) {
-    console.error('Explain error:', err);
-    if (!res.headersSent) res.status(500).json({ error: err.message });
+    if (!res.headersSent) res.status(500).json({ error: sanitizeError(err, 'repo/explain') });
   }
 });
 
@@ -246,7 +299,7 @@ router.post('/bugs', async (req, res) => {
       contextStr += snippet;
     }
 
-    const raw = await geminiGenerate(
+    const raw = await aiGenerate(
       'You are a senior code reviewer and security analyst. Find real issues in code.',
       `Analyze this codebase for bugs, security vulnerabilities, dead code, and code quality issues.
 
@@ -271,8 +324,7 @@ Respond with ONLY valid JSON (no markdown fences):
 
     res.json(result);
   } catch (err) {
-    console.error('Bugs error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err, 'repo/bugs') });
   }
 });
 
@@ -301,7 +353,7 @@ router.post('/deps', async (req, res) => {
 
     if (!contextStr) contextStr = 'No standard dependency files found';
 
-    const raw = await geminiGenerate(
+    const raw = await aiGenerate(
       'You are a dependency and security expert.',
       `Analyze these dependency files and respond with ONLY valid JSON:
 
@@ -328,8 +380,7 @@ ${contextStr}
 
     res.json(result);
   } catch (err) {
-    console.error('Deps error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err, 'repo/deps') });
   }
 });
 
@@ -349,7 +400,7 @@ router.post('/docs', async (req, res) => {
       contextStr += snippet;
     }
 
-    const raw = await geminiGenerate(
+    const raw = await aiGenerate(
       'You are a technical writer. Generate clear, developer-friendly documentation in Markdown.',
       `Generate comprehensive documentation for this project.
 
@@ -363,8 +414,7 @@ Write a full README.md with: overview, features, installation, usage, API refere
 
     res.json({ docs: raw });
   } catch (err) {
-    console.error('Docs error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err, 'repo/docs') });
   }
 });
 
@@ -376,7 +426,7 @@ router.post('/onboarding', async (req, res) => {
   const { analysis, fileTree, stats } = req.body;
 
   try {
-    const raw = await geminiGenerate(
+    const raw = await aiGenerate(
       'You are a senior engineer creating onboarding materials for new developers.',
       `Create a developer onboarding guide for this project.
 
@@ -389,8 +439,7 @@ Include: welcome message, project overview, tech stack explanation, how to run l
 
     res.json({ guide: raw });
   } catch (err) {
-    console.error('Onboarding error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err, 'repo/onboarding') });
   }
 });
 
@@ -413,15 +462,9 @@ ${(repoContext || '').slice(0, 60000)}
 
 Answer questions about this codebase precisely. Reference specific files and line numbers when relevant. You can explain code, suggest improvements, answer architecture questions, and help with debugging.`;
 
-    const geminiContents = messages.map((m) => ({
-      role: m.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: m.content }],
-    }));
-
-    await geminiStream(systemPrompt, geminiContents, res);
+    await aiStream(systemPrompt, messages, res);
   } catch (err) {
-    console.error('Repo chat error:', err);
-    if (!res.headersSent) res.status(500).json({ error: err.message });
+    if (!res.headersSent) res.status(500).json({ error: sanitizeError(err, 'repo/chat') });
   }
 });
 

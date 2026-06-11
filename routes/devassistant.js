@@ -7,7 +7,7 @@
  */
 
 import { Router } from 'express';
-import { geminiStream, geminiGenerate, parseJSON } from '../server/gemini.js';
+import { aiStream, aiGenerate, parseJSON, sanitizeError } from '../server/ai-gateway.js';
 
 const router = Router();
 
@@ -78,17 +78,10 @@ router.post('/chat', async (req, res) => {
     }
     systemPrompt += '\n\nUse this code context to inform your response. Reference specific parts of it directly.';
   }
-
-  const geminiContents = messages.map((m) => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }],
-  }));
-
   try {
-    await geminiStream(systemPrompt, geminiContents, res);
+    await aiStream(systemPrompt, messages, res);
   } catch (err) {
-    console.error('Dev assistant chat error:', err);
-    if (!res.headersSent) res.status(500).json({ error: err.message });
+    if (!res.headersSent) res.status(500).json({ error: sanitizeError(err, 'devassistant/chat') });
   }
 });
 
@@ -104,11 +97,10 @@ router.post('/explain', async (req, res) => {
   const userPrompt = `Explain this ${language || 'code'}${filename ? ` from ${filename}` : ''}:\n\n\`\`\`${language}\n${code.slice(0, 10000)}\n\`\`\``;
 
   try {
-    const result = await geminiGenerate(systemPrompt, userPrompt, 0.3);
+    const result = await aiGenerate(systemPrompt, userPrompt, 0.3);
     res.json({ explanation: result });
   } catch (err) {
-    console.error('Explain error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err, 'devassistant/explain') });
   }
 });
 
@@ -140,12 +132,11 @@ Respond with ONLY this JSON structure:
 }`;
 
   try {
-    const raw = await geminiGenerate(systemPrompt, userPrompt, 0.2);
+    const raw = await aiGenerate(systemPrompt, userPrompt, 0.2);
     const result = parseJSON(raw, { rootCause: raw, explanation: '', fix: '', prevention: '', severity: 'high' });
     res.json(result);
   } catch (err) {
-    console.error('Debug error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err, 'devassistant/debug') });
   }
 });
 
@@ -165,7 +156,7 @@ ${codeContext ? `Code context: ${codeContext.slice(0, 2000)}` : ''}
 Respond with ONLY: { "suggestions": ["question 1", "question 2", "question 3", "question 4", "question 5"] }`;
 
   try {
-    const raw = await geminiGenerate(systemPrompt, userPrompt, 0.7);
+    const raw = await aiGenerate(systemPrompt, userPrompt, 0.7);
     const result = parseJSON(raw, { suggestions: [] });
     res.json(result);
   } catch (err) {
