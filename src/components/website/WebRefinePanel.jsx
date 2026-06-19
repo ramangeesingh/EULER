@@ -5,6 +5,8 @@ import {
   Sparkles, CornerDownLeft,
 } from 'lucide-react';
 import { EulerLoader } from '../shared/EulerLogo';
+import { useAuth } from '../../context/AuthContext';
+import { UserAvatar } from '../shared/UserAvatar';
 
 // ─── Suggestion chips ────────────────────────────────────────────────────────
 const SUGGESTIONS = [
@@ -22,6 +24,7 @@ const SUGGESTIONS = [
 function MessageBubble({ message }) {
   const [copied, setCopied] = useState(false);
   const isUser = message.role === 'user';
+  const { user } = useAuth();
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -87,16 +90,16 @@ function MessageBubble({ message }) {
       transition={{ duration: 0.2 }}
     >
       {/* Avatar */}
-      <div
-        className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[11px] font-bold mt-0.5"
-        style={
-          isUser
-            ? { background: 'linear-gradient(135deg, #2563EB, #3B82F6)', color: '#fff' }
-            : { background: 'rgba(37, 99, 235,0.15)', border: '1px solid rgba(37, 99, 235,0.3)' }
-        }
-      >
-        {isUser ? 'U' : <Sparkles className="w-3.5 h-3.5 text-blue-400" />}
-      </div>
+      {isUser ? (
+        <UserAvatar user={user} size={28} style={{ alignSelf: 'flex-start', marginTop: '2px' }} />
+      ) : (
+        <div
+          className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center text-[11px] font-bold mt-0.5"
+          style={{ background: 'rgba(37, 99, 235,0.15)', border: '1px solid rgba(37, 99, 235,0.3)' }}
+        >
+          <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+        </div>
+      )}
 
       {/* Bubble */}
       <div

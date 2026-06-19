@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Send, Bot, User } from 'lucide-react';
+import { Send, Bot } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { UserAvatar } from '../shared/UserAvatar';
 
 export default function RepoChatPanel({ files, analysis }) {
   const [messages, setMessages] = useState([
@@ -13,6 +15,7 @@ export default function RepoChatPanel({ files, analysis }) {
   const [isStreaming, setIsStreaming] = useState(false);
   const abortRef = useRef(null);
   const bottomRef = useRef(null);
+  const { user } = useAuth();
 
   // Build repo context string (cap at 60k chars)
   const buildContext = useCallback(() => {
@@ -138,12 +141,12 @@ export default function RepoChatPanel({ files, analysis }) {
               style={{
                 background: msg.role === 'assistant'
                   ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
-                  : 'rgba(255,255,255,0.06)',
+                  : 'transparent',
               }}
             >
               {msg.role === 'assistant'
                 ? <Bot className="w-3.5 h-3.5 text-white" />
-                : <User className="w-3.5 h-3.5 text-gray-400" />
+                : <UserAvatar user={user} size={28} />
               }
             </div>
             <div

@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, Sparkles } from 'lucide-react';
 import { AIErrorBanner } from '../shared/AIErrorState';
 import { EulerLoader } from '../shared/EulerLogo';
+import { useAuth } from '../../context/AuthContext';
+import { UserAvatar } from '../shared/UserAvatar';
 
 const STARTER_QUESTIONS = [
   'How should I handle file uploads at scale?',
@@ -12,7 +14,7 @@ const STARTER_QUESTIONS = [
   'How can I improve the security posture?',
 ];
 
-function MessageBubble({ msg }) {
+function MessageBubble({ msg, user }) {
   const isUser = msg.role === 'user';
   return (
     <motion.div
@@ -21,20 +23,19 @@ function MessageBubble({ msg }) {
       animate={{ opacity: 1, y: 0 }}
     >
       {/* Avatar */}
-      <div
-        className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center mt-0.5"
-        style={{
-          background: isUser
-            ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
-            : 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(255,255,255,0.1)',
-        }}
-      >
-        {isUser
-          ? <User className="w-3.5 h-3.5 text-white" />
-          : <Bot className="w-3.5 h-3.5 text-blue-400" />
-        }
-      </div>
+      {isUser ? (
+        <UserAvatar user={user} size={28} style={{ alignSelf: 'flex-start', marginTop: '2px' }} />
+      ) : (
+        <div
+          className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center mt-0.5"
+          style={{
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.1)',
+          }}
+        >
+          <Bot className="w-3.5 h-3.5 text-blue-400" />
+        </div>
+      )}
 
       {/* Bubble */}
       <div
@@ -74,6 +75,7 @@ export default function ArchChatPanel({ architecture }) {
   const bottomRef = useRef(null);
   const abortRef = useRef(null);
   const textareaRef = useRef(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -217,7 +219,7 @@ export default function ArchChatPanel({ architecture }) {
           </motion.div>
         )}
         <AnimatePresence>
-          {messages.map((msg, i) => <MessageBubble key={i} msg={msg} />)}
+          {messages.map((msg, i) => <MessageBubble key={i} msg={msg} user={user} />)}
         </AnimatePresence>
         {/* Error banner with retry */}
         <AnimatePresence>

@@ -1,6 +1,8 @@
 import { useState, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Copy, CheckCircle, Bot, ChevronDown, ChevronRight } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { UserAvatar } from '../shared/UserAvatar';
 
 // ─── Language colour map ────────────────────────────────────────────────────
 const LANG_COLORS = {
@@ -271,6 +273,7 @@ const MODE_META = {
 const DevMessageBubble = memo(function DevMessageBubble({ message }) {
   const isUser    = message.role === 'user';
   const modeMeta  = isUser ? MODE_META[message.mode] : null;
+  const { user }  = useAuth();
 
   return (
     <motion.div
@@ -280,19 +283,19 @@ const DevMessageBubble = memo(function DevMessageBubble({ message }) {
       transition={{ duration: 0.2 }}
     >
       {/* Avatar */}
-      <div
-        className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center mt-0.5 text-[11px] font-bold"
-        style={
-          isUser
-            ? { background: 'linear-gradient(135deg, #2563EB, #3B82F6)', color: '#fff' }
-            : {
-                background: 'linear-gradient(135deg, rgba(37, 99, 235,0.2), rgba(59, 130, 246,0.12))',
-                border: '1px solid rgba(37, 99, 235,0.3)',
-              }
-        }
-      >
-        {isUser ? 'U' : <Bot className="w-3.5 h-3.5 text-blue-400" />}
-      </div>
+      {isUser ? (
+        <UserAvatar user={user} size={28} style={{ alignSelf: 'flex-start', marginTop: '2px' }} />
+      ) : (
+        <div
+          className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center mt-0.5 text-[11px] font-bold"
+          style={{
+            background: 'linear-gradient(135deg, rgba(37, 99, 235,0.2), rgba(59, 130, 246,0.12))',
+            border: '1px solid rgba(37, 99, 235,0.3)',
+          }}
+        >
+          <Bot className="w-3.5 h-3.5 text-blue-400" />
+        </div>
+      )}
 
       {/* Bubble */}
       <div

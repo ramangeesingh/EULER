@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
-import { Sparkles, User } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useEffect, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { UserAvatar } from './shared/UserAvatar';
 
 /** Pulsing dot indicator while Euler is thinking/streaming */
 function StreamingIndicator() {
@@ -94,6 +96,7 @@ function renderContent(text) {
 
 export default function MessageList({ messages }) {
   const endRef = useRef(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -117,22 +120,19 @@ export default function MessageList({ messages }) {
             className={`flex gap-4 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
           >
             {/* Avatar */}
-            <div
-              className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center self-end mb-1"
-              style={{
-                background: isUser
-                  ? 'linear-gradient(135deg, #60A5FA 0%, #2563EB 100%)' // User avatar
-                  : 'rgba(37, 99, 235,0.18)', // AI avatar
-                border: '1px solid rgba(255,255,255,0.1)',
-                boxShadow: isUser ? '0 4px 12px rgba(37, 99, 235,0.3)' : 'none',
-              }}
-            >
-              {isUser ? (
-                <User className="w-[15px] h-[15px] text-white" />
-              ) : (
+            {isUser ? (
+              <UserAvatar user={user} size={32} style={{ alignSelf: 'flex-end', marginBottom: '4px' }} />
+            ) : (
+              <div
+                className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center self-end mb-1"
+                style={{
+                  background: 'rgba(37, 99, 235,0.18)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}
+              >
                 <Sparkles className="w-[15px] h-[15px] text-blue-400" />
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Chat Bubble */}
             <div

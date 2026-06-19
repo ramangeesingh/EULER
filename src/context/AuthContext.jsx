@@ -1,8 +1,9 @@
 // src/context/AuthContext.jsx
 // Global auth state — wraps the entire app
 
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
+import { getAvatarUrl, getDisplayName } from '../components/shared/UserAvatar';
 
 const AuthContext = createContext(null);
 
@@ -110,6 +111,10 @@ export function AuthProvider({ children }) {
     setEmailVerifiedNotification(false);
   }, []);
 
+  // ── Derived avatar helpers (memoised so referential identity is stable) ──────
+  const avatarUrl   = useMemo(() => getAvatarUrl(user),   [user]);
+  const displayName = useMemo(() => getDisplayName(user), [user]);
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -123,6 +128,9 @@ export function AuthProvider({ children }) {
       clearError,
       emailVerifiedNotification,
       clearEmailVerifiedNotification,
+      // ── Avatar helpers ──────────────────────────────
+      avatarUrl,
+      displayName,
     }}>
       {children}
     </AuthContext.Provider>
