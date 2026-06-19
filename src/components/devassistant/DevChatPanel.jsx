@@ -135,6 +135,7 @@ export default function DevChatPanel({ conversation, onUpdateMessages }) {
   // ── Send message ───────────────────────────────────────────
   const handleSend = useCallback(async ({ text, mode, code }) => {
     if (!text.trim() || isStreaming) return;
+    console.log('[CHAT] Generation started');
 
     const ctx = code || codeContext;
     const userMsg = { role: 'user', content: text, timestamp: Date.now(), mode };
@@ -146,7 +147,19 @@ export default function DevChatPanel({ conversation, onUpdateMessages }) {
     setSuggestions([]);
 
     const controller = new AbortController();
-    abortRef.current = () => controller.abort();
+    abortRef.current = () => {
+      console.log('[CHAT] Stop requested');
+      controller.abort();
+      setMessages((prev) => {
+        const copy = [...prev];
+        const last = copy[copy.length - 1];
+        if (last?.role === 'assistant') {
+          copy[copy.length - 1] = { ...last, isStreaming: false };
+        }
+        return copy;
+      });
+      setIsStreaming(false);
+    };
 
     try {
       const res = await fetch('/api/devassistant/chat', {
@@ -195,7 +208,10 @@ export default function DevChatPanel({ conversation, onUpdateMessages }) {
         }
       }
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name === 'AbortError') {
+        console.log('[CHAT] Stream aborted');
+        console.log('[CHAT] Generation cancelled successfully');
+      } else {
         setMessages((prev) => {
           const copy = [...prev];
           const last = copy[copy.length - 1];

@@ -259,6 +259,20 @@ function AppShell() {
           onSendMessage={handleSendMessage}
           hasActiveChat={messages.length > 0}
           isStreaming={isStreaming}
+          onAbort={() => {
+            console.log('[CHAT] Stop requested');
+            abortRef.current?.();
+            abortRef.current = null;
+            setIsStreaming(false);
+            setMessages((curr) => {
+              const copy = [...curr];
+              const lastIdx = copy.length - 1;
+              if (copy[lastIdx]?.role === 'assistant') {
+                copy[lastIdx] = { ...copy[lastIdx], isStreaming: false };
+              }
+              return copy;
+            });
+          }}
           onAction={setActiveFeature}
         />
       </div>

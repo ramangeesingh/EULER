@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MessageSquare, Send, Wand2, Copy, CheckCircle,
-  Sparkles, CornerDownLeft,
+  Sparkles, CornerDownLeft, Square,
 } from 'lucide-react';
 import { EulerLoader } from '../shared/EulerLogo';
 import { useAuth } from '../../context/AuthContext';
@@ -153,6 +153,7 @@ Tell me what you'd like to change — add sections, adjust colors, modify layout
   const handleSend = useCallback(async (text) => {
     const msg = text || input.trim();
     if (!msg || isStreaming) return;
+    console.log('[CHAT] Generation started');
     setInput('');
     setShowSuggestions(false);
 
@@ -212,7 +213,10 @@ Tell me what you'd like to change — add sections, adjust colors, modify layout
         }
       }
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name === 'AbortError') {
+        console.log('[CHAT] Stream aborted');
+        console.log('[CHAT] Generation cancelled successfully');
+      } else {
         setMessages((prev) => {
           const copy = [...prev];
           const last = copy[copy.length - 1];
@@ -243,6 +247,20 @@ Tell me what you'd like to change — add sections, adjust colors, modify layout
     }
   };
 
+  const handleAbort = useCallback(() => {
+    console.log('[CHAT] Stop requested');
+    abortRef.current?.();
+    abortRef.current = null;
+    setMessages((prev) => {
+      const copy = [...prev];
+      const last = copy[copy.length - 1];
+      if (last?.role === 'assistant') {
+        copy[copy.length - 1] = { ...last, isStreaming: false };
+      }
+      return copy;
+    });
+    setIsStreaming(false);
+  }, []);
   return (
     <div className="h-full flex flex-col" style={{ background: 'rgba(0,0,0,0.2)' }}>
       {/* ── Header ── */}
@@ -341,24 +359,51 @@ Tell me what you'd like to change — add sections, adjust colors, modify layout
               e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
             }}
           />
-          <motion.button
-            onClick={() => handleSend()}
-            disabled={!input.trim() || isStreaming}
-            className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mb-0.5 transition-all"
-            style={{
-              background: input.trim() && !isStreaming
-                ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
-                : 'rgba(255,255,255,0.05)',
-              boxShadow: input.trim() && !isStreaming ? '0 4px 14px rgba(37, 99, 235,0.4)' : 'none',
-            }}
-            whileHover={input.trim() ? { scale: 1.06 } : {}}
-            whileTap={input.trim() ? { scale: 0.94 } : {}}
-          >
-            {isStreaming
-              ? <EulerLoader className="w-3.5 h-3.5" />
-              : <Send className="w-3.5 h-3.5 text-white" />
-            }
-          </motion.button>
+          <AnimatePresence mode="wait" initial={false}>
+            {isStreaming ? (
+              <motion.button
+                key="stop"
+                onClick={handleAbort}
+                title="Stop generating"
+                className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mb-0.5"
+                style={{
+                  background: 'rgba(239,68,68,0.15)',
+                  border: '1px solid rgba(239,68,68,0.4)',
+                  boxShadow: '0 0 10px rgba(239,68,68,0.15)',
+                }}
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                whileHover={{ scale: 1.07 }}
+                whileTap={{ scale: 0.93 }}
+              >
+                <Square className="w-3.5 h-3.5 text-red-400 fill-current" />
+              </motion.button>
+            ) : (
+              <motion.button
+                key="send"
+                onClick={() => handleSend()}
+                disabled={!input.trim()}
+                title="Send message"
+                className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mb-0.5 transition-all"
+                style={{
+                  background: input.trim()
+                    ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
+                    : 'rgba(255,255,255,0.05)',
+                  boxShadow: input.trim() ? '0 4px 14px rgba(37, 99, 235,0.4)' : 'none',
+                }}
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                whileHover={input.trim() ? { scale: 1.06 } : {}}
+                whileTap={input.trim() ? { scale: 0.94 } : {}}
+              >
+                <Send className="w-3.5 h-3.5 text-white" />
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
         <p className="text-[10.5px] text-gray-600 mt-1.5 flex items-center gap-1">
           <CornerDownLeft className="w-2.5 h-2.5" />

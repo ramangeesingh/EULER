@@ -8,6 +8,7 @@
  * @returns {() => void} abort function to cancel the stream
  */
 export function streamChat(messages, { onToken, onComplete, onError, accessToken, chatId }) {
+  console.log('[CHAT] Generation started');
   const controller = new AbortController();
 
   (async () => {
@@ -79,7 +80,10 @@ export function streamChat(messages, { onToken, onComplete, onError, accessToken
       // Stream ended without [DONE] — still call onComplete
       onComplete?.(fullText, metadata);
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name === 'AbortError') {
+        console.log('[CHAT] Stream aborted');
+        console.log('[CHAT] Generation cancelled successfully');
+      } else {
         console.error('[api] Stream error:', err);
         onError?.('Something went wrong. Please try again.');
       }

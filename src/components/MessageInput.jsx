@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Mic, Plus, X, Upload, Globe, Code, Network } from 'lucide-react';
+import { Send, Mic, Plus, X, Upload, Globe, Code, Network, Square } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 
 /**
@@ -35,7 +35,7 @@ function getArcPosition(index, total) {
   };
 }
 
-export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
+export default function MessageInput({ onSendMessage, isStreaming, onAbort, onAction }) {
   const [input, setInput] = useState('');
   const [showActions, setShowActions] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
@@ -424,21 +424,51 @@ export default function MessageInput({ onSendMessage, isStreaming, onAction }) {
             <Mic className={`w-[17px] h-[17px] relative z-10 ${isListening ? 'text-red-400' : 'text-gray-400'}`} />
           </motion.button>
 
-          {/* Send button */}
-          <motion.button
-            onClick={handleSend}
-            disabled={!input.trim()}
-            className="w-[44px] h-[44px] rounded-full flex items-center justify-center shrink-0"
-            style={{
-              background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
-              boxShadow: '0 0 24px rgba(37, 99, 235,0.55)',
-              opacity: input.trim() ? 1 : 0.85,
-            }}
-            whileHover={input.trim() ? { scale: 1.07 } : {}}
-            whileTap={input.trim() ? { scale: 0.93 } : {}}
-          >
-            <Send className="w-[17px] h-[17px] text-white" style={{ transform: 'translateX(1px)' }} />
-          </motion.button>
+          {/* Send / Stop button */}
+          <AnimatePresence mode="wait" initial={false}>
+            {isStreaming ? (
+              <motion.button
+                key="stop"
+                onClick={onAbort}
+                title="Stop generating"
+                className="w-[44px] h-[44px] rounded-full flex items-center justify-center shrink-0"
+                style={{
+                  background: 'rgba(239,68,68,0.15)',
+                  border: '1.5px solid rgba(239,68,68,0.45)',
+                  boxShadow: '0 0 16px rgba(239,68,68,0.2)',
+                }}
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+                whileHover={{ scale: 1.07, boxShadow: '0 0 24px rgba(239,68,68,0.35)' }}
+                whileTap={{ scale: 0.93 }}
+              >
+                <Square className="w-[15px] h-[15px] text-red-400 fill-current" />
+              </motion.button>
+            ) : (
+              <motion.button
+                key="send"
+                onClick={handleSend}
+                disabled={!input.trim()}
+                title="Send message"
+                className="w-[44px] h-[44px] rounded-full flex items-center justify-center shrink-0"
+                style={{
+                  background: 'linear-gradient(135deg, #2563EB 0%, #3B82F6 100%)',
+                  boxShadow: '0 0 24px rgba(37, 99, 235,0.55)',
+                  opacity: input.trim() ? 1 : 0.85,
+                }}
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+                whileHover={input.trim() ? { scale: 1.07 } : {}}
+                whileTap={input.trim() ? { scale: 0.93 } : {}}
+              >
+                <Send className="w-[17px] h-[17px] text-white" style={{ transform: 'translateX(1px)' }} />
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

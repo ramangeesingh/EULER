@@ -5,7 +5,7 @@ import {
   RefreshCw, Plus, CheckCircle, Sparkles, Code2,
   Eye, FileCode, Send, Wand2, ChevronRight, LayoutTemplate,
   BarChart2, User, ShoppingBag, BookOpen, Puzzle, History,
-  ExternalLink, X, Settings2,
+  ExternalLink, X, Settings2, Square,
 } from 'lucide-react';
 import { AIErrorBanner } from '../shared/AIErrorState';
 import { EulerLoader } from '../shared/EulerLogo';
@@ -58,7 +58,7 @@ const PREVIEW_TABS = [
 // ─── Left Panel — AI Chat ─────────────────────────────────────────────────────
 function LeftPanel({
   messages, input, setInput, isGenerating, isRefining,
-  onSend, onGenerate, siteType, setSiteType, style, setStyle,
+  onSend, onGenerate, onAbort, siteType, setSiteType, style, setStyle,
   showSettings, setShowSettings, onNew, generationCount,
 }) {
   const messagesEndRef = useRef(null);
@@ -355,24 +355,54 @@ function LeftPanel({
             )}
             <div className="flex-1" />
             <span className="text-[10px] text-gray-700">↵ Send · ⇧↵ New line</span>
-            <motion.button
-              onClick={handleSubmit}
-              disabled={!input.trim() || !isIdle}
-              className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
-              style={{
-                background: input.trim() && isIdle
-                  ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
-                  : 'rgba(255,255,255,0.06)',
-                boxShadow: input.trim() && isIdle ? '0 4px 14px rgba(37,99,235,0.4)' : 'none',
-                opacity: !input.trim() ? 0.4 : 1,
-              }}
-              whileHover={input.trim() && isIdle ? { scale: 1.08 } : {}}
-              whileTap={input.trim() && isIdle ? { scale: 0.92 } : {}}
-            >
-              {isGenerating || isRefining
-                ? <EulerLoader className="w-3.5 h-3.5" />
-                : <Send className="w-3.5 h-3.5 text-white" />}
-            </motion.button>
+            <AnimatePresence mode="wait" initial={false}>
+              {isRefining ? (
+                <motion.button
+                  key="stop"
+                  onClick={onAbort}
+                  title="Stop generating"
+                  className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+                  style={{
+                    background: 'rgba(239,68,68,0.15)',
+                    border: '1px solid rgba(239,68,68,0.4)',
+                    boxShadow: '0 0 10px rgba(239,68,68,0.12)',
+                  }}
+                  initial={{ scale: 0.7, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.7, opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.92 }}
+                >
+                  <Square className="w-3.5 h-3.5 text-red-400 fill-current" />
+                </motion.button>
+              ) : (
+                <motion.button
+                  key="send"
+                  onClick={handleSubmit}
+                  disabled={!input.trim() || !isIdle}
+                  title="Send message"
+                  className="w-8 h-8 rounded-xl flex items-center justify-center transition-all"
+                  style={{
+                    background: input.trim() && isIdle
+                      ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
+                      : 'rgba(255,255,255,0.06)',
+                    boxShadow: input.trim() && isIdle ? '0 4px 14px rgba(37,99,235,0.4)' : 'none',
+                    opacity: !input.trim() ? 0.4 : 1,
+                  }}
+                  initial={{ scale: 0.7, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.7, opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                  whileHover={input.trim() && isIdle ? { scale: 1.08 } : {}}
+                  whileTap={input.trim() && isIdle ? { scale: 0.92 } : {}}
+                >
+                  {isGenerating
+                    ? <EulerLoader className="w-3.5 h-3.5" />
+                    : <Send className="w-3.5 h-3.5 text-white" />}
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -858,6 +888,7 @@ export default function BuildWebsitePage({ onClose }) {
   // ── Refine existing website via AI chat ──
   const handleSend = useCallback(async (promptText) => {
     setIsRefining(true);
+    console.log('[CHAT] Generation started');
     const userMsg = { role: 'user', content: promptText };
     const assistantMsg = { role: 'assistant', content: '', isStreaming: true };
     setMessages(prev => [...prev, userMsg, assistantMsg]);
@@ -925,7 +956,10 @@ export default function BuildWebsitePage({ onClose }) {
       }
 
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name === 'AbortError') {
+        console.log('[CHAT] Stream aborted');
+        console.log('[CHAT] Generation cancelled successfully');
+      } else {
         setMessages(prev => {
           const copy = [...prev];
           const last = copy[copy.length - 1];
@@ -973,6 +1007,21 @@ export default function BuildWebsitePage({ onClose }) {
     URL.revokeObjectURL(url);
   }, [htmlCode, siteTitle]);
 
+  // ── Abort refine stream ──
+  const handleAbortRefine = useCallback(() => {
+    console.log('[CHAT] Stop requested');
+    abortRef.current?.();
+    abortRef.current = null;
+    setMessages((prev) => {
+      const copy = [...prev];
+      const last = copy[copy.length - 1];
+      if (last?.role === 'assistant') {
+        copy[copy.length - 1] = { ...last, isStreaming: false };
+      }
+      return copy;
+    });
+    setIsRefining(false);
+  }, []);
   // ── New website ──
   const handleNew = () => {
     abortRef.current?.();
@@ -1068,6 +1117,7 @@ export default function BuildWebsitePage({ onClose }) {
             isRefining={isRefining}
             onSend={handleSend}
             onGenerate={handleGenerate}
+            onAbort={handleAbortRefine}
             siteType={siteType}
             setSiteType={setSiteType}
             style={style}

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, Sparkles } from 'lucide-react';
+import { Send, Bot, Sparkles, Square } from 'lucide-react';
 import { AIErrorBanner } from '../shared/AIErrorState';
 import { EulerLoader } from '../shared/EulerLogo';
 import { useAuth } from '../../context/AuthContext';
@@ -81,8 +81,24 @@ export default function ArchChatPanel({ architecture }) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const handleAbort = () => {
+    console.log('[CHAT] Stop requested');
+    abortRef.current?.();
+    abortRef.current = null;
+    // Mark the last streaming message as done
+    setMessages((curr) => {
+      const copy = [...curr];
+      if (copy[copy.length - 1]?.role === 'assistant') {
+        copy[copy.length - 1] = { ...copy[copy.length - 1], isStreaming: false };
+      }
+      return copy;
+    });
+    setIsStreaming(false);
+  };
+
   const sendMessage = async (text, retrying = false) => {
     if (!text.trim() || isStreaming) return;
+    console.log('[CHAT] Generation started');
     lastInputRef.current = text;
     const userMsg = { role: 'user', content: text.trim() };
     const assistantMsg = { role: 'assistant', content: '', isStreaming: true };
@@ -148,7 +164,10 @@ export default function ArchChatPanel({ architecture }) {
         }
       }
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name === 'AbortError') {
+        console.log('[CHAT] Stream aborted');
+        console.log('[CHAT] Generation cancelled successfully');
+      } else {
         setStreamError(true);
         // Remove the empty streaming assistant message
         setMessages((curr) => {
@@ -251,25 +270,52 @@ export default function ArchChatPanel({ architecture }) {
             rows={1}
             disabled={isStreaming}
           />
-          <motion.button
-            onClick={() => sendMessage(input)}
-            disabled={!input.trim() || isStreaming}
-            className="p-2 rounded-xl flex items-center justify-center shrink-0 transition-all"
-            style={{
-              background: input.trim() && !isStreaming
-                ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
-                : 'rgba(255,255,255,0.06)',
-              opacity: input.trim() && !isStreaming ? 1 : 0.4,
-              cursor: input.trim() && !isStreaming ? 'pointer' : 'not-allowed',
-            }}
-            whileHover={input.trim() && !isStreaming ? { scale: 1.05 } : {}}
-            whileTap={input.trim() && !isStreaming ? { scale: 0.95 } : {}}
-          >
-            {isStreaming
-              ? <EulerLoader className="w-4 h-4" />
-              : <Send className="w-4 h-4 text-white" />
-            }
-          </motion.button>
+          <AnimatePresence mode="wait" initial={false}>
+            {isStreaming ? (
+              <motion.button
+                key="stop"
+                onClick={handleAbort}
+                title="Stop generating"
+                className="p-2 rounded-xl flex items-center justify-center shrink-0"
+                style={{
+                  background: 'rgba(239,68,68,0.15)',
+                  border: '1px solid rgba(239,68,68,0.4)',
+                  boxShadow: '0 0 12px rgba(239,68,68,0.15)',
+                }}
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                whileHover={{ scale: 1.07 }}
+                whileTap={{ scale: 0.93 }}
+              >
+                <Square className="w-4 h-4 text-red-400 fill-current" />
+              </motion.button>
+            ) : (
+              <motion.button
+                key="send"
+                onClick={() => sendMessage(input)}
+                disabled={!input.trim()}
+                title="Send message"
+                className="p-2 rounded-xl flex items-center justify-center shrink-0 transition-all"
+                style={{
+                  background: input.trim()
+                    ? 'linear-gradient(135deg, #2563EB, #3B82F6)'
+                    : 'rgba(255,255,255,0.06)',
+                  opacity: input.trim() ? 1 : 0.4,
+                  cursor: input.trim() ? 'pointer' : 'not-allowed',
+                }}
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                whileHover={input.trim() ? { scale: 1.05 } : {}}
+                whileTap={input.trim() ? { scale: 0.95 } : {}}
+              >
+                <Send className="w-4 h-4 text-white" />
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

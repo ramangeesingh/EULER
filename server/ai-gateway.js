@@ -243,11 +243,27 @@ export async function aiGenerate(systemPrompt, userPrompt, temperature = 0.4) {
  * @param {object} res - Express response
  */
 export async function aiStream(systemPrompt, messages, res, options = {}) {
+  console.log('[CHAT] Generation started');
+
   // Set SSE Headers
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no');
+
+  let isConnectionClosed = false;
+  let isStreamFinished = false;
+  const gatewayAbortController = new AbortController();
+
+  res.on('close', () => {
+    if (!isStreamFinished && !isConnectionClosed) {
+      isConnectionClosed = true;
+      console.log('[CHAT] Stop requested');
+      console.log('[CHAT] Stream aborted');
+      console.log('[CHAT] Generation cancelled successfully');
+      gatewayAbortController.abort();
+    }
+  });
 
   const geminiKey = PROVIDERS.GEMINI.getKey();
   const geminiUrl = `${PROVIDERS.GEMINI.baseUrl}/${PROVIDERS.GEMINI.model}:streamGenerateContent?alt=sse&key=${geminiKey}`;
@@ -264,6 +280,9 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
 
   // 1. Try Gemini with retries
   for (let attempt = 0; attempt <= 3; attempt++) {
+    if (gatewayAbortController.signal.aborted) {
+      break;
+    }
     try {
       if (isDev) {
         console.log(`[AI Gateway Stream] Trying Gemini (Attempt ${attempt + 1}/4)`);
@@ -276,6 +295,7 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
           systemInstruction: { parts: [{ text: systemPrompt }] },
           contents: geminiContents,
         }),
+        signal: gatewayAbortController.signal,
       });
 
       if (response.ok) {
@@ -287,10 +307,17 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
         lastGeminiError = `${response.status} - ${errText.slice(0, 100)}`;
       }
     } catch (err) {
+      if (err.name === 'AbortError' || gatewayAbortController.signal.aborted) {
+        lastGeminiError = 'Aborted';
+        break;
+      }
       lastGeminiError = err.message || String(err);
     }
 
     if (attempt < 3) {
+      if (gatewayAbortController.signal.aborted) {
+        break;
+      }
       if (isDev) {
         console.log(`[AI Gateway Stream] Gemini failed: ${lastGeminiError}. Retrying in ${retryDelays[attempt] / 1000}s...`);
       }
@@ -305,7 +332,7 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
   }
 
   // 2. Fallback to Groq if Gemini failed
-  if (!activeProvider) {
+  if (!activeProvider && !gatewayAbortController.signal.aborted) {
     const groqKey = PROVIDERS.GROQ.getKey();
     if (groqKey) {
       try {
@@ -327,6 +354,7 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
             ],
             stream: true,
           }),
+          signal: gatewayAbortController.signal,
         });
 
         if (response.ok) {
@@ -344,7 +372,7 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
   }
 
   // 3. Fallback to DeepSeek if Gemini and Groq failed
-  if (!activeProvider) {
+  if (!activeProvider && !gatewayAbortController.signal.aborted) {
     const deepseekKey = PROVIDERS.DEEPSEEK.getKey();
     if (deepseekKey) {
       try {
@@ -366,6 +394,7 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
             ],
             stream: true,
           }),
+          signal: gatewayAbortController.signal,
         });
 
         if (response.ok) {
@@ -383,10 +412,14 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
   }
 
   // If no provider could start a stream, send the generic error and terminate
-  if (!activeProvider || !currentResponse) {
+  if ((!activeProvider || !currentResponse) && !gatewayAbortController.signal.aborted) {
     res.write(`data: ${JSON.stringify({ error: 'Something went wrong. Please try again.' })}\n\n`);
     res.write('data: [DONE]\n\n');
     res.end();
+    return;
+  }
+
+  if (gatewayAbortController.signal.aborted) {
     return;
   }
 
@@ -398,6 +431,9 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
 
   try {
     while (true) {
+      if (gatewayAbortController.signal.aborted) {
+        break;
+      }
       const { done, value } = await reader.read();
       if (done) break;
 
@@ -406,6 +442,9 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
       buffer = lines.pop(); // Keep incomplete line
 
       for (const line of lines) {
+        if (gatewayAbortController.signal.aborted) {
+          break;
+        }
         const trimmed = line.trim();
         if (!trimmed || !trimmed.startsWith('data: ')) continue;
         const data = trimmed.slice(6);
@@ -424,7 +463,9 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
 
           if (textChunk) {
             fullText += textChunk;
-            res.write(`data: ${JSON.stringify({ content: textChunk })}\n\n`);
+            if (!gatewayAbortController.signal.aborted && !isConnectionClosed) {
+              res.write(`data: ${JSON.stringify({ content: textChunk })}\n\n`);
+            }
           }
         } catch {
           // Ignore parse errors from partial chunks
@@ -432,9 +473,14 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
       }
     }
   } catch (streamErr) {
-    console.error(`[AI Gateway Stream] Error mid-stream reading from ${activeProvider.name}:`, streamErr);
-    // Write generic end-of-stream error
-    res.write(`data: ${JSON.stringify({ error: 'Something went wrong. Please try again.' })}\n\n`);
+    if (streamErr.name === 'AbortError' || gatewayAbortController.signal.aborted) {
+      if (isDev) console.log('[AI Gateway Stream] Stream aborted mid-read');
+    } else {
+      console.error(`[AI Gateway Stream] Error mid-stream reading from ${activeProvider.name}:`, streamErr);
+      if (!gatewayAbortController.signal.aborted && !isConnectionClosed) {
+        res.write(`data: ${JSON.stringify({ error: 'Something went wrong. Please try again.' })}\n\n`);
+      }
+    }
   }
 
   if (options && typeof options.onComplete === 'function') {
@@ -445,7 +491,10 @@ export async function aiStream(systemPrompt, messages, res, options = {}) {
     }
   }
 
-  res.write('data: [DONE]\n\n');
-  res.end();
+  isStreamFinished = true;
+  if (!gatewayAbortController.signal.aborted && !isConnectionClosed) {
+    res.write('data: [DONE]\n\n');
+    res.end();
+  }
   return fullText;
 }

@@ -150,8 +150,10 @@ app.post('/api/chat', requireAuth, async (req, res) => {
           console.error('Title generation error:', titleErr);
         }
 
-        // Send final metadata chunk with chatId and title to the client
-        res.write(`data: ${JSON.stringify({ chatId: chat.id, title: finalTitle })}\n\n`);
+        // Send final metadata chunk with chatId and title to the client if connection is still active
+        if (!res.writableEnded && !res.finished && !res.req.destroyed) {
+          res.write(`data: ${JSON.stringify({ chatId: chat.id, title: finalTitle })}\n\n`);
+        }
       }
     });
   } catch (err) {

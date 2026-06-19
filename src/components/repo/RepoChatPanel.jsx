@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
-import { motion } from 'framer-motion';
-import { Send, Bot } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Bot, Square } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { UserAvatar } from '../shared/UserAvatar';
 
@@ -16,6 +16,19 @@ export default function RepoChatPanel({ files, analysis }) {
   const abortRef = useRef(null);
   const bottomRef = useRef(null);
   const { user } = useAuth();
+  const handleAbort = useCallback(() => {
+    console.log('[CHAT] Stop requested');
+    abortRef.current?.();
+    abortRef.current = null;
+    setMessages((prev) => {
+      const copy = [...prev];
+      if (copy[copy.length - 1]?.role === 'assistant') {
+        copy[copy.length - 1] = { ...copy[copy.length - 1], isStreaming: false };
+      }
+      return copy;
+    });
+    setIsStreaming(false);
+  }, []);
 
   // Build repo context string (cap at 60k chars)
   const buildContext = useCallback(() => {
@@ -31,6 +44,7 @@ export default function RepoChatPanel({ files, analysis }) {
 
   const sendMessage = useCallback(async () => {
     if (!input.trim() || isStreaming) return;
+    console.log('[CHAT] Generation started');
     const userMsg = { role: 'user', content: input.trim() };
     const assistantMsg = { role: 'assistant', content: '', isStreaming: true };
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
@@ -84,7 +98,10 @@ export default function RepoChatPanel({ files, analysis }) {
         }
       }
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name === 'AbortError') {
+        console.log('[CHAT] Stream aborted');
+        console.log('[CHAT] Generation cancelled successfully');
+      } else {
         setMessages((prev) => {
           const copy = [...prev];
           copy[copy.length - 1] = { ...copy[copy.length - 1], content: '⚠️ Error connecting to AI.', isError: true };
@@ -192,19 +209,49 @@ export default function RepoChatPanel({ files, analysis }) {
             className="flex-1 bg-transparent resize-none text-[13px] text-gray-200 placeholder-gray-600 focus:outline-none leading-6"
             style={{ maxHeight: '80px' }}
           />
-          <motion.button
-            onClick={sendMessage}
-            disabled={!input.trim() || isStreaming}
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{
-              background: input.trim() ? 'linear-gradient(135deg, #2563EB, #3B82F6)' : 'rgba(255,255,255,0.05)',
-              opacity: !input.trim() || isStreaming ? 0.5 : 1,
-            }}
-            whileHover={input.trim() ? { scale: 1.05 } : {}}
-            whileTap={input.trim() ? { scale: 0.95 } : {}}
-          >
-            <Send className="w-3.5 h-3.5 text-white" />
-          </motion.button>
+          <AnimatePresence mode="wait" initial={false}>
+            {isStreaming ? (
+              <motion.button
+                key="stop"
+                onClick={handleAbort}
+                title="Stop generating"
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{
+                  background: 'rgba(239,68,68,0.15)',
+                  border: '1px solid rgba(239,68,68,0.4)',
+                  boxShadow: '0 0 10px rgba(239,68,68,0.15)',
+                }}
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                whileHover={{ scale: 1.07 }}
+                whileTap={{ scale: 0.93 }}
+              >
+                <Square className="w-3.5 h-3.5 text-red-400 fill-current" />
+              </motion.button>
+            ) : (
+              <motion.button
+                key="send"
+                onClick={sendMessage}
+                disabled={!input.trim()}
+                title="Send message"
+                className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                style={{
+                  background: input.trim() ? 'linear-gradient(135deg, #2563EB, #3B82F6)' : 'rgba(255,255,255,0.05)',
+                  opacity: !input.trim() ? 0.5 : 1,
+                }}
+                initial={{ scale: 0.7, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.7, opacity: 0 }}
+                transition={{ duration: 0.18 }}
+                whileHover={input.trim() ? { scale: 1.05 } : {}}
+                whileTap={input.trim() ? { scale: 0.95 } : {}}
+              >
+                <Send className="w-3.5 h-3.5 text-white" />
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>
